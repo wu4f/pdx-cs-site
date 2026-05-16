@@ -1,0 +1,78 @@
+# Declarative config: which docs to ingest, how to split them, and which
+# categories the LLM is allowed to assign.
+
+docs:
+  - id: "11azwsMnSUPpR9ClIHSqZ3AcLvKdo0VqBMQyO9GacI9M"
+    splitter: tabs
+    name: "Main CS Site"
+
+  - id: "1Tp7lrY-nAgmlElgtDCxt3rrhJZuMN_9eBKARa7Ewb_Q"
+    splitter: headings
+    name: "Heading-split Content"
+
+categories:
+  allowed:
+    - about
+    - undergraduate
+    - graduate
+    - student-resources
+    - faculty
+    - news
+    - other
+
+templates:
+  page: "templates/base.html"
+
+# Sections whose pages should NOT appear in the landing-page index.
+# The HTML pages still get generated and remain reachable by URL, and the
+# chat can still cite them; they just aren't surfaced as links on the home
+# page. Used to suppress duplicates between the two source docs (we favor
+# the Graduate Handbook over the tabbed catalog where they overlap) and to
+# hide deprecated/archival content.
+landing_exclude:
+  # Duplicate of handbook 'Doctoral Degree (Ph.D.)'
+  - doctor-philosophy-phd
+  # Duplicate of handbook 'Graduate Assistantships'
+  - graduate-assistantships
+  # Duplicate of handbook 'Graduate Internship Credit'
+  - graduate-internship-credit
+  # Duplicate of handbook 'Cybersecurity Certificate'
+  - cybersecurity
+  # Duplicate of handbook 'Master's Degree (M.S.)'
+  - masters
+  # Duplicate of handbook 'Other Policies and Procedures' / 'Policy Problems'
+  - forms-and-policies
+  # Duplicate of handbook 'Grad Prep program'
+  - grad-prep
+  # Archival course listings
+  - deprecated-undergraduate-courses
+  - deprecated-graduate-courses
+  # Internal / draft handbook entries (not for public consumption)
+  - additional-possible-topics-ella
+  - internal-graduate-committee-tasks
+  - policy-problems
+  # Low-value handbook stubs
+  - introduction
+  - new-students
+
+# Force-set a section's category, overriding the LLM-inferred one. Keyed
+# by section id. Useful when the LLM classifies something inconveniently.
+category_overrides:
+  accreditation: about
+  support: about
+
+chat:
+  model: "gemini-2.5-flash"
+  # Sections marked here are treated as 'secondary' by the chat: when a
+  # question is also covered by a non-deprioritized ('primary') section,
+  # the model prefers and cites the primary one. Use this for older or
+  # less authoritative duplicates -- we favor the Graduate Handbook over
+  # the older catalog-style tabs where they overlap.
+  deprioritize:
+    - doctor-philosophy-phd
+    - graduate-assistantships
+    - graduate-internship-credit
+    - cybersecurity
+    - masters
+    - forms-and-policies
+    - grad-prep

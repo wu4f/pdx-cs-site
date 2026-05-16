@@ -1,0 +1,29 @@
+# nginx in front of FastAPI (which runs on 127.0.0.1:8080 via systemd or pm2).
+# Run `python -m cspdx.cli build` on a schedule to refresh build/site/.
+
+server {
+    listen 80;
+    server_name web.cs.pdx.edu;
+
+    # Static pages and landing
+    root /var/www/pdx-cs-site/build/site;
+    index index.html;
+
+    # Chat API + UI proxied to the FastAPI process
+    location /ask {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_read_timeout 120s;
+    }
+
+    location /admin/ {
+        # Restrict to campus or specific IPs in production
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
