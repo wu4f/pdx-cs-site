@@ -21,118 +21,145 @@
 .c12{font-weight:700}
 .c3{text-decoration:none;font-style:normal}
 .c4{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Minor">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c9 doc-content">
- <h1 class="c14" id="h.foaxhhzb0d29">
-  <span class="c3 c10">
+<h1 class="c14" id="h.foaxhhzb0d29">
+<span class="c3 c10">
    Minor
   </span>
- </h1>
- <h2 class="c15" id="h.bgblwm5os4nk">
-  <span class="c3 c12">
+</h1>
+<h2 class="c15" id="h.bgblwm5os4nk">
+<span class="c3 c12">
    Program Requirements
   </span>
- </h2>
- <p class="c13">
-  <span class="c2">
+</h2>
+<p class="c13">
+<span class="c2">
    The CS minor coursework enables students to learn one or more current programming languages and to develop and practice their problem-solving skills. Earning a CS minor in addition to a major program of study gives students seeking careers in liberal arts, business, health, and other fields an opportunity to increase their competitiveness in our increasingly technology-driven workplace.
   </span>
- </p>
- <p class="c13">
-  <span class="c2">
+</p>
+<p class="c13">
+<span class="c2">
    To earn a minor in computer science, a student must complete the requirements in the Bulletin for the relevant catalog year:
   </span>
- </p>
- <ul class="c7 lst-kix_45iuk31bao0i-0 start">
-  <li class="c5 li-bullet-0">
-   <span class="c0">
+</p>
+<ul class="c7 lst-kix_45iuk31bao0i-0 start">
+<li class="c5 li-bullet-0">
+<span class="c0">
     Current requirements
    </span>
-   <span class="c16">
-    <a class="c4" href="https://pdx.smartcatalogiq.com/en/2025-2026/bulletin/maseeh-college-of-engineering-and-computer-science/computer-science/undergraduate-program/computer-science-minor">
+<span class="c16">
+<a class="c4" href="https://pdx.smartcatalogiq.com/en/2025-2026/bulletin/maseeh-college-of-engineering-and-computer-science/computer-science/undergraduate-program/computer-science-minor">
      2025-2026
     </a>
-   </span>
-  </li>
-  <li class="c5 li-bullet-0">
-   <span class="c0">
+</span>
+</li>
+<li class="c5 li-bullet-0">
+<span class="c0">
     Earlier versions (for
    </span>
-   <span class="c6">
-    <a class="c4" href="http://pdx.smartcatalogiq.com/2020-2021/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
+<span class="c6">
+<a class="c4" href="http://pdx.smartcatalogiq.com/2020-2021/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
      2020-21
     </a>
-   </span>
-   <span>
+</span>
+<span>
     ,
    </span>
-   <span class="c6">
-    <a class="c4" href="http://pdx.smartcatalogiq.com/2021-2022/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
+<span class="c6">
+<a class="c4" href="http://pdx.smartcatalogiq.com/2021-2022/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
      2021-22
     </a>
-   </span>
-   <span>
+</span>
+<span>
     ,
    </span>
-   <span class="c6">
-    <a class="c4" href="http://pdx.smartcatalogiq.com/2022-2023/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
+<span class="c6">
+<a class="c4" href="http://pdx.smartcatalogiq.com/2022-2023/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
      2022-23,
     </a>
-   </span>
-   <span class="c0">
-   </span>
-   <span class="c6">
-    <a class="c4" href="http://pdx.smartcatalogiq.com/2023-2024/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
+</span>
+<span class="c0">
+</span>
+<span class="c6">
+<a class="c4" href="http://pdx.smartcatalogiq.com/2023-2024/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
      2023-24
     </a>
-   </span>
-   <span>
+</span>
+<span>
     ,
    </span>
-   <span class="c6">
-    <a class="c4" href="http://pdx.smartcatalogiq.com/2024-2025/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
+<span class="c6">
+<a class="c4" href="http://pdx.smartcatalogiq.com/2024-2025/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
      2024-25
     </a>
-   </span>
-   <span class="c6">
-    <a class="c4" href="http://pdx.smartcatalogiq.com/2022-2023/Bulletin/Maseeh-College-of-Engineering-and-Computer-Science/Computer-Science/Undergraduate-program/Computer-Science-Minor">
-    </a>
-   </span>
-   <span class="c0 c3">
+</span>
+<span class="c6">
+
+
+</span>
+<span class="c0 c3">
     )
    </span>
-  </li>
- </ul>
- <p class="c13">
-  <span class="c8">
+</li>
+</ul>
+<p class="c13">
+<span class="c8">
    Students following a catalog prior to 2023-24 should speak with an advisor about potential course substitutions. For guidance on how to add the minor to your degree program or graduation application, or to ask questions relating to course selection, please contact our Undergraduate Advisor, at
   </span>
-  <span class="c6">
+<span class="c6">
    uccs@pdx.edu
   </span>
-  <span class="c2">
+<span class="c2">
    .
   </span>
- </p>
- <p class="c11">
-  <span class="c1">
-  </span>
- </p>
+</p>
+<p class="c11">
+<span class="c1">
+</span>
+</p>
 </div>
 
               </div>
@@ -142,6 +169,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

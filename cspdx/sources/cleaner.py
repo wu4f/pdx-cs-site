@@ -43,6 +43,16 @@ def clean_exported_html(raw_html: str) -> tuple[str, str, str]:
     for a in soup.find_all("a", href=True):
         a["href"] = _unwrap_google_url(a["href"])
 
+    # WCAG 2.4.4 / 4.1.2 (link purpose / name, role, value):
+    # Drop <a> tags that have no accessible name and no image/SVG inside.
+    # Google's export occasionally produces these from invisible characters.
+    for a in soup.find_all("a"):
+        has_text = bool(a.get_text(strip=True))
+        has_image = a.find(["img", "svg"]) is not None
+        has_label = a.get("aria-label") or a.get("title")
+        if not has_text and not has_image and not has_label:
+            a.unwrap()
+
     body_html = ""
     body_tag = soup.find("body")
     if body_tag:

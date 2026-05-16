@@ -21,158 +21,185 @@
 .c8{font-weight:700}
 .c13{text-decoration:none;font-style:normal}
 .c6{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="PCEP Internship">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c16 doc-content">
- <h1 class="c12" id="h.svte989lrus1">
-  <span class="c13 c14">
+<h1 class="c12" id="h.svte989lrus1">
+<span class="c13 c14">
    PCEP Internship
   </span>
- </h1>
- <h2 class="c1" id="h.yafx1hcbh8l8">
-  <span class="c7">
+</h1>
+<h2 class="c1" id="h.yafx1hcbh8l8">
+<span class="c7">
    What is the PSU/PDX Cooperative Education Program?
   </span>
- </h2>
- <p class="c0">
-  <span class="c2">
+</h2>
+<p class="c0">
+<span class="c2">
    The PSU/PDX Cooperative Education Program (PCEP) is a two-year cooperative educational program in which Computer Science students work 20 hours per week at one of our local PCEP Partner companies in a series of defined internship roles, while concurrently taking between eight and twelve credits each term on-campus at PSU. Pay begins at $27 an hour with semi-annual raises. New internship cycles start approximately every six months (January and July), and interns must work at two or more PCEP companies in at least two different roles during the program.
   </span>
- </p>
- <h2 class="c1" id="h.2l2t3uyhm8df">
-  <span class="c7">
+</p>
+<h2 class="c1" id="h.2l2t3uyhm8df">
+<span class="c7">
    Why Should I Care?
   </span>
- </h2>
- <p class="c0">
-  <span class="c2">
+</h2>
+<p class="c0">
+<span class="c2">
    The PCEP co-op will give you real-life experience in two different roles (software development and software automation) at two or more different local software companies while allowing you to take eight to twelve credits of coursework each term on campus. Not only will you gain technical experience, you'll also learn how to work in a professional environment as part of a team developing commercial software for a global customer base, while simultaneously building your professional network. A PCEP co-op will jumpstart your career as a software professional.
   </span>
- </p>
- <h2 class="c1" id="h.y9x6regv7oze">
-  <span class="c7">
+</p>
+<h2 class="c1" id="h.y9x6regv7oze">
+<span class="c7">
    Who Qualifies?
   </span>
- </h2>
- <p class="c0">
-  <span class="c2">
+</h2>
+<p class="c0">
+<span class="c2">
    Any student admitted to the B.S. Computer Science degree program at Portland State University, who will have completed CS163, CS205, CS302, and CS314, with grades of B or better, by the time their co-op begins may apply. In addition, applicants must have a 3.0 GPA overall required Computer Science coursework, be over 18, and have the permanent right to work in the United States (some positions require U.S. citizenship). See the Student Expectations for more information.
   </span>
- </p>
- <h2 class="c1" id="h.ig2pnxxr8fgi">
-  <span class="c7">
+</p>
+<h2 class="c1" id="h.ig2pnxxr8fgi">
+<span class="c7">
    What are the Important Dates I should know about?
   </span>
- </h2>
- <p class="c0">
-  <span class="c2">
+</h2>
+<p class="c0">
+<span class="c2">
    *All dates are subject to change
   </span>
- </p>
- <p class="c0">
-  <span class="c8">
+</p>
+<p class="c0">
+<span class="c8">
    APRIL 10, 2025 (Thursday):
   </span>
-  <span class="c11">
+<span class="c11">
    Mandatory Orientation Session via Zoom. One session will be held at noon, and one will be held at 6:30 PM. Preregister for one of these by selecting a time using this
   </span>
-  <span class="c10">
-   <a class="c6" href="https://docs.google.com/forms/d/e/1FAIpQLSeWb34-i7WkPuXwF9mEtB_wbbr8NZRHNSFxLZexH_HvhHFKTQ/viewform">
+<span class="c10">
+<a class="c6" href="https://docs.google.com/forms/d/e/1FAIpQLSeWb34-i7WkPuXwF9mEtB_wbbr8NZRHNSFxLZexH_HvhHFKTQ/viewform">
     registration link
    </a>
-  </span>
-  <span class="c11">
+</span>
+<span class="c11">
    . You must attend this session in order to apply to the PCEP program. The registration cut-off is Tuesday, APRIL 8. A Zoom link will be sent to those that register using their
   </span>
-  <span class="c5">
-   <a class="c6" href="http://pdx.edu">
+<span class="c5">
+<a class="c6" href="http://pdx.edu">
     @pdx.edu
    </a>
-  </span>
-  <span class="c2">
+</span>
+<span class="c2">
    e-mail address by Wednesday, APRIL 9.
   </span>
- </p>
- <p class="c0">
-  <span class="c8">
+</p>
+<p class="c0">
+<span class="c8">
    APRIL 21, 2025 (Monday):
   </span>
-  <span class="c2">
+<span class="c2">
    Applications are due by noon (an application link will be emailed to those that register and attend Orientation).
   </span>
- </p>
- <p class="c0">
-  <span class="c8">
+</p>
+<p class="c0">
+<span class="c8">
    MAY 5, 2025 (Monday):
   </span>
-  <span class="c2">
+<span class="c2">
    PCEP Finalists invited to the RUSH.
   </span>
- </p>
- <p class="c0">
-  <span class="c8">
+</p>
+<p class="c0">
+<span class="c8">
    MAY 16, 2025 (Friday):
   </span>
-  <span class="c2">
+<span class="c2">
    PCEP RUSH.
   </span>
- </p>
- <p class="c0">
-  <span class="c8">
+</p>
+<p class="c0">
+<span class="c8">
    MAY 22, 2025 (Thursday):
   </span>
-  <span class="c2">
+<span class="c2">
    Placements Announced.
   </span>
- </p>
- <p class="c0">
-  <span class="c8">
+</p>
+<p class="c0">
+<span class="c8">
    July 1, 2025 (Tuesday):
   </span>
-  <span class="c2">
+<span class="c2">
    New interns begin work.
   </span>
- </p>
- <ul class="c4 lst-kix_rhqqojweze03-0 start">
-  <li class="c3 li-bullet-0">
-   <span class="c10">
-    <a class="c6" href="https://forms.gle/pNNBkZDNdX8xSFw4A">
+</p>
+<ul class="c4 lst-kix_rhqqojweze03-0 start">
+<li class="c3 li-bullet-0">
+<span class="c10">
+<a class="c6" href="https://forms.gle/pNNBkZDNdX8xSFw4A">
      Register
     </a>
-   </span>
-  </li>
- </ul>
- <h2 class="c1" id="h.apg1uliivs6u">
-  <span class="c7">
+</span>
+</li>
+</ul>
+<h2 class="c1" id="h.apg1uliivs6u">
+<span class="c7">
    Who are the PCEP Companies?
   </span>
- </h2>
- <p class="c0">
-  <span class="c2">
+</h2>
+<p class="c0">
+<span class="c2">
    The PCEP companies are among some of the most exciting software companies in the Portland Metro area. Their markets range from computer security and web analytics to healthcare, social media solutions and county government, as well as everything in between.
    <br/>
-   <br/>
+<br/>
    The PCEP companies are located in downtown Portland, so students have easy walking and public transportation options for getting back and forth between work and school. Many of the PCEP companies support hybrid or completely remote internships. In becoming a PCEP Partner, each company has acknowledged the student's educational goals are primary - they have agreed the internship program must augment, not conflict, with the educational goals of the student. This results in internships that are not only valuable to the company, but are also genuine educational experiences for the student.
   </span>
- </p>
- <p class="c9">
-  <span class="c13 c15">
-  </span>
- </p>
+</p>
+<p class="c9">
+<span class="c13 c15">
+</span>
+</p>
 </div>
 
               </div>
@@ -182,6 +209,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

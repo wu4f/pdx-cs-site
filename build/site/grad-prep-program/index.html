@@ -12,30 +12,57 @@
     <!-- css (always loaded from production site so preview deploys still look right) -->
     <link href="https://web.cs.pdx.edu/css/pdx-style.css" rel="stylesheet">
     
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Grad Prep program">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
-                  <p>Many graduates with degrees in fields other than Computer Science are interested in pursuing a M.S. in Computer Science. The Graduate Preparation (or &quot;Grad Prep&quot;) Track can assist a high performing, motivated student in mastering the essential computer science core necessary to be successful in the Master&#x27;s program. The Grad Prep Track consists of a Programming &amp; Languages Core and a Theory Core, comprised of many of the same classes taken by undergraduate Computer Science majors. For some of these courses, there is an option to test out by demonstrating mastery based on either prior academic preparation or professional/personal programming experience through a credit by exam process.<br/></p>
-<p>We encourage all prospective students to attend one of our<a href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform"> </a><u><a href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">monthly CS Postbac Info sessions</a></u> first to learn more about our<a href="https://www.pdx.edu/computer-science/postbaccalaureate"> </a><u><a href="https://www.pdx.edu/computer-science/postbaccalaureate">postbaccalaureate options</a></u>. Contact the <u><a href="https://www.pdx.edu/computer-science/advising-0">CS Graduate Advisor</a></u> (gccs@pdx.edu) for any questions.<br/></p>
+                  <p>Many graduates with degrees in fields other than Computer Science are interested in pursuing a M.S. in Computer Science. The Graduate Preparation (or "Grad Prep") Track can assist a high performing, motivated student in mastering the essential computer science core necessary to be successful in the Master's program. The Grad Prep Track consists of a Programming &amp; Languages Core and a Theory Core, comprised of many of the same classes taken by undergraduate Computer Science majors. For some of these courses, there is an option to test out by demonstrating mastery based on either prior academic preparation or professional/personal programming experience through a credit by exam process.<br/></p>
+<p>We encourage all prospective students to attend one of our <u><a href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">monthly CS Postbac Info sessions</a></u> first to learn more about our <u><a href="https://www.pdx.edu/computer-science/postbaccalaureate">postbaccalaureate options</a></u>. Contact the <u><a href="https://www.pdx.edu/computer-science/advising-0">CS Graduate Advisor</a></u> (gccs@pdx.edu) for any questions.<br/></p>
 <h2>Grad Prep Requirements<br/></h2>
-<p>To be eligible for admission to the CS Master&#x27;s program, Grad Prep students must complete the following courses with a B or better. <br/></p>
+<p>To be eligible for admission to the CS Master's program, Grad Prep students must complete the following courses with a B or better. <br/></p>
 <ul><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vSTzdml-T6ht8MYKOscLoTzku1esdbsUTkWqDDY4jwWN_AgDCXX7qJgrD7Y2mtQEGEuR7Vm1PYfekYN/pub">CS 160 Exploring Computer Science</a></u> (4 credits)*<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">CS 161 Intro to Programming &amp; Problem-solving</a></u> (4 credits)*<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">CS 162 Intro to Computer Science</a></u> (4 credits)*<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">CS 163 Data Structures</a></u> (4 credits)<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vTlRuiBW96eUzHuvLH2F7C2nQikt3ARDDCPLg52aUheq0ra83IjE2WlsKERgaeeeYX5a7qI6CeppnJD/pub">CS 205 System Programming &amp; Architecture</a></u> (4 credits)<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vTu696PrTMbunuwni0V7whXtju6mbBAgvcygwV4huoEjmKV6EXLvnoVvG0Pzzdsie6Ids5P7b5TkkVb/pub">CS 250 Discrete Structures I</a></u> (4 credits)<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vSufoea5_NlpebR3m8qyNAYbPFEfp_I0bz1S14b6ILSWZunqf0GfN0mPNi6jqk0AfWmCb59h9shnvN-/pub">CS 251 Discrete Structures II</a></u> (4 credits)<br/></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vTKMw8UYNbf9zyOyb2fK83w-AbbZbauOezinAmzNPLMDkpJoNg2oWzajYEJzCs3pVTdNbtu-oQR4_Vk/pub">CS 302 Programming Methodologies and Software Implementation</a></u> (4 credits)<strong><br/></strong></li><li><u><a href="https://docs.google.com/document/d/e/2PACX-1vRDyj919A9JDvEJ-pEyJVFLC2YyT247G5PKUdbQqAlXkdrcIGDPTvY5SVIV2pVJOHCP-2r9Nb4MLWBh/pub">CS 350 Algorithms and Complexity</a></u> (4 credits)<br/></li></ul>
 <p>* A student may begin with any of these courses, depending on their prior experience. See<u><a href="https://web.cs.pdx.edu/files/CS-Introductory-Courses.pdf"> Introductory Course Guide</a></u> for details.<br/></p>
 <h2>Admission to PSU<br/></h2>
-<p>To begin Grad Prep at PSU, prospective students must first apply for<a href="https://www.pdx.edu/admissions/postbaccalaureate"> </a><u><a href="https://www.pdx.edu/admissions/postbaccalaureate">postbaccalaureate admission</a></u>. Postbaccalaureate applications are processed as they are received, generally within 4-6 weeks.<br/></p>
+<p>To begin Grad Prep at PSU, prospective students must first apply for <u><a href="https://www.pdx.edu/admissions/postbaccalaureate">postbaccalaureate admission</a></u>. Postbaccalaureate applications are processed as they are received, generally within 4-6 weeks.<br/></p>
 <h2>Sample Schedules<br/></h2>
 <p>Students who did not take math beyond pre-calculus in their prior coursework are strongly advised to take at least one such course (e.g. calculus, linear algebra, discrete math, etc.) prior to taking CS 250. <br/></p>
 <ul><li>This<u><a href="https://web.cs.pdx.edu/files/Grad-Prep-Modest-Schedule.pdf"> sample program</a></u> assumes the student has modest programming experience and an adequate mathematical background. <br/></li><li>This<u><a href="https://web.cs.pdx.edu/files/Grad-Prep-NoExp-Schedule.pdf"> sample program</a></u> assumes the student has no prior programming experience and a limited mathematical background.<br/></li></ul>
@@ -53,6 +80,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

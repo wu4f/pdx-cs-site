@@ -25,167 +25,194 @@
 .c13{text-decoration:none;font-style:normal}
 .c10{text-decoration:inherit}
 .c21{font-weight:700}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Department">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c15 doc-content">
- <h1 class="c0" id="h.w8hfe3o0dt8j">
-  <span class="c13 c21 c22">
+<h1 class="c0" id="h.w8hfe3o0dt8j">
+<span class="c13 c21 c22">
    Department of Computer Science
   </span>
- </h1>
- <h2 class="c16" id="h.k0gwcwclqnl3">
-  <span class="c21">
+</h1>
+<h2 class="c16" id="h.k0gwcwclqnl3">
+<span class="c21">
    Overview
   </span>
- </h2>
- <p class="c4">
-  <span class="c9">
+</h2>
+<p class="c4">
+<span class="c9">
    The Department of Computer Science offers a full range of courses and degree programs. Our programs, in addition to the opportunities to develop professional skills through MECOP and PCEP, are designed to provide students with the educational background to achieve a career in the computing industry. With over 800 undergraduate CS majors and almost 200 graduate students, we offer a community to learn, discover, innovate, and share a curriculum based on the application and theoretical foundations of Computer Science.
   </span>
- </p>
- <p class="c4">
-  <span class="c9">
+</p>
+<p class="c4">
+<span class="c9">
    The department is home to 31 regular faculty members who specialize in a variety of research areas such as computer graphics and vision, computer security, databases, intelligent systems, programming languages, software engineering, open source software, sensor networks, and high performance computing.
   </span>
- </p>
- <p class="c4">
-  <span class="c9">
+</p>
+<p class="c4">
+<span class="c9">
    We invite you to join our Computer Science community and to explore our programs!
   </span>
- </p>
- <h2 class="c16" id="h.9456pxx7bo26">
-  <span class="c20 c13">
+</p>
+<h2 class="c16" id="h.9456pxx7bo26">
+<span class="c20 c13">
    Office Hours
   </span>
- </h2>
- <ul class="c1 lst-kix_2xmifoc177vz-0 start">
-  <li class="c3 li-bullet-0">
-   <span class="c9">
+</h2>
+<ul class="c1 lst-kix_2xmifoc177vz-0 start">
+<li class="c3 li-bullet-0">
+<span class="c9">
     9:00am - 4:00pm
    </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c9">
+</li>
+<li class="c3 li-bullet-0">
+<span class="c9">
     Students can drop off documents for staff and faculty at Locker 18 at the Fishbowl.
    </span>
-  </li>
- </ul>
- <h2 class="c16" id="h.e028e56hf6ju">
-  <span class="c20 c13">
+</li>
+</ul>
+<h2 class="c16" id="h.e028e56hf6ju">
+<span class="c20 c13">
    Email
   </span>
- </h2>
- <ul class="c1 lst-kix_6jsqwa3co5el-0 start">
-  <li class="c3 li-bullet-0">
-   <span class="c18">
+</h2>
+<ul class="c1 lst-kix_6jsqwa3co5el-0 start">
+<li class="c3 li-bullet-0">
+<span class="c18">
     CS Office:
    </span>
-   <span class="c2">
-    <a class="c10" href="mailto:csoffice@pdx.edu">
+<span class="c2">
+<a class="c10" href="mailto:csoffice@pdx.edu">
      csoffice@pdx.edu
     </a>
-   </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c18">
+</span>
+</li>
+<li class="c3 li-bullet-0">
+<span class="c18">
     Undergraduate Advising:
    </span>
-   <span class="c2">
-    <a class="c10" href="mailto:uccs@pdx.edu">
+<span class="c2">
+<a class="c10" href="mailto:uccs@pdx.edu">
      uccs@pdx.edu
     </a>
-   </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c18">
+</span>
+</li>
+<li class="c3 li-bullet-0">
+<span class="c18">
     Graduate Advising And Graduate Admissions:
    </span>
-   <span class="c2">
-    <a class="c10" href="mailto:gccs@pdx.edu">
+<span class="c2">
+<a class="c10" href="mailto:gccs@pdx.edu">
      gccs@pdx.edu
     </a>
-   </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c18">
+</span>
+</li>
+<li class="c3 li-bullet-0">
+<span class="c18">
     Department Services Coordinator:
    </span>
-   <span class="c2">
-    <a class="c10" href="mailto:elisa24@pdx.edu">
+<span class="c2">
+<a class="c10" href="mailto:elisa24@pdx.edu">
      elisa24@pdx.edu
     </a>
-   </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c18">
+</span>
+</li>
+<li class="c3 li-bullet-0">
+<span class="c18">
     Department Manager:
    </span>
-   <span class="c2">
-    <a class="c10" href="mailto:sarreal@pdx.edu">
+<span class="c2">
+<a class="c10" href="mailto:sarreal@pdx.edu">
      sarreal@pdx.edu
     </a>
-   </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c18">
+</span>
+</li>
+<li class="c3 li-bullet-0">
+<span class="c18">
     Department Chair:
    </span>
-   <span class="c2">
-    <a class="c10" href="mailto:wuchi@pdx.edu">
+<span class="c2">
+<a class="c10" href="mailto:wuchi@pdx.edu">
      wuchi@pdx.edu
     </a>
-   </span>
-  </li>
- </ul>
- <h2 class="c16" id="h.xz7n6bdvvh3n">
-  <span class="c13 c20">
+</span>
+</li>
+</ul>
+<h2 class="c16" id="h.xz7n6bdvvh3n">
+<span class="c13 c20">
    Phone
   </span>
- </h2>
- <ul class="c1 lst-kix_6jsqwa3co5el-0">
-  <li class="c3 li-bullet-0">
-   <span class="c9">
+</h2>
+<ul class="c1 lst-kix_6jsqwa3co5el-0">
+<li class="c3 li-bullet-0">
+<span class="c9">
     503-725-4036
    </span>
-  </li>
- </ul>
- <h2 class="c0" id="h.9h29ooh2tbls">
-  <span class="c20 c13">
+</li>
+</ul>
+<h2 class="c0" id="h.9h29ooh2tbls">
+<span class="c20 c13">
    Addresses
   </span>
- </h2>
- <ul class="c1 lst-kix_84fjnvqf804i-0 start">
-  <li class="c3 li-bullet-0">
-   <span class="c12">
+</h2>
+<ul class="c1 lst-kix_84fjnvqf804i-0 start">
+<li class="c3 li-bullet-0">
+<span class="c12">
     Physical Address:
     <br/>
-   </span>
-   <span class="c9">
+</span>
+<span class="c9">
     1900 SW 4th Avenue, Suite 120
     <br/>
     Portland, OR 97201
    </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c12">
+</li>
+<li class="c3 li-bullet-0">
+<span class="c12">
     Mailing Address:
     <br/>
-   </span>
-   <span class="c18">
+</span>
+<span class="c18">
     Computer Science Department
     <br/>
     Portland State University
@@ -194,78 +221,78 @@
     <br/>
     Portland, OR 97207-0751
    </span>
-  </li>
- </ul>
- <h2 class="c0" id="h.7k3qx87l6b7x">
-  <span class="c19 c13">
+</li>
+</ul>
+<h2 class="c0" id="h.7k3qx87l6b7x">
+<span class="c19 c13">
    Student Enrollment and Graduation Data
   </span>
- </h2>
- <p class="c7">
-  <span class="c18">
+</h2>
+<p class="c7">
+<span class="c18">
    The number of d
   </span>
-  <span class="c18">
+<span class="c18">
    egrees awarded in Computer Science and the enrollment by academic year are available on the
   </span>
-  <span class="c2">
-   <a class="c10" href="https://www.pdx.edu/engineering/degree-and-enrollment-data">
+<span class="c2">
+<a class="c10" href="https://www.pdx.edu/engineering/degree-and-enrollment-data">
     degree and enrollment data website
    </a>
-  </span>
-  <span class="c18">
+</span>
+<span class="c18">
    .
   </span>
- </p>
- <p class="c8 c23">
-  <span class="c5">
-  </span>
- </p>
- <h2 class="c0" id="h.imqncpdt86cy">
-  <span class="c13 c19">
+</p>
+<p class="c8 c23">
+<span class="c5">
+</span>
+</p>
+<h2 class="c0" id="h.imqncpdt86cy">
+<span class="c13 c19">
    Maseeh College of Engineering and Computer Science
   </span>
- </h2>
- <p class="c4">
-  <span class="c18">
+</h2>
+<p class="c4">
+<span class="c18">
    Computer Science is one of five departments within the
   </span>
-  <span class="c2">
-   <a class="c10" href="https://cecs.pdx.edu/">
+<span class="c2">
+<a class="c10" href="https://cecs.pdx.edu/">
     Maseeh College of Engineering and Computer Science
    </a>
-  </span>
-  <span class="c9">
+</span>
+<span class="c9">
    . At the Maseeh College, we offer academic programs that provide transformative opportunities within the classroom and beyond. If you join our college, you'll be connected to Portland's growing, innovative industries and prepared to gain competitive jobs in engineering and computer science. Our close ties to leading tech companies give you the opportunity to build your professional skills through internship programs while you complete your degree. You can participate in research, community-based learning projects and opportunities to develop your own ideas from proposal to prototype through our innovation programs. Our students are in demand in the Portland job market and beyond, and they report the highest annual earnings of all PSU graduates one year after graduation.
   </span>
- </p>
- <ul class="c1 lst-kix_ef751tedaebz-0 start">
-  <li class="c6 li-bullet-0">
-   <span class="c17">
-    <a class="c10" href="https://apply.pdx.edu/apply/">
+</p>
+<ul class="c1 lst-kix_ef751tedaebz-0 start">
+<li class="c6 li-bullet-0">
+<span class="c17">
+<a class="c10" href="https://apply.pdx.edu/apply/">
      Apply to PSU
     </a>
-   </span>
-  </li>
-  <li class="c6 li-bullet-0">
-   <span class="c17">
-    <a class="c10" href="https://www.cecs.pdx.edu/powerofplace/tablet/index.html">
+</span>
+</li>
+<li class="c6 li-bullet-0">
+<span class="c17">
+<a class="c10" href="https://www.cecs.pdx.edu/powerofplace/tablet/index.html">
      Explore Maseeh
     </a>
-   </span>
-  </li>
-  <li class="c6 li-bullet-0">
-   <span class="c2">
-    <a class="c10" href="https://pdx.edu/visit">
+</span>
+</li>
+<li class="c6 li-bullet-0">
+<span class="c2">
+<a class="c10" href="https://pdx.edu/visit">
      Visit Campus
     </a>
-   </span>
-  </li>
- </ul>
- <p class="c8">
-  <span class="c13 c24">
-  </span>
- </p>
+</span>
+</li>
+</ul>
+<p class="c8">
+<span class="c13 c24">
+</span>
+</p>
 </div>
 
               </div>
@@ -275,6 +302,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

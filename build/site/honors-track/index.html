@@ -20,109 +20,136 @@
 .c1{font-weight:400}
 .c5{text-decoration:none;font-style:normal}
 .c3{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Honors Track">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c14 doc-content">
- <h1 class="c12" id="h.4v690kerox7d">
-  <span class="c5 c11">
+<h1 class="c12" id="h.4v690kerox7d">
+<span class="c5 c11">
    Honors Track
   </span>
- </h1>
- <p class="c4">
-  <span class="c8 c5">
+</h1>
+<p class="c4">
+<span class="c8 c5">
    The Computer Science Honors Program provides a valuable opportunity for qualified students to research a specialty area within Computer Science with a faculty advisor.
   </span>
- </p>
- <h2 class="c13" id="h.21piylvg6kuh">
-  <span class="c9 c5">
+</p>
+<h2 class="c13" id="h.21piylvg6kuh">
+<span class="c9 c5">
    Admission Requirements
   </span>
- </h2>
- <ul class="c2 lst-kix_wkmkgqign4wo-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c1">
+</h2>
+<ul class="c2 lst-kix_wkmkgqign4wo-0 start">
+<li class="c0 li-bullet-0">
+<span class="c1">
     Completion of
    </span>
-   <span class="c7">
-    <a class="c3" href="https://drive.google.com/file/d/16lqmyqpiKmp1SaNcvJAf9Y_IY5cBHUoD/view?usp=sharing">
+<span class="c7">
+<a class="c3" href="https://drive.google.com/file/d/16lqmyqpiKmp1SaNcvJAf9Y_IY5cBHUoD/view?usp=sharing">
      CS Honors program form
     </a>
-   </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c7">
-    <a class="c3" href="https://docs.google.com/forms/d/e/1FAIpQLSfaW0Sw2tTgOWSF_qoIQ1uoUrlL8vusFgCRP17jWXNpdjVD2A/viewform?usp=sf_link">
+</span>
+</li>
+<li class="c0 li-bullet-0">
+<span class="c7">
+<a class="c3" href="https://docs.google.com/forms/d/e/1FAIpQLSfaW0Sw2tTgOWSF_qoIQ1uoUrlL8vusFgCRP17jWXNpdjVD2A/viewform?usp=sf_link">
      Admission
     </a>
-   </span>
-   <span class="c1">
-   </span>
-   <span class="c1 c5">
+</span>
+<span class="c1">
+</span>
+<span class="c1 c5">
     to the CS Upper Division Program
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c1 c5">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c1 c5">
     Minimum overall 3.5 PSU GPA and minimum 3.5 GPA in CS courses
    </span>
-  </li>
- </ul>
- <p class="c4">
-  <span class="c5 c8">
+</li>
+</ul>
+<p class="c4">
+<span class="c5 c8">
    Exceptions to these requirements may be approved by the department given sufficient documentation of extenuating circumstances; please contact an advisor for further information.
   </span>
- </p>
- <h2 class="c13" id="h.3ymf0d79m0qa">
-  <span class="c5 c9">
+</p>
+<h2 class="c13" id="h.3ymf0d79m0qa">
+<span class="c5 c9">
    Program Requirements
   </span>
- </h2>
- <p class="c4">
-  <span class="c8 c5">
+</h2>
+<p class="c4">
+<span class="c8 c5">
    Upon acceptance to the CS Honors program, the student must declare a research area of interest within Computer Science no later than the beginning of their Senior year (preferably by Spring quarter of Junior year). The student should identify a faculty member who is willing to serve as their thesis advisor, and this appointment will then be confirmed by the Department Chair. CS Honors theses will follow ACM document guidelines for style and formatting. The Honors thesis research is usually conducted after completing the course requirements of the student's Junior year.
   </span>
- </p>
- <h2 class="c13" id="h.hi6vl23f9o6">
-  <span class="c9 c5">
+</p>
+<h2 class="c13" id="h.hi6vl23f9o6">
+<span class="c9 c5">
    Graduation Requirements
   </span>
- </h2>
- <ul class="c2 lst-kix_j6u529fje4j-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c1 c5">
+</h2>
+<ul class="c2 lst-kix_j6u529fje4j-0 start">
+<li class="c0 li-bullet-0">
+<span class="c1 c5">
     Completion of a written Honors thesis, in conjunction with a faculty advisor, with a minimum grade of B+.
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c1 c5">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c1 c5">
     Presentation of research to CS faculty and students in a seminar format.
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c1 c5">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c1 c5">
     Minimum overall 3.5 PSU GPA
    </span>
-  </li>
- </ul>
- <p class="c4">
-  <span class="c8">
+</li>
+</ul>
+<p class="c4">
+<span class="c8">
    Note: Honors Thesis (CS 403) may qualify as an approved CS elective.
   </span>
- </p>
+</p>
 </div>
 
               </div>
@@ -132,6 +159,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

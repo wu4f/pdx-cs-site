@@ -19,10 +19,15 @@ def _render_text_run(run: dict) -> str:
     el = run.get("textRun")
     if not el:
         return ""
-    content = escape(el.get("content", "")).replace("\n", "<br/>")
+    raw = el.get("content", "")
+    content = escape(raw).replace("\n", "<br/>")
     style = el.get("textStyle", {}) or {}
     if style.get("link", {}).get("url"):
-        content = f'<a href="{escape(style["link"]["url"])}">{content}</a>'
+        # WCAG 2.4.4 / 2.4.9 (link purpose): never emit an <a> with no
+        # accessible name. If the text content is empty or only whitespace,
+        # skip the link wrap rather than create an empty <a>.
+        if raw.strip():
+            content = f'<a href="{escape(style["link"]["url"])}">{content}</a>'
     if style.get("bold"):
         content = f"<strong>{content}</strong>"
     if style.get("italic"):

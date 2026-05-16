@@ -22,104 +22,131 @@
 .c9{font-weight:400}
 .c3{text-decoration:none;font-style:normal}
 .c4{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Graduate Assistantships">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c16 doc-content">
- <h1 class="c13" id="h.x5p54j5vael5">
-  <span class="c3 c10">
+<h1 class="c13" id="h.x5p54j5vael5">
+<span class="c3 c10">
    Graduate Assistantships
   </span>
- </h1>
- <p class="c8">
-  <span class="c5">
+</h1>
+<p class="c8">
+<span class="c5">
    Computer Science Graduate Assistants (GAs) are graduate students who are hired to perform instructional, research, or administrative duties for the department. Graduate Assistantships are administered in conjunction with the Graduate School, and are governed by the
   </span>
-  <span class="c7">
-   <a class="c4" href="https://www.pdx.edu/academic-affairs/sites/academicaffairs.web.wdt.pdx.edu/files/2022-12/GEU_CBA_2022-2026_0.pdf">
+<span class="c7">
+<a class="c4" href="https://www.pdx.edu/academic-affairs/sites/academicaffairs.web.wdt.pdx.edu/files/2022-12/GEU_CBA_2022-2026_0.pdf">
     Graduate Employees Union (GEU) Collective Bargaining Agreement
    </a>
-  </span>
-  <span class="c3 c5">
+</span>
+<span class="c3 c5">
    . Both M.S. and Ph.D. students can serve as GAs, although most available positions are filled by Ph.D. students.
   </span>
- </p>
- <p class="c8">
-  <span class="c0">
+</p>
+<p class="c8">
+<span class="c0">
    For detailed information about graduate assistantships, please consult the
   </span>
-  <span class="c2">
-   <a class="c4" href="https://web.cs.pdx.edu/graduate-handbook#10-graduate-assistantships">
+<span class="c2">
+<a class="c4" href="https://web.cs.pdx.edu/graduate-handbook#10-graduate-assistantships">
     Graduate Handbook
    </a>
-  </span>
-  <span class="c0 c3">
+</span>
+<span class="c0 c3">
    .
   </span>
- </p>
- <h2 class="c12" id="h.8fsivlg5us1h">
-  <span class="c3 c6">
+</p>
+<h2 class="c12" id="h.8fsivlg5us1h">
+<span class="c3 c6">
    Teaching Assistantships
   </span>
- </h2>
- <p class="c8">
-  <span class="c5">
+</h2>
+<p class="c8">
+<span class="c5">
    A limited number of teaching assistantships (TAs) are available to our best-qualified graduate students. These assistantships are normally granted for one term at a time, and are renewable based on department need and the student's performance in coursework and TA responsibilities. Teaching assistants typically work with course instructors to hold office hours, grade homework, etc. The selection criteria for teaching assistants are similar to those used for
   </span>
-  <span class="c1">
-   <a class="c4" href="https://web.cs.pdx.edu/graduate-handbook#2-admissions">
+<span class="c1">
+<a class="c4" href="https://web.cs.pdx.edu/graduate-handbook#2-admissions">
     graduate admission
    </a>
-  </span>
-  <span class="c5 c3">
+</span>
+<span class="c5 c3">
    : grades, references, plus evidence of teaching experience or ability.
   </span>
- </p>
- <p class="c8">
-  <span class="c0">
+</p>
+<p class="c8">
+<span class="c0">
    Please note that a
   </span>
-  <span class="c15">
-   <a class="c4" href="https://oam.pdx.edu/">
+<span class="c15">
+<a class="c4" href="https://oam.pdx.edu/">
     PSU Odin account
    </a>
-  </span>
-  <span class="c0 c3">
+</span>
+<span class="c0 c3">
    is required to access the application.
   </span>
- </p>
- <ul class="c14 lst-kix_5axpq29g40m-0 start">
-  <li class="c11 li-bullet-0">
-   <span class="c7">
-    <a class="c4" href="https://forms.gle/dQi2kpNybTCzYAta7">
+</p>
+<ul class="c14 lst-kix_5axpq29g40m-0 start">
+<li class="c11 li-bullet-0">
+<span class="c7">
+<a class="c4" href="https://forms.gle/dQi2kpNybTCzYAta7">
      Apply for TA-ship
     </a>
-   </span>
-  </li>
- </ul>
- <h2 class="c12" id="h.aam0yy31u1bz">
-  <span class="c6 c3">
+</span>
+</li>
+</ul>
+<h2 class="c12" id="h.aam0yy31u1bz">
+<span class="c6 c3">
    Research Assistantships
   </span>
- </h2>
- <p class="c8">
-  <span class="c5">
+</h2>
+<p class="c8">
+<span class="c5">
    Many faculty in the department have research grants that support research assistants (RAs), who are normally Ph.D. students. Faculty members choose RAs on an individual basis, but the most important criterion is the student's ability to contribute to the professor's research program. Typically, students are given a research assistantship only after they have been in the graduate program for at least one term and have taken at least one class from the professor, although faculty do sometimes give RA-ships to especially qualified incoming students. Ordinarily, students are able to use the work supported by the assistantship as part of their own RPE and dissertation research.
   </span>
- </p>
+</p>
 </div>
 
               </div>
@@ -129,6 +156,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

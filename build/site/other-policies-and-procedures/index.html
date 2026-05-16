@@ -12,17 +12,44 @@
     <!-- css (always loaded from production site so preview deploys still look right) -->
     <link href="https://web.cs.pdx.edu/css/pdx-style.css" rel="stylesheet">
     
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Other Policies and Procedures">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
@@ -39,7 +66,7 @@
 <h2>Petitions<br/></h2>
 <p>Exceptions to policies imposed by the Graduate School and University require a formal petition process. The CS Graduate Advisor can assist in preparing petitions, but it is the student’s responsibility to file them with appropriate supporting documentation. University petitions go to one of two university-wide faculty committees (Deadline Appeals Committee or Graduate Council), depending on their time frame. See <u><a href="https://www.pdx.edu/registration/petitions">this page</a></u> for more detailed information. <br/></p>
 <h2>Joint Campus Registration with OHSU<br/></h2>
-<p>Admitted graduate students at Portland State may take graduate courses offered by Oregon Health and Science University and have the credits included in their current term enrollment and tuition assessment at PSU. Only specific courses are approved for this<a href="https://www.pdx.edu/gradschool/joint-campus-registration"> </a><u><a href="https://www.pdx.edu/gradschool/joint-campus-registration">joint campus arrangement</a></u>. Students must have permission from the instructor of the OHSU course as well as their home department to use the joint campus registration process and apply the OHSU courses to their PSU degree. Contact the CS Graduate Advisor (gccs@pdx.edu) for details.<br/></p>
+<p>Admitted graduate students at Portland State may take graduate courses offered by Oregon Health and Science University and have the credits included in their current term enrollment and tuition assessment at PSU. Only specific courses are approved for this <u><a href="https://www.pdx.edu/gradschool/joint-campus-registration">joint campus arrangement</a></u>. Students must have permission from the instructor of the OHSU course as well as their home department to use the joint campus registration process and apply the OHSU courses to their PSU degree. Contact the CS Graduate Advisor (gccs@pdx.edu) for details.<br/></p>
 <h2>PSU Code of conduct<br/></h2>
 <p>Students should be familiar with the university’s <u><a href="https://www.pdx.edu/dean-student-life/psu-code-student-conduct-and-responsibility ">student code of conduct</a></u>, which describes the rights and responsibilities of PSU community members.<br/></p>
 <h2>Academic Misconduct and Plagiarism<br/></h2>
@@ -57,6 +84,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

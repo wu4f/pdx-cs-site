@@ -22,185 +22,212 @@
 .c4{font-weight:400}
 .c8{text-decoration:none;font-style:normal}
 .c0{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Postbaccalaureate">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c18 doc-content">
- <h1 class="c14" id="h.km59kssb1lox">
-  <span class="c8 c15">
+<h1 class="c14" id="h.km59kssb1lox">
+<span class="c8 c15">
    Postbaccalaureate
   </span>
- </h1>
- <ul class="c6 lst-kix_9q4y9ott06kj-0 start">
-  <li class="c2 li-bullet-0">
-   <span class="c4">
-    <a class="c0" href="https://www.applyweb.com/fixie/form/s/T2l1802">
+</h1>
+<ul class="c6 lst-kix_9q4y9ott06kj-0 start">
+<li class="c2 li-bullet-0">
+<span class="c4">
+<a class="c0" href="https://www.applyweb.com/fixie/form/s/T2l1802">
      Request Info
     </a>
-   </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c4">
-    <a class="c0" href="https://apply.pdx.edu/apply/">
+</span>
+</li>
+<li class="c2 li-bullet-0">
+<span class="c4">
+<a class="c0" href="https://apply.pdx.edu/apply/">
      Apply to PSU
     </a>
-   </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c4">
-    <a class="c0" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
+</span>
+</li>
+<li class="c2 li-bullet-0">
+<span class="c4">
+<a class="c0" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
      Postbac Info
     </a>
-   </span>
-  </li>
- </ul>
- <p class="c12">
-  <span class="c1">
+</span>
+</li>
+</ul>
+<p class="c12">
+<span class="c1">
    Are you looking for a career change in the field of Computer Science? Whether you are thinking about pursuing a second bachelor's or master's degree, Portland State University offers multiple paths to our Computer Science programs. These paths are reserved for students who have previously earned an accredited bachelor's degree in a field other than Computer Science.
   </span>
- </p>
- <h2 class="c9" id="h.g3sfrjzdyqxh">
-  <span class="c8 c10">
+</p>
+<h2 class="c9" id="h.g3sfrjzdyqxh">
+<span class="c8 c10">
    Second Bachelor's Degree
   </span>
- </h2>
- <ul class="c6 lst-kix_uqvwavcsqobh-0 start">
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</h2>
+<ul class="c6 lst-kix_uqvwavcsqobh-0 start">
+<li class="c2 li-bullet-0">
+<span class="c5">
     Earn a Bachelor of Science in Computer Science
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Broader topical coverage than Master's program
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Begin any term
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Must complete all undergraduate major requirements
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Must maintain a C or better
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Completed in as little as four years
    </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c7">
-    <a class="c0" href="https://web.cs.pdx.edu/bachelor">
+</li>
+<li class="c3 li-bullet-0">
+<span class="c7">
+<a class="c0" href="https://web.cs.pdx.edu/bachelor">
      Bachelor Requirements
     </a>
-   </span>
-  </li>
- </ul>
- <h2 class="c9" id="h.xi98q19plmqs">
-  <span class="c10 c8">
+</span>
+</li>
+</ul>
+<h2 class="c9" id="h.xi98q19plmqs">
+<span class="c10 c8">
    Grad Prep Program
   </span>
- </h2>
- <ul class="c6 lst-kix_lb00vz90b8y2-0 start">
-  <li class="c2 li-bullet-0">
-   <span class="c11">
+</h2>
+<ul class="c6 lst-kix_lb00vz90b8y2-0 start">
+<li class="c2 li-bullet-0">
+<span class="c11">
     Provides preparatory work necessary to enter the
    </span>
-   <span class="c4">
-    <a class="c0" href="https://www.pdx.edu/computer-science/master">
+<span class="c4">
+<a class="c0" href="https://www.pdx.edu/computer-science/master">
      CS Master's program
     </a>
-   </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</span>
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     BA and BS degree holders welcome
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Begin any term
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     32-40 credits of Computer Science undergraduate coursework
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Must maintain a B or better
    </span>
-  </li>
-  <li class="c2 li-bullet-0">
-   <span class="c5">
+</li>
+<li class="c2 li-bullet-0">
+<span class="c5">
     Completed in as little as 12 months + time required for Masters
    </span>
-  </li>
-  <li class="c3 li-bullet-0">
-   <span class="c7">
-    <a class="c0" href="https://web.cs.pdx.edu/grad-prep">
+</li>
+<li class="c3 li-bullet-0">
+<span class="c7">
+<a class="c0" href="https://web.cs.pdx.edu/grad-prep">
      Grad Prep Requirements
     </a>
-   </span>
-  </li>
- </ul>
- <p class="c12">
-  <span class="c13">
+</span>
+</li>
+</ul>
+<p class="c12">
+<span class="c13">
    To learn more about these options, prospective students can attend one of our monthly
   </span>
-  <span class="c4">
-   <a class="c0" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
+<span class="c4">
+<a class="c0" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
     CS Postbac Information Sessions
    </a>
-  </span>
-  <span class="c1">
+</span>
+<span class="c1">
    . These sessions are scheduled approximately once a month (currently using Zoom) and begin at 3:30pm Pacific Time. A link to the Zoom meeting will be sent 24 hours before the session.
   </span>
- </p>
- <p class="c12">
-  <span class="c13">
+</p>
+<p class="c12">
+<span class="c13">
    Students are encouraged to review
   </span>
-  <span class="c4">
-   <a class="c0" href="https://www.pdx.edu/computer-science/sites/g/files/znldhr1671/files/2022-09/Postbac Info Session_0.pdf">
+<span class="c4">
+<a class="c0" href="https://www.pdx.edu/computer-science/sites/g/files/znldhr1671/files/2022-09/Postbac Info Session_0.pdf">
     the slides
    </a>
-  </span>
-  <span class="c13">
+</span>
+<span class="c13">
    that are presented at our Postbac Information Sessions, and contact the CS Graduate Advisor (
   </span>
-  <span class="c4">
+<span class="c4">
    gccs@pdx.edu
   </span>
-  <span class="c1">
+<span class="c1">
    ) with any questions.
   </span>
- </p>
- <p class="c17">
-  <span class="c8 c16">
-  </span>
- </p>
+</p>
+<p class="c17">
+<span class="c8 c16">
+</span>
+</p>
 </div>
 
               </div>
@@ -210,6 +237,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

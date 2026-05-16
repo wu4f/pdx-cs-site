@@ -12,17 +12,44 @@
     <!-- css (always loaded from production site so preview deploys still look right) -->
     <link href="https://web.cs.pdx.edu/css/pdx-style.css" rel="stylesheet">
     
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Graduate Assistantships">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
@@ -34,17 +61,17 @@
 <p><br/></p>
 <p>When offered a GA position, the GA will receive a detailed Notice of Appointment letter that includes the stipend rate and the full-time equivalency (FTE), which is the percentage of hours the GA will work in a 40-hour work week. For example, a GA with a 0.37 FTE appointment is expected to work 14.8 hours per week.<br/></p>
 <h2>Teaching Assistantships<br/></h2>
-<p>A limited number of teaching assistantships (TAs) are available to our best-qualified graduate students. These assistantships are normally granted for one term at a time, and are renewable based on department need and the student&#x27;s performance in coursework and TA responsibilities. Teaching assistants typically work with course instructors to hold office hours, grade homework, etc. TAs are hired with 0.37 FTE appointments (14.8 hours per week) for the quarter.<br/></p>
+<p>A limited number of teaching assistantships (TAs) are available to our best-qualified graduate students. These assistantships are normally granted for one term at a time, and are renewable based on department need and the student's performance in coursework and TA responsibilities. Teaching assistants typically work with course instructors to hold office hours, grade homework, etc. TAs are hired with 0.37 FTE appointments (14.8 hours per week) for the quarter.<br/></p>
 <p>In some cases, a TA may teach a course as Instructor of Record under supervision of a faculty member. These appointments are for 0.49 FTE (19.6 hours per week). <br/></p>
 <h3>Application Process<br/></h3>
-<p>Students can apply for TA positions on the <u><a href="https://web.cs.pdx.edu/graduate-assistantships">CS graduate assistantship webpage</a></u>. Please note that a<a href="https://oam.pdx.edu/"> </a><u><a href="https://oam.pdx.edu/">PSU Odin account</a></u> is required to access the application.<br/></p>
-<p><strong>	<br/></strong></p>
+<p>Students can apply for TA positions on the <u><a href="https://web.cs.pdx.edu/graduate-assistantships">CS graduate assistantship webpage</a></u>. Please note that a <u><a href="https://oam.pdx.edu/">PSU Odin account</a></u> is required to access the application.<br/></p>
+<p><strong> <br/></strong></p>
 <p>The selection criteria for teaching assistants are similar to those used for <u>graduate admission</u>: grades, references, plus evidence of teaching experience or ability. <br/></p>
 <p>Note that decisions about TA positions are made by the department, not by individual instructors. While instructors do have some input into the decision process, it is not generally useful to send unsolicited mail (spam) to instructors requesting TA positions. <br/></p>
 <h3>TA Evaluation Process<br/></h3>
-<p>At the end of the term, the department will send out a TA evaluation form seeking feedback from students on overall performance, communication, accessibility, and knowledge of content. Please note that these evaluations will be shared with the course instructor, and that poor evaluations can impact a student&#x27;s eligibility to be a TA in future terms.<br/></p>
+<p>At the end of the term, the department will send out a TA evaluation form seeking feedback from students on overall performance, communication, accessibility, and knowledge of content. Please note that these evaluations will be shared with the course instructor, and that poor evaluations can impact a student's eligibility to be a TA in future terms.<br/></p>
 <h2>Research Assistantships<br/></h2>
-<p>Many faculty in the department have research grants that support research assistants (RAs), who are normally Ph.D. students. Faculty members choose RAs on an individual basis, but the most important criterion is the student&#x27;s ability to contribute to the professor&#x27;s research program. Typically, students are given a research assistantship only after they have been in the graduate program for at least one term and have taken at least one class from the professor, although faculty do sometimes give RAships to especially qualified incoming students. Ordinarily, students are able to use the work supported by the assistantship as part of their own RPE and dissertation research.<br/></p>
+<p>Many faculty in the department have research grants that support research assistants (RAs), who are normally Ph.D. students. Faculty members choose RAs on an individual basis, but the most important criterion is the student's ability to contribute to the professor's research program. Typically, students are given a research assistantship only after they have been in the graduate program for at least one term and have taken at least one class from the professor, although faculty do sometimes give RAships to especially qualified incoming students. Ordinarily, students are able to use the work supported by the assistantship as part of their own RPE and dissertation research.<br/></p>
 <p>Stipend rates are set by faculty based on availability of resources. RAs can be employed at an FTE of 0.30 (12 hours per week) to 0.49 (20 hours per week), or up to 1.0 (40 hours per week) in summer. <br/></p>
 <h2>Hiring Steps<br/></h2>
 <p>GAs who have been offered a position must complete hiring paperwork in person at <u><a href="https://www.pdx.edu/human-resources/">PSU’s Office of Human Resources (HR)</a></u> before work can commence. For the list of required documents and more information, visit: <u><a href="https://www.pdx.edu/human-resources/new-hire-resources">https://www.pdx.edu/human-resources/new-hire-resources</a></u>. New international GAs must also obtain employment authorization from the Office of International Students &amp; Scholar Services (OISSS). Learn more at: <u><a href="https://www.pdx.edu/international-students/employment">https://www.pdx.edu/international-students/employment</a></u>.<br/></p>
@@ -63,6 +90,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

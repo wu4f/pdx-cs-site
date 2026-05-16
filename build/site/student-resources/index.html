@@ -18,139 +18,166 @@
 .c5{font-weight:700;text-decoration:underline}
 .c10{font-weight:400}
 .c4{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Student Resources">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c9 doc-content">
- <h1 class="c8" id="h.uyxmzorunuwh">
-  <span class="c0">
+<h1 class="c8" id="h.uyxmzorunuwh">
+<span class="c0">
    Student Resources
   </span>
- </h1>
- <h3 class="c6" id="h.fnd8u8sl9ucw">
-  <span class="c1">
-   <a class="c4" href="https://cat.pdx.edu/users/cs-tutors/">
+</h1>
+<h3 class="c6" id="h.fnd8u8sl9ucw">
+<span class="c1">
+<a class="c4" href="https://cat.pdx.edu/users/cs-tutors/">
     Computer Science Tutors
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    CS Tutors are available to assist students in CS 161 through CS 311 with cousework, programming, and the MCECS computing environment. CS Tutors are located in suite 88 in the basement of the Fourth Avenue Building (the CS Lounge ).
   </span>
- </p>
- <h3 class="c6" id="h.uwt893rcsrpf">
-  <span class="c1">
-   <a class="c4" href="https://services.cecs.pdx.edu/">
+</p>
+<h3 class="c6" id="h.uwt893rcsrpf">
+<span class="c1">
+<a class="c4" href="https://services.cecs.pdx.edu/">
     MCECS Lockers
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    The Maseeh College of Engineering and Computer Science (MCECS) provides rental lockers for current students for $12.50 per term. Register online at the Maseeh College Self-Service Portal. A CECS username and password are required to access the site.
   </span>
- </p>
- <h3 class="c6" id="h.hl0h6qkj0beo">
-  <span class="c1">
-   <a class="c4" href="https://cat.pdx.edu/">
+</p>
+<h3 class="c6" id="h.hl0h6qkj0beo">
+<span class="c1">
+<a class="c4" href="https://cat.pdx.edu/">
     Computer Action Team
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    The CAT (Computer Action Team) provides IT support throughout MCECS. With a primary focus on instructional needs, the CAT supports many large scale computer labs, remotely accessible compute/session servers, various remotely accessible services and the server and physical network infrastructure that binds it all together.
   </span>
- </p>
- <h3 class="c6" id="h.mr678ukbcfa">
-  <span class="c1">
-   <a class="c4" href="https://wics.cs.pdx.edu/">
+</p>
+<h3 class="c6" id="h.mr678ukbcfa">
+<span class="c1">
+<a class="c4" href="https://wics.cs.pdx.edu/">
     We in Computer Science
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    WICS aims to create opportunities that inspire and celebrate the participation and accomplishments of LGBTQIA+ people, women, gender non-conforming, first-generation immigrants, people of color, and disabled people.
   </span>
- </p>
- <h3 class="c6" id="h.twjd3kgfing4">
-  <span class="c1">
-   <a class="c4" href="https://acm.pdx.edu//">
+</p>
+<h3 class="c6" id="h.twjd3kgfing4">
+<span class="c1">
+<a class="c4" href="https://acm.pdx.edu//">
     ACM Student Chapter
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    The Association for Computing Machinery (ACM) is the world's largest educational and scientific computing society. The ACM Student Chapter facilitates communication and collaboration within the local computing community by organizing events throughout the year, including lectures and gaming nights.
   </span>
- </p>
- <h3 class="c6" id="h.61fn9t22w0dh">
-  <span class="c5">
-   <a class="c4" href="https://pdx-cs.slack.com">
+</p>
+<h3 class="c6" id="h.61fn9t22w0dh">
+<span class="c5">
+<a class="c4" href="https://pdx-cs.slack.com">
     pdx-cs Slack
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    The pdx-cs Slack workspace provides an informal, shared virtual messaging space for the CS department students and faculty.  Courses within the degree program will often utilize the Slack for help and discussion.
   </span>
- </p>
- <h3 class="c6" id="h.rgv0yzwvlgq7">
-  <span class="c5">
-   <a class="c4" href="https://discord.gg/2QKup4BryT">
+</p>
+<h3 class="c6" id="h.rgv0yzwvlgq7">
+<span class="c5">
+<a class="c4" href="https://discord.gg/2QKup4BryT">
     void* Vikings Security Club
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    The PSU Cybersecurity Club (PSUSec) hosts a Discord to bring together a community of students who are interested in developing skills in cybersecurity by practicing for and participating in capture-the-flag competitions.   Weekly meetings and weekend competitions happen throughout the academic year.
   </span>
- </p>
- <h3 class="c6" id="h.42ypcrifz24a">
-  <span class="c5">
-   <a class="c4" href="https://www.pdx.edu/engineering/ambassadors">
+</p>
+<h3 class="c6" id="h.42ypcrifz24a">
+<span class="c5">
+<a class="c4" href="https://www.pdx.edu/engineering/ambassadors">
     Maseeh College Ambassadors
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c2">
+</span>
+</h3>
+<p class="c3">
+<span class="c2">
    The Maseeh College Ambassadors are a team of engineering and computer science students who lead tours, lab visits, and hands-on activities for the purpose of visualizing STEM in action and the diverse people who do it.
   </span>
- </p>
- <h3 class="c6" id="h.jzmc274op657">
-  <span class="c5">
-   <a class="c4" href="https://intranet.cecs.pdx.edu/careers/">
+</p>
+<h3 class="c6" id="h.jzmc274op657">
+<span class="c5">
+<a class="c4" href="https://intranet.cecs.pdx.edu/careers/">
     Career Resources
    </a>
-  </span>
- </h3>
- <p class="c3">
-  <span class="c10">
+</span>
+</h3>
+<p class="c3">
+<span class="c10">
    Maseeh College of Engineering and Computer Science maintains a bulletin board for job opportunities where l
   </span>
-  <span class="c2">
+<span class="c2">
    ocal employers seek out our students for internship opportunities.  Subscribe to the board to review jobs and internships related to Computer Science.
   </span>
- </p>
+</p>
 </div>
 
               </div>
@@ -160,6 +187,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

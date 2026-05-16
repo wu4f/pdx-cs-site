@@ -26,6 +26,8 @@
       :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
       main#main-content a, main#main-content a:link, main#main-content a:visited {
         color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
       }
       main#main-content a:hover { color: #062a66 !important; }
       @media (prefers-reduced-motion: reduce) {

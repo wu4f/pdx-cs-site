@@ -18,55 +18,82 @@
 .c2{font-weight:700}
 .c8{text-decoration:none;font-style:normal}
 .c7{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Graduate Internship Credit">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c4 doc-content">
- <h1 class="c10" id="h.jms37bqeuj1p">
-  <span class="c3">
+<h1 class="c10" id="h.jms37bqeuj1p">
+<span class="c3">
    Graduate Internship Credit
   </span>
- </h1>
- <p class="c5">
-  <span class="c1">
+</h1>
+<p class="c5">
+<span class="c1">
    The Portland Metro area offers many opportunities for internships to graduate students. Many students complete one or more internships with local companies during their time at PSU. We believe internships provide a valuable training experience that significantly augments the student's academic program.
   </span>
- </p>
- <p class="c5">
-  <span class="c1">
+</p>
+<p class="c5">
+<span class="c1">
    While some students choose to participate in an internship without receiving academic credit, others find it important that they receive academic credit for their internships, which can count towards CS graduate degree requirements with approval.
   </span>
- </p>
- <p class="c5">
-  <span class="c2">
+</p>
+<p class="c5">
+<span class="c2">
    For detailed information about graduate internship credit, please consult the
   </span>
-  <span class="c0">
-   <a class="c7" href="https://web.cs.pdx.edu/graduate-handbook#9-graduate-internship-credit">
+<span class="c0">
+<a class="c7" href="https://web.cs.pdx.edu/graduate-handbook#9-graduate-internship-credit">
     Graduate Handbook
    </a>
-  </span>
-  <span class="c2 c8">
+</span>
+<span class="c2 c8">
    .
   </span>
- </p>
- <p class="c9">
-  <span class="c6">
-  </span>
- </p>
+</p>
+<p class="c9">
+<span class="c6">
+</span>
+</p>
 </div>
 
               </div>
@@ -76,6 +103,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

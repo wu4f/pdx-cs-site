@@ -28,444 +28,471 @@
 .c9{font-weight:400}
 .c17{text-decoration:line-through}
 .c5{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Grad Prep">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c24 doc-content">
- <h1 class="c26" id="h.4r0jhosv68ps">
-  <span class="c15 c14 c25">
+<h1 class="c26" id="h.4r0jhosv68ps">
+<span class="c15 c14 c25">
    Graduate Preparation
   </span>
- </h1>
- <ul class="c1 lst-kix_75hw04qtcjqd-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://apply.pdx.edu/apply/">
+</h1>
+<ul class="c1 lst-kix_75hw04qtcjqd-0 start">
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://apply.pdx.edu/apply/">
      Apply to PSU
     </a>
-   </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://ellabarrett.youcanbook.me/">
+</span>
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://ellabarrett.youcanbook.me/">
      Meet with Advisor
     </a>
-   </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
+</span>
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
      Postbac Info
     </a>
-   </span>
-  </li>
- </ul>
- <p class="c10">
-  <span class="c4 c15">
+</span>
+</li>
+</ul>
+<p class="c10">
+<span class="c4 c15">
    Many graduates with degrees in fields other than Computer Science are interested in pursuing a M.S. in Computer Science. The Graduate Preparation (or "Grad Prep") Track can assist a high performing, motivated student in mastering the essential computer science core necessary to be successful in the Master's program. The Grad Prep Track consists of a Programming &amp; Languages Core and a Theory Core, comprised of many of the same classes taken by undergraduate Computer Science majors. Some of these courses have the option to test out by demonstrating mastery based on either prior academic preparation or professional/personal programming experience through a credit by exam process.
   </span>
- </p>
- <p class="c10">
-  <span class="c4">
+</p>
+<p class="c10">
+<span class="c4">
    We encourage all prospective students to attend one of our
   </span>
-  <span class="c2">
-   <a class="c5" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/a/pdx.edu/forms/d/e/1FAIpQLSd8RrjXlK3t5IyOT3iIJGjec5WfvPmadMzlARcfR5ydH62wpw/viewform">
     monthly CS Postbac Info sessions
    </a>
-  </span>
-  <span class="c4">
+</span>
+<span class="c4">
    first to learn more about our
   </span>
-  <span class="c2">
-   <a class="c5" href="https://www.pdx.edu/computer-science/postbaccalaureate">
+<span class="c2">
+<a class="c5" href="https://www.pdx.edu/computer-science/postbaccalaureate">
     postbaccalaureate options
    </a>
-  </span>
-  <span class="c4">
+</span>
+<span class="c4">
    . Contact the
   </span>
-  <span class="c2">
-   <a class="c5" href="https://www.pdx.edu/computer-science/advising-0">
+<span class="c2">
+<a class="c5" href="https://www.pdx.edu/computer-science/advising-0">
     CS Graduate Advisor
    </a>
-  </span>
-  <span class="c4">
+</span>
+<span class="c4">
    (
   </span>
-  <span class="c2">
+<span class="c2">
    gccs@pdx.edu
   </span>
-  <span class="c4 c15">
+<span class="c4 c15">
    ) for any questions.
   </span>
- </p>
- <p class="c10">
-  <span class="c21">
+</p>
+<p class="c10">
+<span class="c21">
    For more detailed information about the Graduate Preparation Track, please consult the
   </span>
-  <span class="c19">
-   <a class="c5" href="https://web.cs.pdx.edu/graduate-handbook#6-grad-prep-program">
+<span class="c19">
+<a class="c5" href="https://web.cs.pdx.edu/graduate-handbook#6-grad-prep-program">
     Graduate Handbook
    </a>
-  </span>
-  <span class="c15 c21">
+</span>
+<span class="c15 c21">
    .
   </span>
- </p>
- <h2 class="c18" id="h.ba0l5vo19o1k">
-  <span class="c11">
+</p>
+<h2 class="c18" id="h.ba0l5vo19o1k">
+<span class="c11">
    Grad Prep Requirements
   </span>
- </h2>
- <p class="c10">
-  <span class="c4">
+</h2>
+<p class="c10">
+<span class="c4">
    To be eligible for admission to the CS Master's program, Grad Prep students must complete the following courses with a B or better. For Grad Prep students, the GRE is waived for the
   </span>
-  <span class="c2">
-   <a class="c5" href="https://drupal-admin.web.wdt.pdx.edu/computer-science/node/151">
+<span class="c2">
+<a class="c5" href="https://drupal-admin.web.wdt.pdx.edu/computer-science/node/151">
     M.S. application
    </a>
-  </span>
-  <span class="c4 c15">
+</span>
+<span class="c4 c15">
    .
   </span>
- </p>
- <ul class="c1 lst-kix_9gstsuak36io-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vSTzdml-T6ht8MYKOscLoTzku1esdbsUTkWqDDY4jwWN_AgDCXX7qJgrD7Y2mtQEGEuR7Vm1PYfekYN/pub">
+</p>
+<ul class="c1 lst-kix_9gstsuak36io-0 start">
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vSTzdml-T6ht8MYKOscLoTzku1esdbsUTkWqDDY4jwWN_AgDCXX7qJgrD7Y2mtQEGEuR7Vm1PYfekYN/pub">
      CS 160 Exploring Computer Science
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)*
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">
      CS 161 Intro to Programming &amp; Problem-solving
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)*
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">
      CS 162 Intro to Computer Science
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)*
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">
      CS 163 Data Structures
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTlRuiBW96eUzHuvLH2F7C2nQikt3ARDDCPLg52aUheq0ra83IjE2WlsKERgaeeeYX5a7qI6CeppnJD/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTlRuiBW96eUzHuvLH2F7C2nQikt3ARDDCPLg52aUheq0ra83IjE2WlsKERgaeeeYX5a7qI6CeppnJD/pub">
      CS 205 System Programming &amp; Architecture
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTu696PrTMbunuwni0V7whXtju6mbBAgvcygwV4huoEjmKV6EXLvnoVvG0Pzzdsie6Ids5P7b5TkkVb/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTu696PrTMbunuwni0V7whXtju6mbBAgvcygwV4huoEjmKV6EXLvnoVvG0Pzzdsie6Ids5P7b5TkkVb/pub">
      CS 250 Discrete Structures I
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vSufoea5_NlpebR3m8qyNAYbPFEfp_I0bz1S14b6ILSWZunqf0GfN0mPNi6jqk0AfWmCb59h9shnvN-/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vSufoea5_NlpebR3m8qyNAYbPFEfp_I0bz1S14b6ILSWZunqf0GfN0mPNi6jqk0AfWmCb59h9shnvN-/pub">
      CS 251 Discrete Structures II
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTKMw8UYNbf9zyOyb2fK83w-AbbZbauOezinAmzNPLMDkpJoNg2oWzajYEJzCs3pVTdNbtu-oQR4_Vk/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTKMw8UYNbf9zyOyb2fK83w-AbbZbauOezinAmzNPLMDkpJoNg2oWzajYEJzCs3pVTdNbtu-oQR4_Vk/pub">
      CS 302 Programming Methodologies and Software Implementation
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2 c17">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTY7JTkDIaEX48udgWQh3CPN3SJOEaIZp2br3mde3_t5qpFCLdlawDLi3GbCl5mHcxPgH9G-6aA5hTg/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2 c17">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTY7JTkDIaEX48udgWQh3CPN3SJOEaIZp2br3mde3_t5qpFCLdlawDLi3GbCl5mHcxPgH9G-6aA5hTg/pub">
      CS 333 Intro to Operating Systems
     </a>
-   </span>
-   <span class="c9 c13">
+</span>
+<span class="c9 c13">
     (4 credits) OR
    </span>
-   <span class="c2 c17">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTZb8iVKL_lssBoKnKXlRfv4IDQsNM2MkwmVWRb8r00AXqK8ZXWgugN4sjHVbEIcOBs0P6xfPl7MjzR/pub">
+<span class="c2 c17">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vTZb8iVKL_lssBoKnKXlRfv4IDQsNM2MkwmVWRb8r00AXqK8ZXWgugN4sjHVbEIcOBs0P6xfPl7MjzR/pub">
      CS 532 Operating Systems Foundations
     </a>
-   </span>
-   <span class="c13 c9">
+</span>
+<span class="c13 c9">
     (3 credits)
    </span>
-   <span class="c9 c14">
+<span class="c9 c14">
     -
    </span>
-   <span class="c12 c15">
+<span class="c12 c15">
     no longer required, effective Spring 2026
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
-    <a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vRDyj919A9JDvEJ-pEyJVFLC2YyT247G5PKUdbQqAlXkdrcIGDPTvY5SVIV2pVJOHCP-2r9Nb4MLWBh/pub">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
+<a class="c5" href="https://docs.google.com/document/d/e/2PACX-1vRDyj919A9JDvEJ-pEyJVFLC2YyT247G5PKUdbQqAlXkdrcIGDPTvY5SVIV2pVJOHCP-2r9Nb4MLWBh/pub">
      CS 350 Algorithms and Complexity
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     (4 credits)
    </span>
-  </li>
- </ul>
- <p class="c10">
-  <span class="c4">
+</li>
+</ul>
+<p class="c10">
+<span class="c4">
    *Based on prior experience, a student may begin with any of these courses. See
   </span>
-  <span class="c8">
-   <a class="c5" href="https://web.cs.pdx.edu/files/CS-Introductory-Courses.pdf">
+<span class="c8">
+<a class="c5" href="https://web.cs.pdx.edu/files/CS-Introductory-Courses.pdf">
     Introductory Course Guide
    </a>
-  </span>
-  <span class="c4">
-  </span>
-  <span class="c4 c15">
+</span>
+<span class="c4">
+</span>
+<span class="c4 c15">
    for details.
   </span>
- </p>
- <hr/>
- <p class="c7">
-  <span class="c3">
-  </span>
- </p>
- <h2 class="c18" id="h.nncdg5x34mdp">
-  <span class="c11">
+</p>
+<hr/>
+<p class="c7">
+<span class="c3">
+</span>
+</p>
+<h2 class="c18" id="h.nncdg5x34mdp">
+<span class="c11">
    Admission to PSU
   </span>
- </h2>
- <p class="c10">
-  <span class="c4">
+</h2>
+<p class="c10">
+<span class="c4">
    To begin Grad Prep at PSU, prospective students must first apply for
   </span>
-  <span class="c8">
-   <a class="c5" href="https://www.pdx.edu/engineering/computer-science-ms-phd-admission-details#gradprep">
+<span class="c8">
+<a class="c5" href="https://www.pdx.edu/engineering/computer-science-ms-phd-admission-details#gradprep">
     postbaccalaureate admission
    </a>
-  </span>
-  <span class="c4 c15">
+</span>
+<span class="c4 c15">
    . Postbaccalaureate applications are processed as they are received, generally within 4-6 weeks.
   </span>
- </p>
- <hr/>
- <p class="c7">
-  <span class="c3">
-  </span>
- </p>
- <h2 class="c18" id="h.n4ql561bjzr7">
-  <span class="c11">
+</p>
+<hr/>
+<p class="c7">
+<span class="c3">
+</span>
+</p>
+<h2 class="c18" id="h.n4ql561bjzr7">
+<span class="c11">
    Sample Schedules
   </span>
- </h2>
- <p class="c10">
-  <span class="c4 c15">
+</h2>
+<p class="c10">
+<span class="c4 c15">
    Students who did not take math beyond pre-calculus in their prior coursework are strongly advised to take at least one such course (e.g. calculus, linear algebra, discrete math, etc.) prior to taking CS 250.
   </span>
- </p>
- <ul class="c1 lst-kix_lv3zlp7clg2c-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c9 c14">
+</p>
+<ul class="c1 lst-kix_lv3zlp7clg2c-0 start">
+<li class="c0 li-bullet-0">
+<span class="c9 c14">
     This
    </span>
-   <span class="c8">
-    <a class="c5" href="https://web.cs.pdx.edu/files/Grad-Prep-Modest-Schedule.pdf">
+<span class="c8">
+<a class="c5" href="https://web.cs.pdx.edu/files/Grad-Prep-Modest-Schedule.pdf">
      sample program
     </a>
-   </span>
-   <span class="c9 c14">
-   </span>
-   <span class="c3">
+</span>
+<span class="c9 c14">
+</span>
+<span class="c3">
     assumes the student has modest programming experience and an adequate mathematical background.
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c9 c14">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c9 c14">
     This
    </span>
-   <span class="c8">
-    <a class="c5" href="https://web.cs.pdx.edu/files/Grad-Prep-NoExp-Schedule.pdf">
+<span class="c8">
+<a class="c5" href="https://web.cs.pdx.edu/files/Grad-Prep-NoExp-Schedule.pdf">
      sample program
     </a>
-   </span>
-   <span class="c9 c14">
-   </span>
-   <span class="c3">
+</span>
+<span class="c9 c14">
+</span>
+<span class="c3">
     assumes the student has no prior programming experience and a limited mathematical background.
    </span>
-  </li>
- </ul>
- <p class="c23">
-  <span class="c9 c14">
+</li>
+</ul>
+<p class="c23">
+<span class="c9 c14">
    Students can download a copy of the
   </span>
-  <span class="c8">
-   <a class="c5" href="https://docs.google.com/spreadsheets/d/1da29N_XazIZxiOtL7uuPSqFIPC4aAAGTZQiD1DPl8pQ/edit?usp=sharing">
+<span class="c8">
+<a class="c5" href="https://docs.google.com/spreadsheets/d/1da29N_XazIZxiOtL7uuPSqFIPC4aAAGTZQiD1DPl8pQ/edit?usp=sharing">
     Grad Prep Academic Plan template
    </a>
-  </span>
-  <span class="c9 c14">
+</span>
+<span class="c9 c14">
    to build their schedule and are encouraged to make an appointment with the
   </span>
-  <span class="c8">
-   <a class="c5" href="https://ellabarrett.youcanbook.me/">
+<span class="c8">
+<a class="c5" href="https://ellabarrett.youcanbook.me/">
     CS Graduate Advisor
    </a>
-  </span>
-  <span class="c3">
+</span>
+<span class="c3">
    for any assistance.
   </span>
- </p>
- <hr/>
- <p class="c7">
-  <span class="c3">
-  </span>
- </p>
- <h2 class="c18" id="h.90n4g3ckg73a">
-  <span class="c11">
+</p>
+<hr/>
+<p class="c7">
+<span class="c3">
+</span>
+</p>
+<h2 class="c18" id="h.90n4g3ckg73a">
+<span class="c11">
    Frequently Asked Questions
   </span>
- </h2>
- <ol class="c1 lst-kix_h4j4cayiaaiq-0 start" start="1">
-  <li class="c16 li-bullet-0">
-   <span class="c12">
+</h2>
+<ol class="c1 lst-kix_h4j4cayiaaiq-0 start" start="1">
+<li class="c16 li-bullet-0">
+<span class="c12">
     Is the admission process to the graduate CS program selective?
     <br/>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     In general, yes, but not for Grad Prep students. At this time, all students who successfully complete Grad Prep who also meet the basic graduate admission requirements are admitted to the CS graduate program.
    </span>
-  </li>
-  <li class="c16 li-bullet-0">
-   <span class="c12">
+</li>
+<li class="c16 li-bullet-0">
+<span class="c12">
     How much does the program cost?
     <br/>
-   </span>
-   <span class="c9">
+</span>
+<span class="c9">
     This depends on how many total credits a student will take and how many terms they enroll in. If a student takes all of the Grad Prep courses, they will take 9 courses or 36 credits. If a student starts with CS 162, for example, they will take 7 courses or 28 credits. For the Grad Prep courses, tuition is assessed at the base undergraduate rate, based on
    </span>
-   <span class="c8">
-    <a class="c5" href="https://www.pdx.edu/registration/residency-requirements">
+<span class="c8">
+<a class="c5" href="https://www.pdx.edu/registration/residency-requirements">
      Oregon state residency
     </a>
-   </span>
-   <span class="c9 c20">
-   </span>
-   <span class="c9">
+</span>
+<span class="c9 c20">
+</span>
+<span class="c9">
     per credit. Mandatory quarterly fees are assessed based on how many credits a student takes in one quarter, and how many total quarters they enroll in. Given this information, refer to PSU’s tuition and fee webpage, and the rate tables for the current academic year:
    </span>
-   <span class="c8">
-    <a class="c5" href="https://www.pdx.edu/student-finance/tuition">
+<span class="c8">
+<a class="c5" href="https://www.pdx.edu/student-finance/tuition">
      https://www.pdx.edu/student-finance/tuition
     </a>
-   </span>
-   <span class="c9">
+</span>
+<span class="c9">
     . To calculate the cost for the MS degree: the program is 45 total credits; tuition is assessed at the differential graduate rate, based on Oregon state residency per credit.
    </span>
-  </li>
-  <li class="c16 li-bullet-0">
-   <span class="c12">
+</li>
+<li class="c16 li-bullet-0">
+<span class="c12">
     Can Grad Prep courses be in progress when the graduate application is submitted?
     <br/>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     Yes. In this case, the student is admitted conditionally to the graduate program, meaning, on the condition that they receive a passing grade for all in progress courses. If the in-progress coursework is not completed with the appropriate grade by the end of the term, graduate admission will be deferred to a future term until all Grad Prep courses have been successfully completed.
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c12">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c12">
     Can Grad Prep coursework be taken at a community college?
     <br/>
-   </span>
-   <span class="c9 c14">
+</span>
+<span class="c9 c14">
     Yes. The 100-200 level Grad Prep courses, and any necessary math courses, can be completed at one of the community colleges listed in the
    </span>
-   <span class="c2">
-    <a class="c5" href="https://www.pdx.edu/engineering/transfer-guides">
+<span class="c2">
+<a class="c5" href="https://www.pdx.edu/engineering/transfer-guides">
      transfer guide
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     . Coursework offered at institutions that are not on this list need to be evaluated. To initiate this evaluation, send a course syllabus to the CS Graduate Advisor ahead of enrolling in the course. If the course has already been completed, also include an unofficial transcript.
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c12">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c12">
     Can a student register in their next Grad Prep class at PSU when their last community college course is still in progress?
     <br/>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     Yes. The student must submit a current unofficial transcript from the college that shows the course in progress to the CS Graduate Advisor. Once the grade has been recorded for the class, the student will need to send an updated unofficial transcript to the CS Graduate Advisor in order to demonstrate that they have met the prerequisite requirement for the PSU class. They will also need to submit an official transcript to PSU Admissions so the course can be officially transferred to PSU.
    </span>
-  </li>
-  <li class="c16 li-bullet-0">
-   <span class="c12">
+</li>
+<li class="c16 li-bullet-0">
+<span class="c12">
     Once the student is admitted to the CS graduate program, will tuition increase?
     <br/>
-   </span>
-   <span class="c9 c14">
+</span>
+<span class="c9 c14">
     Yes. Details of tuition and fees are located on the
    </span>
-   <span class="c8">
-    <a class="c5" href="https://www.pdx.edu/student-finance/">
+<span class="c8">
+<a class="c5" href="https://www.pdx.edu/student-finance/">
      Student Finance page
     </a>
-   </span>
-   <span class="c9 c14">
+</span>
+<span class="c9 c14">
     .
    </span>
-  </li>
- </ol>
+</li>
+</ol>
 </div>
 
               </div>
@@ -475,6 +502,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

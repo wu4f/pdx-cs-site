@@ -12,8 +12,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --psu-green: #6d8d24;
-      --psu-green-dark: #4d6712;
+      /* WCAG 2.1 AA: white on --psu-green is 5.6:1, on --psu-green-dark is 8.3:1 */
+      --psu-green: #547119;
+      --psu-green-dark: #3f5512;
       --psu-green-light: #eaf2d4;
       --psu-gold: #d4a017;
       --ink: #1e2230;
@@ -41,6 +42,50 @@
     }
     a { color: var(--psu-green-dark); text-decoration: none; }
     a:hover { text-decoration: underline; }
+
+    /* Screen-reader-only utility (WCAG 1.3.1 — programmatic labels) */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    /* Visible focus ring for keyboard users (WCAG 2.4.7) */
+    :focus-visible {
+      outline: 3px solid #2a6cff;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    button:focus-visible, a:focus-visible {
+      outline: 3px solid #2a6cff;
+      outline-offset: 2px;
+    }
+
+    /* Skip link (WCAG 2.4.1) — visible only when focused */
+    .skip-link {
+      position: absolute; left: -10000px; top: 8px;
+      background: var(--ink); color: #fff !important;
+      padding: 10px 16px; border-radius: 6px;
+      font-weight: 600; z-index: 1000;
+    }
+    .skip-link:focus {
+      left: 16px;
+      outline: 3px solid #ffd54f;
+      text-decoration: none;
+    }
+
+    /* Respect users who prefer reduced motion (WCAG 2.3.3 / 2.2.2) */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .top-cta:hover, .quick-ask:hover, .card:hover, .eyebrow:hover { transform: none !important; }
+    }
 
     /* ---------- Top bar (two rows: brand row + nav row) ---------- */
     .topbar {
@@ -349,6 +394,8 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
 <header class="topbar">
   <div class="topbar-row primary">
     <a href="/" class="brand" aria-label="PSU CS home">
@@ -377,18 +424,20 @@
   </nav>
 </header>
 
-<section class="hero">
+<main id="main-content">
+<section class="hero" aria-label="Department overview and AI assistant">
   <div class="hero-inner">
     <a class="eyebrow" href="https://pdx.edu" target="_blank" rel="noopener">Portland State University ↗</a>
     <h1>Department of Computer Science</h1>
     <p class="sub">Programs, courses, faculty, and student resources — plus an AI assistant trained on the department's own content.</p>
-    <form class="ask-card" id="askForm" onsubmit="return askSubmit(event)">
+    <form class="ask-card" id="askForm" onsubmit="return askSubmit(event)" role="search" aria-label="Ask the CS assistant">
       <span aria-hidden="true" style="padding-left:6px; color:var(--ink-muted)">🔍</span>
-      <input id="askInput" type="text" placeholder="Ask anything about the CS department..." aria-label="Ask the CS assistant"/>
+      <label for="askInput" class="visually-hidden">Your question</label>
+      <input id="askInput" type="text" placeholder="Ask anything about the CS department..." aria-label="Your question"/>
       <button id="askBtn" type="submit">Ask <span aria-hidden="true">→</span></button>
     </form>
 
-    <div class="quick-asks">
+    <div class="quick-asks" role="group" aria-label="Example questions">
       <button class="quick-ask" onclick="quickAsk('How many credits are required for the MS in Computer Science?')">MS credits?</button>
       <button class="quick-ask" onclick="quickAsk('Who do I contact for graduate advising?')">Graduate advising</button>
       <button class="quick-ask" onclick="quickAsk('What is the cybersecurity certificate?')">Cybersecurity certificate</button>
@@ -397,14 +446,13 @@
 
     <p class="ask-hint">Or jump straight to the full chat: <a href="/ask/"><b>open the assistant →</b></a></p>
 
-    <div class="ask-answer" id="askAnswer" role="region" aria-live="polite">
+    <div class="ask-answer" id="askAnswer" role="region" aria-label="Assistant answer" aria-live="polite">
       <h4>Assistant</h4>
       <div class="answer-body" id="answerBody"></div>
     </div>
   </div>
 </section>
 
-<main>
   
     <section id="about">
       <div class="section-head">

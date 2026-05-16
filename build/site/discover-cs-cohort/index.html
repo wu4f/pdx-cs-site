@@ -22,288 +22,315 @@
 .c12{font-weight:700}
 .c6{text-decoration:none;font-style:normal}
 .c11{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Discover CS Cohort">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c18 doc-content">
- <h1 class="c16" id="h.n57b5rwy4ymd">
-  <span class="c6 c15">
+<h1 class="c16" id="h.n57b5rwy4ymd">
+<span class="c6 c15">
    Discover CS Cohort
   </span>
- </h1>
- <ul class="c7 lst-kix_3x41oorlazh9-0 start">
-  <li class="c17 li-bullet-0">
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/forms/d/e/1FAIpQLSe11whS0UWX17jvlsHYrQarthrR7uJTDFn1nOHZhYYd37sSkQ/viewform?usp=sf_link">
+</h1>
+<ul class="c7 lst-kix_3x41oorlazh9-0 start">
+<li class="c17 li-bullet-0">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/forms/d/e/1FAIpQLSe11whS0UWX17jvlsHYrQarthrR7uJTDFn1nOHZhYYd37sSkQ/viewform?usp=sf_link">
      Request Info about Discover CS Cohort
     </a>
-   </span>
-  </li>
- </ul>
- <p class="c9">
-  <span class="c5">
+</span>
+</li>
+</ul>
+<p class="c9">
+<span class="c5">
    Technology influences nearly
   </span>
-  <span class="c12">
+<span class="c12">
    every field of study
   </span>
-  <span class="c5">
+<span class="c5">
    and impacts almost every aspect of our lives. Do you wonder how your favorite apps are created, how music and movies are streamed, or how a self-driving car works? Are you creative and enjoy solving problems and working together as a team? These are a few of the traits of a computer scientist. Learning to think like a computer scientist gives you the knowledge, skills, and power to solve important problems that can
   </span>
-  <span class="c12">
+<span class="c12">
    help your community
   </span>
-  <span class="c5 c6">
+<span class="c5 c6">
    !
   </span>
- </p>
- <p class="c9">
-  <span class="c12">
+</p>
+<p class="c9">
+<span class="c12">
    No coding experience? No problem!
   </span>
-  <span class="c5">
+<span class="c5">
    Do you want to explore a major in computer science, or develop skills that complement your current career goals? Look no further! The Department of Computer Science at Portland State University is excited to announce our new
   </span>
-  <span class="c12">
+<span class="c12">
    Discover CS Cohort
   </span>
-  <span class="c5 c6">
+<span class="c5 c6">
    program for our introductory course sequence:
   </span>
- </p>
- <ul class="c7 lst-kix_9np4co5g9s10-0 start">
-  <li class="c1 li-bullet-0">
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">
+</p>
+<ul class="c7 lst-kix_9np4co5g9s10-0 start">
+<li class="c1 li-bullet-0">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">
      CS 161 Introduction to Programming and Problem-Solving
     </a>
-   </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">
+</span>
+</li>
+<li class="c1 li-bullet-0">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">
      CS 162 Introduction to Computer Science
     </a>
-   </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">
+</span>
+</li>
+<li class="c1 li-bullet-0">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">
      CS 163 Data Structures
     </a>
-   </span>
-  </li>
- </ul>
- <p class="c9">
-  <span class="c5 c6">
+</span>
+</li>
+</ul>
+<p class="c9">
+<span class="c5 c6">
    Benefits of joining a cohort include:
   </span>
- </p>
- <ul class="c7 lst-kix_r44afvz8ijsn-0 start">
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</p>
+<ul class="c7 lst-kix_r44afvz8ijsn-0 start">
+<li class="c1 li-bullet-0">
+<span class="c2">
     Learning alongside a small group of peers with similar goals and interests
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c2">
     Collaborative problem-solving and group discussions
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c2">
     A supportive and inclusive learning environment
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c2">
     Opportunities to network and build connections in the tech industry
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c2">
     Consistent in-person teaching style and approach
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c2">
     Increased opportunities for personalized feedback and support
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c2">
     Building a relationship with the instructor as a mentor and future resource
    </span>
-  </li>
- </ul>
- <p class="c9">
-  <span class="c5 c6">
+</li>
+</ul>
+<p class="c9">
+<span class="c5 c6">
    The next cohort will start in Fall 2025 and we are looking for students who can make a commitment to continue with the three-course cohort: CS 161 in the Fall, and then CS 162 and CS 162 in the following Winter and Spring terms. Don't miss out on this unique opportunity to explore the exciting field of computer science!
   </span>
- </p>
- <h2 class="c9 c13" id="h.kvtxi5fp0q1">
-  <span class="c14 c6">
+</p>
+<h2 class="c9 c13" id="h.kvtxi5fp0q1">
+<span class="c14 c6">
    How do I enroll in this cohort?
   </span>
- </h2>
- <p class="c9">
-  <span class="c5">
+</h2>
+<p class="c9">
+<span class="c5">
    Reach out to the department by completing the
   </span>
-  <span class="c4">
-   <a class="c11" href="https://docs.google.com/forms/d/e/1FAIpQLSe11whS0UWX17jvlsHYrQarthrR7uJTDFn1nOHZhYYd37sSkQ/viewform">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/forms/d/e/1FAIpQLSe11whS0UWX17jvlsHYrQarthrR7uJTDFn1nOHZhYYd37sSkQ/viewform">
     Request Information
    </a>
-  </span>
-  <span class="c5">
+</span>
+<span class="c5">
    form or emailing Stephanie Allen at
   </span>
-  <span class="c4">
+<span class="c4">
    steallen@pdx.edu
   </span>
-  <span class="c5 c6">
+<span class="c5 c6">
    and we will be in touch! You will be given a special code to use when registering for courses.
   </span>
- </p>
- <h2 class="c9 c13" id="h.c5o55aa49fkk">
-  <span class="c6 c14">
+</p>
+<h2 class="c9 c13" id="h.c5o55aa49fkk">
+<span class="c6 c14">
    Frequently asked questions:
   </span>
- </h2>
- <ul class="c7 lst-kix_50tizkmzaz84-0 start">
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</h2>
+<ul class="c7 lst-kix_50tizkmzaz84-0 start">
+<li class="c1 li-bullet-0">
+<span class="c0">
     When does the cohort start?
     <br/>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     The next cohort will start in Fall 2025. Classes will meet in person on Mondays and Wednesdays from 11:00 a.m. to 12:40 p.m. During the first week of class, you will select a required Friday lab time: either 10:00–11:50 a.m. or 3:00–4:50 p.m. Class and lab days and times will remain the same throughout all three terms.
     <br/>
     Another benefit of joining the cohort - you’ll know your schedule now!
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     What are the class sizes?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     Each course will have a maximum of 30-36 students and meet twice a week. Students will also meet once a week in smaller groups of 10-12 students. The smaller group meetings will be run by a former student who has recently completed CS 161, CS 162, and CS 163 and will remain with you throughout your journey in a mentor role.
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     Will I be taking all three courses with the same instructor?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     Yes! That is one of the benefits of the cohort, developing a relationship with your instructor so they know how to best support you.
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     Will the courses be on the same day and time each term?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     Yes, you can rely on a consistent day and time each term.
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     I have no prior computer science experience, is this class for me?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     Yes! This cohort is designed specifically for students with no prior experience.
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     What if I enroll in the cohort sections, but for other reasons, cannot continue with the cohort?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     We understand that life happens and plans change. If you need to leave the cohort at any time, rest assured you will be prepared to complete the remaining classes outside of the cohort.
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     What will I be learning in the three-course sequence?
     <br/>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     Take a look at the list of
    </span>
-   <span class="c4">
-    <a class="c11" href="https://drupal-admin.web.wdt.pdx.edu/computer-science/undergraduate-courses">
+<span class="c4">
+<a class="c11" href="https://drupal-admin.web.wdt.pdx.edu/computer-science/undergraduate-courses">
      Undergraduate Courses
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     and the specific course descriptions for
    </span>
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vT6wUfKY4wJd24wV8742HCWoS5vOqNk3E7oFjSS-OmQvWEfZLVOm6iGa4AGgZ2CdseYeUO6dhinFs1_/pub">
      CS 161
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     ,
    </span>
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vSUgFVtj4EE4jCKjg9m6fKcfg_eHxHwSBYkcXmYXOrCWq8FTQWKL4U_zZP4SksTdp4N9g5MjTD0hLHS/pub">
      CS 162
     </a>
-   </span>
-   <span class="c3">
+</span>
+<span class="c3">
     , and
    </span>
-   <span class="c4">
-    <a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">
+<span class="c4">
+<a class="c11" href="https://docs.google.com/document/d/e/2PACX-1vQ5wSMsXqss1t0Q7PZd3YhDQE0GFqPY78wnVq7riAEqy20PxN1aGAr-1nGpcj_bmlaKj8lJvvM11Hoz/pub">
      CS 163
     </a>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     .
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     I am majoring in another discipline, why should I consider computer science?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     Technology influences nearly every field of study and impacts almost every aspect of our lives. It is important for all students, regardless of major, to develop real digital competencies alongside their own specialization areas, especially in areas that are increasingly informed by digital and computational environments, such as healthcare, education, and social services.
    </span>
-  </li>
-  <li class="c1 li-bullet-0">
-   <span class="c0">
+</li>
+<li class="c1 li-bullet-0">
+<span class="c0">
     Will there be an annotation or other difference on my transcript indicating that I completed the introductory course sequence within the cohort?
     <br/>
-   </span>
-   <span class="c2">
+</span>
+<span class="c2">
     No, the course numbers are the same and you will be meeting the same course objectives as the other sections.
    </span>
-  </li>
- </ul>
- <p class="c8">
-  <span class="c6 c10">
-  </span>
- </p>
+</li>
+</ul>
+<p class="c8">
+<span class="c6 c10">
+</span>
+</p>
 </div>
 
               </div>
@@ -313,6 +340,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

@@ -23,128 +23,155 @@
 .c13{font-weight:400}
 .c32{font-weight:400}
 .c27{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Accreditation">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c23 c34 doc-content">
- <h1 class="c18" id="h.sv0p476njn9r">
-  <span class="c17">
+<h1 class="c18" id="h.sv0p476njn9r">
+<span class="c17">
    Accreditation
   </span>
- </h1>
- <p class="c8">
-  <span class="c13">
+</h1>
+<p class="c8">
+<span class="c13">
    The Portland State undergraduate Bachelor of Science Computer Science degree program is accredited by the Computing Accreditation Commission of ABET,
   </span>
-  <span class="c31">
-   <a class="c27" href="https://www.abet.org/">
+<span class="c31">
+<a class="c27" href="https://www.abet.org/">
     https://www.abet.org
    </a>
-  </span>
-  <span class="c12">
+</span>
+<span class="c12">
    , under the General Criteria and the Computer Science and Similarly Named Computing Program Criteria.  This national organization sets standards for computer science education defined in terms of curricular content, quality of faculty, and adequacy of facilities.
   </span>
- </p>
- <p class="c8">
-  <span class="c12">
+</p>
+<p class="c8">
+<span class="c12">
    Accreditation certifies that a program meets or exceeds the minimum criteria for quality education, ensuring a quality educational experience for students.
   </span>
- </p>
- <p class="c8">
-  <span class="c12">
+</p>
+<p class="c8">
+<span class="c12">
    Accreditation has two advantages for students:
   </span>
- </p>
- <ol class="c11 lst-kix_z1l4zq1nyu2p-0 start" start="1">
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</p>
+<ol class="c11 lst-kix_z1l4zq1nyu2p-0 start" start="1">
+<li class="c0 li-bullet-0">
+<span class="c2">
     Accreditation is a form of quality control. The CAC sets minimum standards for every aspect of a degree program, and, periodically, they send an evaluation team to examine everything from the degree requirements (which are stiffer than average, at their insistence) to the way classes are conducted and graded. The evaluation team will also interview students, staff, and faculty, and examine our facilities, and curriculum materials. A program is accredited only if everything is up to par.
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
     Accreditation adds real market value to the degree. For example, some companies (particularly those accustomed to hiring engineers) pay better starting salaries, and sometimes job titles, if the employee comes from an accredited degree program.
    </span>
-  </li>
- </ol>
- <h2 class="c18" id="h.4jiyh8ygjux">
-  <span class="c3">
+</li>
+</ol>
+<h2 class="c18" id="h.4jiyh8ygjux">
+<span class="c3">
    Program Educational Objectives and Student Outcomes
   </span>
- </h2>
- <p class="c8">
-  <span class="c13">
+</h2>
+<p class="c8">
+<span class="c13">
    The design and delivery of our Bachelor's program is guided and informed by a set of program educational
   </span>
-  <span class="c32">
+<span class="c32">
    objectives and associated student outcomes
   </span>
-  <span class="c12">
+<span class="c12">
    that are below.
   </span>
- </p>
- <h3 class="c22" id="h.79v26hwztab1">
-  <span class="c10">
+</p>
+<h3 class="c22" id="h.79v26hwztab1">
+<span class="c10">
    Program Educational Objectives
   </span>
- </h3>
- <p class="c7">
-  <span class="c12">
+</h3>
+<p class="c7">
+<span class="c12">
    The objective of the undergraduate program in Computer Science is to produce graduates who, 3-5 years after graduation:
   </span>
- </p>
- <ol class="c11 lst-kix_cll2609rttm7-0 start" start="1">
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</p>
+<ol class="c11 lst-kix_cll2609rttm7-0 start" start="1">
+<li class="c0 li-bullet-0">
+<span class="c2">
     Have made initial advances on a successful career path that leverages the knowledge and skills they acquired in our program;
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
     Consistently demonstrate their commitment, in principle and in practice, to upholding the highest standards of professionalism, integrity, and ethical behavior; and
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
     Exhibit the motivation, preparation, and ability to adapt to rapidly changing technology and to engage in life-long learning.
    </span>
-  </li>
- </ol>
- <p class="c7">
-  <span class="c13">
+</li>
+</ol>
+<p class="c7">
+<span class="c13">
    To achieve these objectives students should master the following learning-based outcomes.
   </span>
- </p>
- <h3 class="c22" id="h.1v3ipu9l5hbs">
-  <span class="c10">
+</p>
+<h3 class="c22" id="h.1v3ipu9l5hbs">
+<span class="c10">
    Student Outcomes
   </span>
- </h3>
- <p class="c7">
-  <span class="c12">
+</h3>
+<p class="c7">
+<span class="c12">
    Students in the undergraduate program in Computer Science are expected to master the following competencies (learning based student outcomes). Reflecting the high-level structure, the list is organized as two groups, one focused on skills outcomes (using labels that begin with A) and the other on knowledge outcomes (using labels that begin with B).
   </span>
- </p>
- <p class="c7">
-  <span class="c12">
+</p>
+<p class="c7">
+<span class="c12">
    Graduates of the undergraduate program in computer science will have an ability to:
   </span>
- </p>
- <p class="c7">
-  <span class="c12">
+</p>
+<p class="c7">
+<span class="c12">
    A1. Analyze a complex computing problem and apply principles of computing and other relevant disciplines to identify solutions.
    <br/>
    A2. Design, implement, and evaluate a computing-based solution to meet a given set of computing requirements in the context of the program's discipline.
@@ -157,400 +184,400 @@
    <br/>
    A6. Apply computer science theory and software development fundamentals to produce computing-based solutions.
   </span>
- </p>
- <p class="c7">
-  <span class="c12">
+</p>
+<p class="c7">
+<span class="c12">
    B1. Apply knowledge and skills in the foundations of computer science.
    <br/>
    B2. Apply knowledge and skills in the area of systems and data.
    <br/>
    B3. Apply knowledge and skills in professional design and development.
   </span>
- </p>
- <p class="c7">
-  <span class="c12">
+</p>
+<p class="c7">
+<span class="c12">
    Notes:
   </span>
- </p>
- <ul class="c11 lst-kix_jh41xy2rtezq-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</p>
+<ul class="c11 lst-kix_jh41xy2rtezq-0 start">
+<li class="c0 li-bullet-0">
+<span class="c2">
     The first groups of outcomes, A1-A6, are the required student outcomes described in the ABET Criteria for Accrediting Computing Programs, 2022 2023 for Computer Science and Similarly Named Programs .
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c2">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c2">
     The second group of outcomes, B1-B3, reflect an organization of the knowledge components of our curriculum in line with the taxonomy of the ACM/IEEE CS 2013 Curriculum Guidelines for Undergraduate Programs in Computer Science and the CC2020 Computing Curricula 2020: Paradigms for Global Computing Education . The three areas specified in the adopted outcomes correspond to the following groupings of topics, each of which has approximately the same aggregate weighting in the curriculum guidelines:
    </span>
-  </li>
- </ul>
- <ul class="c11 lst-kix_jh41xy2rtezq-1 start">
-  <li class="c25 li-bullet-0">
-   <span class="c19">
+</li>
+</ul>
+<ul class="c11 lst-kix_jh41xy2rtezq-1 start">
+<li class="c25 li-bullet-0">
+<span class="c19">
     Foundations of Computer Science
    </span>
-   <span class="c2">
+<span class="c2">
     : Algorithms and Complexity (AL), Discrete Structures (DS), and Programming Languages (PL);
    </span>
-  </li>
-  <li class="c25 li-bullet-0">
-   <span class="c19">
+</li>
+<li class="c25 li-bullet-0">
+<span class="c19">
     Systems and Data
    </span>
-   <span class="c2">
+<span class="c2">
     : Architecture and Organization (AR), Computational Science (CN), Graphics and Visualizations (GV), Information Management (IM), Intelligent Systems (IS), Networking and Communication (NC), Operating Systems (OS), Parallel and Distributed Computing (PD), and Systems Fundamentals (SF);
    </span>
-  </li>
-  <li class="c25 li-bullet-0">
-   <span class="c19">
+</li>
+<li class="c25 li-bullet-0">
+<span class="c19">
     Professional Design and Development
    </span>
-   <span class="c2">
+<span class="c2">
     : Human Computer Interaction (HCI), Information Assurance and Security (IAS), Platform-based Development (PBD), Software Development Fundamentals (SDF), Software Engineering (SE), and Social Issues and Professional Practice (SP).
    </span>
-  </li>
- </ul>
- <h3 class="c22" id="h.bekn6fwepdpr">
-  <span class="c10">
+</li>
+</ul>
+<h3 class="c22" id="h.bekn6fwepdpr">
+<span class="c10">
    Mapping Between Objectives and Outcomes
   </span>
- </h3>
- <p class="c7">
-  <span class="c12">
+</h3>
+<p class="c7">
+<span class="c12">
    The mapping between the sets of program educational objectives and student outcomes listed above is summarized in the following table:
   </span>
- </p>
- <table class="c35">
-  <tr class="c20">
-   <td class="c14" colspan="1" rowspan="1">
-    <p class="c15">
-     <span class="c24">
+</p>
+<table class="c35">
+<tr class="c20">
+<td class="c14" colspan="1" rowspan="1">
+<p class="c15">
+<span class="c24">
       Program Educational Objectives
      </span>
-    </p>
-   </td>
-   <td class="c9" colspan="9" rowspan="1">
-    <p class="c15">
-     <span class="c24">
+</p>
+</td>
+<td class="c9" colspan="9" rowspan="1">
+<p class="c15">
+<span class="c24">
       Student Outcomes
      </span>
-    </p>
-   </td>
-  </tr>
-  <tr class="c26">
-   <td class="c14" colspan="1" rowspan="2">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c33" colspan="6" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+</tr>
+<tr class="c26">
+<td class="c14" colspan="1" rowspan="2">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c33" colspan="6" rowspan="1">
+<p class="c6">
+<span class="c2">
       Skills
      </span>
-    </p>
-   </td>
-   <td class="c21" colspan="3" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c21" colspan="3" rowspan="1">
+<p class="c6">
+<span class="c2">
       Knowledge
      </span>
-    </p>
-   </td>
-  </tr>
-  <tr class="c26">
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+</tr>
+<tr class="c26">
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       A1
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       A2
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       A3
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       A4
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       A5
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       A6
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       B1
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       B2
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       B3
      </span>
-    </p>
-   </td>
-  </tr>
-  <tr class="c16">
-   <td class="c14" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+</tr>
+<tr class="c16">
+<td class="c14" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       1. Have made initial advances on a successful career path that leverages the knowledge and skills they acquired in our program
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-  </tr>
-  <tr class="c16">
-   <td class="c14" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+</tr>
+<tr class="c16">
+<td class="c14" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       2. Consistently demonstrate their commitment, in principle and in practice, to upholding the highest standards of professionalism, integrity, and ethical behavior
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c1">
-     <span class="c2">
-     </span>
-    </p>
-   </td>
-  </tr>
-  <tr class="c16">
-   <td class="c14" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c1">
+<span class="c2">
+</span>
+</p>
+</td>
+</tr>
+<tr class="c16">
+<td class="c14" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       3. Exhibit the motivation, preparation, and ability to adapt to rapidly changing technology and to engage in life-long learning
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-   <td class="c4" colspan="1" rowspan="1">
-    <p class="c6">
-     <span class="c2">
+</p>
+</td>
+<td class="c4" colspan="1" rowspan="1">
+<p class="c6">
+<span class="c2">
       X
      </span>
-    </p>
-   </td>
-  </tr>
- </table>
- <hr/>
- <p class="c1 c23">
-  <span class="c2">
-  </span>
- </p>
- <p class="c7">
-  <span class="c12">
+</p>
+</td>
+</tr>
+</table>
+<hr/>
+<p class="c1 c23">
+<span class="c2">
+</span>
+</p>
+<p class="c7">
+<span class="c12">
    The items on this page were last reviewed and updated by the faculty in Fall 2023.
   </span>
- </p>
- <p class="c8 c30">
-  <span class="c12">
-  </span>
- </p>
- <p class="c1">
-  <span class="c28">
-  </span>
- </p>
+</p>
+<p class="c8 c30">
+<span class="c12">
+</span>
+</p>
+<p class="c1">
+<span class="c28">
+</span>
+</p>
 </div>
 
               </div>
@@ -560,6 +587,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

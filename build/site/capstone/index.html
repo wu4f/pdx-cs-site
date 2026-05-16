@@ -17,58 +17,85 @@
 .c0{font-weight:400}
 .c4{text-decoration:none;font-style:normal}
 .c2{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Capstone">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c1 doc-content">
- <h1 class="c9" id="h.1mrxaycmw54v">
-  <span class="c3">
+<h1 class="c9" id="h.1mrxaycmw54v">
+<span class="c3">
    Capstone
   </span>
- </h1>
- <p class="c5">
-  <span class="c0 c4">
+</h1>
+<p class="c5">
+<span class="c0 c4">
    Capstone is taken by undergraduate students in the final year of their program. They will work in teams of 6-8 students on a six-month software development project to benefit a company, individual or organization in the community. Sponsoring organizations will be available to students on a regular basis to provide input and feedback as the project develops.
   </span>
- </p>
- <p class="c5">
-  <span class="c0">
+</p>
+<p class="c5">
+<span class="c0">
    New projects begin every quarter (Fall, Winter, Spring and Summer) and last for two quarters. Potential sponsors should consult the
   </span>
-  <span class="c6">
-   <a class="c2" href="https://sites.google.com/pdx.edu/bruceirvin/capstone">
+<span class="c6">
+<a class="c2" href="https://sites.google.com/pdx.edu/bruceirvin/capstone">
     Guidelines for Sponsors
    </a>
-  </span>
-  <span class="c0">
+</span>
+<span class="c0">
    . The
   </span>
-  <span class="c6">
-   <a class="c2" href="https://sites.google.com/pdx.edu/bruceirvin/capstone">
+<span class="c6">
+<a class="c2" href="https://sites.google.com/pdx.edu/bruceirvin/capstone">
     Capstone home page
    </a>
-  </span>
-  <span class="c0 c4">
+</span>
+<span class="c0 c4">
    provides additional information about the program, including Capstone presentation videos.
   </span>
- </p>
- <p class="c7">
-  <span class="c4 c8">
-  </span>
- </p>
+</p>
+<p class="c7">
+<span class="c4 c8">
+</span>
+</p>
 </div>
 
               </div>
@@ -78,6 +105,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

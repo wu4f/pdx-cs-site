@@ -12,17 +12,44 @@
     <!-- css (always loaded from production site so preview deploys still look right) -->
     <link href="https://web.cs.pdx.edu/css/pdx-style.css" rel="stylesheet">
     
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Resources">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
@@ -33,7 +60,7 @@
 <h2>Maseeh College<br/></h2>
 <ul><li>The CAT (Computer Action Team): cat.pdx.edu<br/></li><li>IT support for MCECS<br/></li><li>Braindump presentation series<br/></li><li>Printing, scanning, and copying services<br/></li><li>Career Services: https://www.pdx.edu/engineering/career-services<br/></li><li>Student Services (EB 100): <br/></li><li>Request badge access to computer labs <br/></li><li>Suite 88 and Linux labs 88-09 (Penguin) and 88-10 (Particle)<br/></li><li>Rent lockers for term<br/></li></ul>
 <h2>Portland State University<br/></h2>
-<ul><li><u><a href="https://www.pdx.edu/gradschool/">Graduate School</a></u><br/></li><li><u><a href="https://library.pdx.edu/">Library</a></u><br/></li><li><u><a href="https://www.pdx.edu/international-students/">International Student Services</a></u><br/></li><li><u><a href="https://www.pdx.edu/disability-resource-center/">Disability Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/student-finance/">Queer Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/womens-resource-center/">Women’s Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/veterans-resource-center/">Veterans Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/students-with-children/resource-center-students-children">Students with Children</a></u><br/></li><li><u><a href="https://www.pdx.edu/cultural-resource-centers/">Cultural Resource Centers</a></u><br/></li><li><u><a href="https://www.pdx.edu/health-counseling/">Student Health &amp; Counseling Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/student-finance/">Student Financial Services</a></u><u><a href="https://pdx.edu/dean-student-life/student-resources"> </a></u><br/></li><li><u><a href="https://www.pdx.edu/dean-student-life/student-resources">Dean of Student Life</a></u><br/></li><li><u><a href="https://www.pdx.edu/campus-safety/">Campus Public Safety</a></u> <br/></li><li>503-725-5911 (emergency)<br/></li><li>503-725-4407 (non-emergency)<br/></li></ul>
+<ul><li><u><a href="https://www.pdx.edu/gradschool/">Graduate School</a></u><br/></li><li><u><a href="https://library.pdx.edu/">Library</a></u><br/></li><li><u><a href="https://www.pdx.edu/international-students/">International Student Services</a></u><br/></li><li><u><a href="https://www.pdx.edu/disability-resource-center/">Disability Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/student-finance/">Queer Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/womens-resource-center/">Women’s Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/veterans-resource-center/">Veterans Resource Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/students-with-children/resource-center-students-children">Students with Children</a></u><br/></li><li><u><a href="https://www.pdx.edu/cultural-resource-centers/">Cultural Resource Centers</a></u><br/></li><li><u><a href="https://www.pdx.edu/health-counseling/">Student Health &amp; Counseling Center</a></u><br/></li><li><u><a href="https://www.pdx.edu/student-finance/">Student Financial Services</a></u><u> </u><br/></li><li><u><a href="https://www.pdx.edu/dean-student-life/student-resources">Dean of Student Life</a></u><br/></li><li><u><a href="https://www.pdx.edu/campus-safety/">Campus Public Safety</a></u> <br/></li><li>503-725-5911 (emergency)<br/></li><li>503-725-4407 (non-emergency)<br/></li></ul>
 <p><br/></p>
               </div>
             </div>
@@ -42,6 +69,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

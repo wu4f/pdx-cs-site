@@ -20,131 +20,158 @@
 .c11{font-weight:400}
 .c15{font-weight:400}
 .c14{text-decoration:inherit}</style>
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Biomedical Informatics">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
                   <div class="c8 doc-content">
- <h1 class="c1" id="h.ywltbgyb2xj8">
-  <span class="c13">
+<h1 class="c1" id="h.ywltbgyb2xj8">
+<span class="c13">
    Biomedical Informatics
   </span>
- </h1>
- <p class="c7">
-  <span class="c11">
+</h1>
+<p class="c7">
+<span class="c11">
    Portland State University and Oregon Health &amp; Science University offer an accelerated, collaborative degree program in
   </span>
-  <span class="c15">
-   <a class="c14" href="https://www.ohsu.edu/school-of-medicine/medical-informatics-and-clinical-epidemiology/what-biomedical-informatics">
+<span class="c15">
+<a class="c14" href="https://www.ohsu.edu/school-of-medicine/medical-informatics-and-clinical-epidemiology/what-biomedical-informatics">
     Biomedical Informatics
    </a>
-  </span>
-  <span class="c11">
+</span>
+<span class="c11">
    . Designed for high achieving freshmen, students in this program combine PSU and OHSU courses to receive both a B.S. Computer Science degree and a Master of Science in Biomedical Informatics degree at the end of five years.   Degree information can be found
   </span>
-  <span class="c3">
-   <a class="c14" href="https://www.pdx.edu/engineering/biomedical-informatics">
+<span class="c3">
+<a class="c14" href="https://www.pdx.edu/engineering/biomedical-informatics">
     here
    </a>
-  </span>
-  <span class="c2">
+</span>
+<span class="c2">
    .
   </span>
- </p>
- <h2 class="c12" id="h.7sgy8eoczne0">
-  <span class="c4">
+</p>
+<h2 class="c12" id="h.7sgy8eoczne0">
+<span class="c4">
    What is Biomedical Informatics?
   </span>
- </h2>
- <p class="c7">
-  <span class="c2">
+</h2>
+<p class="c7">
+<span class="c2">
    Biomedical Informatics is an interdisciplinary field which combines knowledge of biology, computer science, informatics and information engineering to assist in the management of health and biomedical information. Modern medicine has spawned this new spectrum of interdisciplinary scientists who have a combined understanding of computer and biological sciences in order to advance research and medical discovery at unprecedented rates and levels.
   </span>
- </p>
- <p class="c7">
-  <span class="c2">
+</p>
+<p class="c7">
+<span class="c2">
    Biomedical Informatics played a leading role in research successes such as the mapping of human genes, also known as the human genome project. Projects of this type require data analysis and computing expertise as well as medical research talent to analyze and manage billions of data elements. Scientists and scientific institutes around the globe now include these technology experts as leading contributors to advanced research teams. The field of biomedical informatics is a fast growing and highly sought area in medical science.
   </span>
- </p>
- <p class="c7">
-  <span class="c2">
+</p>
+<p class="c7">
+<span class="c2">
    According to Merriam Webster, informatics is "the collection, classification, storage, retrieval, and dissemination of recorded knowledge treated both as a pure and as an applied science." Click here for more information.
   </span>
- </p>
- <h2 class="c12" id="h.i6dramq6las7">
-  <span class="c4">
+</p>
+<h2 class="c12" id="h.i6dramq6las7">
+<span class="c4">
    Program Overview
   </span>
- </h2>
- <p class="c7">
-  <span class="c2">
+</h2>
+<p class="c7">
+<span class="c2">
    Biomedical Informatics graduates are in high demand. Alumni of the program enter a broad range of career fields including: research, teaching, health care information technology, biomedical information applications programming, and health care computing industry.
   </span>
- </p>
- <p class="c7">
-  <span class="c2">
+</p>
+<p class="c7">
+<span class="c2">
    The Biomedical Informatics program is designed for high-achieving high school applicants with an interest in Biology and Computer Science. They must meet the following requirements:
   </span>
- </p>
- <ul class="c10 lst-kix_kzh6zsf8lqmw-0 start">
-  <li class="c0 li-bullet-0">
-   <span class="c6">
+</p>
+<ul class="c10 lst-kix_kzh6zsf8lqmw-0 start">
+<li class="c0 li-bullet-0">
+<span class="c6">
     Minimum 3.5 cumulative GPA
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c6">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c6">
     1200 combined SAT / 26 composite ACT
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c6">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c6">
     Minimum 3.0 GPA in all high school mathematics courses
    </span>
-  </li>
-  <li class="c0 li-bullet-0">
-   <span class="c6">
+</li>
+<li class="c0 li-bullet-0">
+<span class="c6">
     Successful completion of pre-calculus and physics
    </span>
-  </li>
- </ul>
- <p class="c7">
-  <span class="c2">
+</li>
+</ul>
+<p class="c7">
+<span class="c2">
    Students begin taking courses from OHSU during their fourth year, and by their fifth year, they are taking courses exclusively from the OHSU Biomedical Informatics program. Successful students in the Biomedical Informatics program maintain a minimum PSU cumulative 3.0 GPA. In addition, they will have received a verbal score of 500 or above, quantitative score of 600 or above and an analytical score of 4.0/600 or above on the GRE (Graduate Record Examination) by the beginning of their fourth year.
   </span>
- </p>
- <p class="c7">
-  <span class="c2">
+</p>
+<p class="c7">
+<span class="c2">
    Upon successful completion of the GRE and required Portland State coursework, students begin taking courses at Oregon Health &amp; Science University in their third or fourth year. By the end of the fourth year, all courses will be taken at OHSU. Successful students will receive both a B.S. Computer Science and an M.S. Biomedical Informatics degree at the end of five years.
   </span>
- </p>
- <p class="c7">
-  <span class="c11">
+</p>
+<p class="c7">
+<span class="c11">
    For more information, contact the CS Undergraduate Advisor (
   </span>
-  <span class="c15">
+<span class="c15">
    uccs@pdx.edu
   </span>
-  <span class="c2">
+<span class="c2">
    ).
   </span>
- </p>
- <p class="c9">
-  <span class="c5">
-  </span>
- </p>
+</p>
+<p class="c9">
+<span class="c5">
+</span>
+</p>
 </div>
 
               </div>
@@ -154,6 +181,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {

@@ -12,27 +12,54 @@
     <!-- css (always loaded from production site so preview deploys still look right) -->
     <link href="https://web.cs.pdx.edu/css/pdx-style.css" rel="stylesheet">
     
+    <!-- Accessibility overrides: improve link contrast on top of Google's export.
+         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
+         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
+    <style>
+      .skip-link {
+        position: absolute; left: -10000px; top: 8px;
+        background: #1e2230; color: #fff !important;
+        padding: 10px 16px; border-radius: 6px;
+        font-weight: 600; z-index: 1000; text-decoration: none;
+      }
+      .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
+      main#main-content a, main#main-content a:link, main#main-content a:visited {
+        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
+        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
+                                                    without relying on color */
+      }
+      main#main-content a:hover { color: #062a66 !important; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<header style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="/"><img alt="Portland State University Department of Computer Science logo" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
+<p><a href="/" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png" style="height:80px;"/></a></p>
 </header>
+<main id="main-content">
   <div id="wrapper">
-    <section id="content">
+    <section id="content" aria-label="Admissions">
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
             <div class="box">
               <div class="box-gray aligncenter">
-                  <p>The Master of Science (M.S.) is the first graduate degree in the field. Students entering the program must have a bachelor&#x27;s degree and/or adequate background in computer science, such as obtaining an undergraduate computer science program.<br/></p>
-<p>The Doctor of Philosophy (Ph.D.) is the highest degree offered in any discipline. Students may enter the doctoral program with a bachelor&#x27;s degree or with a master&#x27;s degree, and must have adequate background in computer science. <br/></p>
+                  <p>The Master of Science (M.S.) is the first graduate degree in the field. Students entering the program must have a bachelor's degree and/or adequate background in computer science, such as obtaining an undergraduate computer science program.<br/></p>
+<p>The Doctor of Philosophy (Ph.D.) is the highest degree offered in any discipline. Students may enter the doctoral program with a bachelor's degree or with a master's degree, and must have adequate background in computer science. <br/></p>
 <h2>Admission Requirements<br/></h2>
 <p>To be considered for admission, all applicants to the CS graduate programs must have:<br/></p>
-<ul><li>A four-year baccalaureate degree from an accredited institution1<br/></li><li>Minimum undergraduate GPA of 3.0<br/></li><li>Proof of<a href="https://www.pdx.edu/admissions/international/english-language-proficiency"> </a><u><a href="https://www.pdx.edu/admissions/international/english-language-proficiency">English Language Proficiency</a></u> for International Students<br/></li><li>Optional: Graduate Record Examination (GRE) Scores<br/></li></ul>
+<ul><li>A four-year baccalaureate degree from an accredited institution1<br/></li><li>Minimum undergraduate GPA of 3.0<br/></li><li>Proof of <u><a href="https://www.pdx.edu/admissions/international/english-language-proficiency">English Language Proficiency</a></u> for International Students<br/></li><li>Optional: Graduate Record Examination (GRE) Scores<br/></li></ul>
 <p><br/></p>
 <ul><li>Prospective graduate students whose Bachelor’s degree is not in Computer Science must demonstrate or acquire the background needed for graduate study before applying for admission. See <u>Grad Prep</u> for more details. <br/></li></ul>
 <p>Admission is selective and meeting minimum requirements does not guarantee admission. All admission decisions are based on the information a prospective student provides. Students are encouraged to contact the Graduate Advisor (gccs@pdx.edu) to discuss their specific situation.<br/></p>
@@ -41,19 +68,19 @@
 <h2>Application Deadlines<br/></h2>
 <p>The official deadlines for submission of all materials to the University are as follows:<br/></p>
 <!-- TODO: table rendering -->
-<p>PSU operates on a quarter system. For future or specific term dates, refer to the<a href="https://www.pdx.edu/registration/academic-calendar"> </a><u><a href="https://www.pdx.edu/registration/academic-calendar">PSU Academic Calendar</a></u>.<br/></p>
+<p>PSU operates on a quarter system. For future or specific term dates, refer to the <u><a href="https://www.pdx.edu/registration/academic-calendar">PSU Academic Calendar</a></u>.<br/></p>
 <p>Please note that these are the dates that the online application closes for the specified term. The application must be submitted by this date. Supporting documents such as test scores and recommendations may arrive after this deadline. <br/></p>
 <p>Financial support, when offered, typically starts in Fall term. The deadlines for international students are anticipated to account for the time required to obtain visas. Applications should be received by the deadline of the term of admission. Incomplete applications will not be reviewed, so applicants are encouraged to complete all requirements prior to submitting the application. If this is not possible, the applicant should contact the Graduate Advisor (gccs@pdx.edu).<br/></p>
 <h2>Admission Timeline<br/></h2>
 <p>Admission decisions are issued on a rolling basis, typically about 4-6 weeks after a submitted application has been completed and all required documents have been received. Incomplete applications are not reviewed.<br/></p>
 <h2>Application Requirements<br/></h2>
-<p>Applicants should login or create a new account in the PSU application portal to start a<a href="https://apply.pdx.edu/apply/"> </a><u><a href="https://apply.pdx.edu/apply/">single online application</a></u> to Portland State University and to a CS graduate program. It is possible to save an incomplete application and return at a later time.<br/></p>
+<p>Applicants should login or create a new account in the PSU application portal to start a <u><a href="https://apply.pdx.edu/apply/">single online application</a></u> to Portland State University and to a CS graduate program. It is possible to save an incomplete application and return at a later time.<br/></p>
 <p>The applicant should be prepared to submit the requested documents below electronically within the online application. Unofficial copies are sufficient for the application process. Official copies of application documents are only required upon admission to the program and instructions for how to submit these will be provided at that time. Please do not mail any hard copies to the CS department.<br/></p>
 <p>For any questions about the online application form, please contact help@applyweb.com. For any questions regarding CS graduate admission, please contact the CS Graduate Advisor (gccs@pdx.edu).<br/></p>
 <h2>GRE Score Reports (Optional)<br/></h2>
 <p>GRE scores are optional. If the applicant chooses to submit GRE scores, they should upload an unofficial copy of their score report within the application. Official copies are required upon admission to the program, and can be requested from ETS and sent to PSU using the school code 4610 and department code 0402.<br/></p>
 <h2>Transcripts<br/></h2>
-<p>The CS graduate programs require copies of transcripts from each postsecondary institution have attended (including PSU). Unofficial transcript copies are acceptable for application purposes. Official copies are required upon admission to the program. For more information, see PSU’s<a href="https://www.pdx.edu/admissions/transcripts"> </a><u><a href="https://www.pdx.edu/admissions/transcripts">transcript requirements</a></u>.<br/></p>
+<p>The CS graduate programs require copies of transcripts from each postsecondary institution have attended (including PSU). Unofficial transcript copies are acceptable for application purposes. Official copies are required upon admission to the program. For more information, see PSU’s <u><a href="https://www.pdx.edu/admissions/transcripts">transcript requirements</a></u>.<br/></p>
 <h2>References<br/></h2>
 <p>Contact information for two references are required, preferably those who know the applicant’s academic performance and potential. Recommendation letters are also acceptable and can be submitted to the CS Graduate Advisor (gccs@pdx.edu).<br/></p>
 <h2>Short Personal Statement<br/></h2>
@@ -68,6 +95,7 @@
       </div>
     </section>
   </div>
+</main>
 </body>
 <script type="application/ld+json">
 {
