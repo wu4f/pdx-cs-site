@@ -41,14 +41,19 @@ def _render_paragraph(p: dict) -> tuple[str, str]:
     """Return (html, heading_level_or_empty)."""
     style = (p.get("paragraphStyle") or {}).get("namedStyleType", "NORMAL_TEXT")
     inner = "".join(_render_text_run(e) for e in p.get("elements", []))
+    # Headings carry a trailing newline from the paragraph, which our renderer
+    # turns into a stray <br/>. Drop it so headings render cleanly.
+    heading = inner.rstrip()
+    if heading.endswith("<br/>"):
+        heading = heading[: -len("<br/>")].rstrip()
     if style == "HEADING_1":
-        return f"<h1>{inner}</h1>", "H1"
+        return f"<h1>{heading}</h1>", "H1"
     if style == "HEADING_2":
-        return f"<h2>{inner}</h2>", "H2"
+        return f"<h2>{heading}</h2>", "H2"
     if style == "HEADING_3":
-        return f"<h3>{inner}</h3>", "H3"
+        return f"<h3>{heading}</h3>", "H3"
     if style == "TITLE":
-        return f"<h1 class='title'>{inner}</h1>", ""
+        return f"<h1 class='title'>{heading}</h1>", ""
     return f"<p>{inner}</p>", ""
 
 
@@ -133,8 +138,10 @@ def split(creds, doc_id: str, doc_name: str = "") -> Iterator[Section]:
                 if sec:
                     yield sec
                 current_title = title or "untitled"
-                current_html = []
-                current_text = []
+                # Keep the H1 itself in the section body so the rendered page
+                # has a heading, just like the tab-based pages do.
+                current_html = [html]
+                current_text = [current_title]
             else:
                 if current_title is None:
                     continue

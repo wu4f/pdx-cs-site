@@ -3,3 +3,4 @@ token.json
 *.pyc
 __pycache__
 .venv
+logs/
