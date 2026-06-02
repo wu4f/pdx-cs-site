@@ -7,4 +7,5 @@ logs/
 # Generated site pages (rebuilt by `cspdx build` from the Google Docs
 # tab/Heading-1 splitters). The section data (build/sections.json) stays
 # tracked; the rendered HTML does not.
-build/site/
+build/site/*
+!build/site/index.html
