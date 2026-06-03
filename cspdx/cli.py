@@ -1,4 +1,4 @@
-"""Command-line interface: `cspdx build`, `cspdx serve`."""
+"""Command-line interface: `cspdx build`, `cspdx render-landing`, `cspdx serve`."""
 from __future__ import annotations
 import argparse
 import os
@@ -9,7 +9,7 @@ from pathlib import Path
 import yaml
 
 from .admin import reload_chat
-from .models import Section, dump_sections
+from .models import Section, dump_sections, load_sections
 from .sources import gdocs, tab_splitter, heading_splitter
 from .categorize import categorize_sections
 from .render.page import render_sections
@@ -121,6 +121,34 @@ def cmd_build(args):
         print(f"[build] {msg}")
 
 
+def cmd_render_landing(args):
+    """Re-render only the landing page from an existing sections.json.
+
+    Useful after editing `landing_exclude` (or other landing-only config) in
+    content.yaml: it picks up the new config and rewrites index.html without
+    re-fetching the Google Docs or re-categorizing.
+    """
+    cfg = yaml.safe_load(Path(args.config).read_text())
+    sections_path = args.sections or str(Path(args.out) / "sections.json")
+    if not Path(sections_path).exists():
+        sys.exit(f"sections.json not found at {sections_path}; run `cspdx build` first")
+
+    sections = load_sections(sections_path)
+    base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
+    exclude_ids = cfg.get("landing_exclude", []) or []
+    out_path = str(Path(args.out) / "site" / "index.html")
+    print(
+        f"[render-landing] {len(sections)} sections from {sections_path}, "
+        f"excluding {len(exclude_ids)}, base_href={base_href!r} -> {out_path}"
+    )
+    render_landing(
+        sections,
+        out_path=out_path,
+        base_href=base_href,
+        exclude_ids=exclude_ids,
+    )
+
+
 def cmd_serve(args):
     import uvicorn
     uvicorn.run("server.app:app", host=args.host, port=args.port, reload=args.reload)
@@ -151,6 +179,25 @@ def main(argv=None):
              "http://127.0.0.1:8080/admin/reload).",
     )
     pb.set_defaults(func=cmd_build)
+
+    pr = sub.add_parser(
+        "render-landing",
+        help="Re-render only the landing page from an existing sections.json "
+             "(e.g. after editing landing_exclude). No Google fetch.",
+    )
+    pr.add_argument("--config", default="content.yaml")
+    pr.add_argument("--out", default="build")
+    pr.add_argument(
+        "--sections",
+        default=None,
+        help="Path to sections.json (default <out>/sections.json).",
+    )
+    pr.add_argument(
+        "--base-href",
+        default=None,
+        help='Value for the <base> tag (default from content.yaml or "/").',
+    )
+    pr.set_defaults(func=cmd_render_landing)
 
     ps = sub.add_parser("serve", help="Serve site + /ask")
     ps.add_argument("--host", default="0.0.0.0")
