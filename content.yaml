@@ -32,10 +32,6 @@ templates:
 landing_exclude:
   # Duplicate of handbook 'Doctoral Degree (Ph.D.)'
   - doctor-philosophy-phd
-  # Duplicate of handbook 'Graduate Assistantships'
-  - graduate-assistantships
-  # Duplicate of handbook 'Graduate Internship Credit'
-  - graduate-internship-credit
   # Duplicate of handbook 'Cybersecurity Certificate'
   - cybersecurity
   # Duplicate of handbook 'Master's Degree (M.S.)'
