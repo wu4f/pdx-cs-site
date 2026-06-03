@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from .admin import reload_chat
 from .models import Section, dump_sections
 from .sources import gdocs, tab_splitter, heading_splitter
 from .categorize import categorize_sections
@@ -110,6 +111,15 @@ def cmd_build(args):
     dump_sections(all_sections, str(out_dir / "sections.json"))
     print(f"[build] wrote {len(all_sections)} sections to {out_dir}/sections.json")
 
+    # Tell a running chat server to re-read sections.json so its answers
+    # reflect the new content without a manual restart. Best-effort: a
+    # missing token or an offline server is just a warning.
+    if args.no_reload:
+        print("[build] --no-reload set; not notifying the chat server")
+    else:
+        ok, msg = reload_chat(reload_url=args.reload_url)
+        print(f"[build] {msg}")
+
 
 def cmd_serve(args):
     import uvicorn
@@ -128,6 +138,17 @@ def main(argv=None):
         default=None,
         help='Value for the <base> tag (default "/" from content.yaml). '
              'Use "https://web.cs.pdx.edu/" if pages must behave as production.',
+    )
+    pb.add_argument(
+        "--no-reload",
+        action="store_true",
+        help="Don't POST to the chat server's /admin/reload after building.",
+    )
+    pb.add_argument(
+        "--reload-url",
+        default=None,
+        help="Chat server reload endpoint (default $CSPDX_RELOAD_URL or "
+             "http://127.0.0.1:8080/admin/reload).",
     )
     pb.set_defaults(func=cmd_build)
 

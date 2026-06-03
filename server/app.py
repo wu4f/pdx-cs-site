@@ -10,12 +10,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from cspdx.chat.rag import ChatBackend
+from cspdx.admin import load_admin_token
 
 
 SITE_DIR = os.getenv("SITE_DIR", "build/site")
 SECTIONS_PATH = os.getenv("SECTIONS_PATH", "build/sections.json")
 CONTENT_YAML = os.getenv("CONTENT_YAML", "content.yaml")
-ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
+# Token guarding /admin/reload: $ADMIN_TOKEN, else the .admin_token file.
+ADMIN_TOKEN = load_admin_token()
 
 app = FastAPI(title="pdx-cs-site")
 
