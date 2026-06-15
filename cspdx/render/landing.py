@@ -439,7 +439,7 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
     </form>
 
     <div class="quick-asks" role="group" aria-label="Example questions">
-      <button class="quick-ask" onclick="quickAsk('How many credits are required for the MS in Computer Science?')">MS credits?</button>
+      <button class="quick-ask" onclick="quickAsk('Tell me about your AI degree options')">AI options</button>
       <button class="quick-ask" onclick="quickAsk('Who do I contact for graduate advising?')">Graduate advising</button>
       <button class="quick-ask" onclick="quickAsk('What is the cybersecurity certificate?')">Cybersecurity certificate</button>
       <button class="quick-ask" onclick="quickAsk('Tell me about the Discover CS cohort.')">Discover CS</button>
