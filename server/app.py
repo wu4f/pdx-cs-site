@@ -1,13 +1,18 @@
 """FastAPI app: serves the generated site + a /ask endpoint + a tiny chat UI."""
 from __future__ import annotations
+import html as _html
 import os
+import subprocess
+import sys
+import urllib.parse
 from pathlib import Path
 
 import yaml
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
 from cspdx.chat.rag import ChatBackend
 from cspdx.admin import load_admin_token
@@ -16,7 +21,10 @@ from cspdx.admin import load_admin_token
 SITE_DIR = os.getenv("SITE_DIR", "build/site")
 SECTIONS_PATH = os.getenv("SECTIONS_PATH", "build/sections.json")
 CONTENT_YAML = os.getenv("CONTENT_YAML", "content.yaml")
-# Token guarding /admin/reload: $ADMIN_TOKEN, else the .admin_token file.
+# Repo root (parent of server/), so the rebuild subprocess runs from the same
+# place a manual `cspdx build` would (finds content.yaml, build/, token.json).
+REPO_ROOT = Path(__file__).resolve().parent.parent
+# Token guarding /admin/* endpoints: $ADMIN_TOKEN, else the .admin_token file.
 ADMIN_TOKEN = load_admin_token()
 
 app = FastAPI(title="pdx-cs-site")
@@ -73,6 +81,99 @@ def admin_reload(token: str):
     global _chat
     _chat = None  # forces re-load on next /ask
     return {"status": "ok"}
+
+
+def _admin_page(banner: str = "") -> str:
+    """Render the /admin form, optionally preceded by a result banner."""
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin · Rebuild site</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<style>
+  body {{ font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+         max-width: 760px; margin: 6vh auto; padding: 0 20px; color: #1e2230; }}
+  h1 {{ font-size: 1.4rem; }}
+  form {{ display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+          margin: 24px 0; }}
+  label {{ display: block; font-weight: 600; margin-bottom: 6px; }}
+  input[type=password] {{ padding: 10px 12px; font-size: 1rem; min-width: 280px;
+          border: 1px solid #aab; border-radius: 6px; }}
+  button {{ padding: 10px 18px; font-size: 1rem; font-weight: 600; cursor: pointer;
+          background: #1e6b3a; color: #fff; border: 0; border-radius: 6px; }}
+  button:hover {{ background: #14512b; }}
+  .banner {{ padding: 12px 16px; border-radius: 6px; font-weight: 600; }}
+  .banner.ok {{ background: #e6f4ea; color: #0d652d; border: 1px solid #9ad3ab; }}
+  .banner.err {{ background: #fce8e6; color: #a50e0e; border: 1px solid #f2b3ad; }}
+  .log {{ background: #1e2230; color: #e8e8e8; padding: 14px; border-radius: 6px;
+          overflow-x: auto; white-space: pre-wrap; font-size: 0.85rem;
+          max-height: 50vh; }}
+  .hint {{ color: #555; font-size: 0.9rem; }}
+</style>
+</head>
+<body>
+<h1>Rebuild the site</h1>
+<p class="hint">Re-fetches the Google Docs, regenerates every page, and reloads
+the chat index — the same as running <code>cspdx build</code>. This can take
+a minute; leave the tab open until it finishes.</p>
+{banner}
+<form method="post" action="/admin/rebuild">
+  <div>
+    <label for="token">Admin token</label>
+    <input type="password" id="token" name="token"
+           autocomplete="current-password" required autofocus>
+  </div>
+  <button type="submit">Rebuild now</button>
+</form>
+</body>
+</html>"""
+
+
+def _run_build() -> subprocess.CompletedProcess:
+    """Run `cspdx build` from the repo root, capturing output. Blocking; call
+    via run_in_threadpool so the build's callback to /admin/reload isn't
+    starved by this request holding the event loop."""
+    return subprocess.run(
+        [sys.executable, "-m", "cspdx.cli", "build"],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=600,
+    )
+
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_ui():
+    return _admin_page()
+
+
+@app.post("/admin/rebuild", response_class=HTMLResponse)
+async def admin_rebuild(request: Request):
+    body = (await request.body()).decode("utf-8")
+    token = urllib.parse.parse_qs(body).get("token", [""])[0]
+    if not ADMIN_TOKEN or token != ADMIN_TOKEN:
+        # Same message whether or not a token is configured -- don't leak which.
+        return HTMLResponse(
+            _admin_page('<p class="banner err">Invalid admin token.</p>'),
+            status_code=403,
+        )
+    try:
+        result = await run_in_threadpool(_run_build)
+    except subprocess.TimeoutExpired:
+        return HTMLResponse(
+            _admin_page('<p class="banner err">Rebuild timed out after 600s.</p>'),
+            status_code=504,
+        )
+    ok = result.returncode == 0
+    tail = _html.escape((result.stdout + result.stderr)[-6000:].strip())
+    banner = (
+        '<p class="banner ok">Rebuild succeeded.</p>' if ok
+        else f'<p class="banner err">Rebuild failed (exit {result.returncode}).</p>'
+    )
+    body_html = f'{banner}<pre class="log">{tail}</pre>'
+    return HTMLResponse(_admin_page(body_html), status_code=200 if ok else 500)
 
 
 CHAT_UI = r"""<!DOCTYPE html>
