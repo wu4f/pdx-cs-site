@@ -28,7 +28,8 @@ pip install -r requirements.txt
 #   - Service account: put service_account.json in the repo root
 #                      and share both docs with the SA email (Viewer)
 export GOOGLE_API_KEY=...           # for Gemini
-export GDOC_AUTH_MODE=oauth         # or service_account
+export GDOC_AUTH_MODE=oauth         # or service_account (token.json)
+export ADMIN_TOKEN=...              # for refresh and reload
 
 python -m cspdx.cli build           # produces build/site/ + build/sections.json
 python -m cspdx.cli serve           # http://localhost:8080
