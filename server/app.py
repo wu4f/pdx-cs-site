@@ -626,7 +626,7 @@ CHAT_UI = r"""<!DOCTYPE html>
     <h1><span class="badge" aria-label="AI assistant">AI</span> Ask the CS Assistant</h1>
     <p>I can answer questions about the PSU CS department's programs, courses, faculty, and student resources, drawn directly from the official Google Doc handbook and the department's site content.</p>
     <div class="suggestions" role="group" aria-label="Example questions">
-      <button class="suggestion" onclick="askSuggestion('How many credits are required for the MS in Computer Science?')">MS credits?</button>
+      <button class="suggestion" onclick="askSuggestion('Tell me about your AI degree options')">AI options</button>
       <button class="suggestion" onclick="askSuggestion('Who do I contact for graduate advising?')">Graduate advising</button>
       <button class="suggestion" onclick="askSuggestion('Tell me about the cybersecurity certificate.')">Cybersecurity certificate</button>
       <button class="suggestion" onclick="askSuggestion('What is the Discover CS cohort?')">Discover CS</button>
