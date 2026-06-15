@@ -10,3 +10,5 @@ logs/
 # tracked; the rendered HTML does not.
 build/site/*
 !build/site/index.html
+# Runtime build metadata (timestamps + per-doc revisions); changes every build.
+build/build_meta.json

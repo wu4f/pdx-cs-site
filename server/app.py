@@ -16,11 +16,14 @@ from starlette.concurrency import run_in_threadpool
 
 from cspdx.chat.rag import ChatBackend
 from cspdx.admin import load_admin_token
+from cspdx import buildmeta
+from cspdx.sources import gdocs
 
 
 SITE_DIR = os.getenv("SITE_DIR", "build/site")
 SECTIONS_PATH = os.getenv("SECTIONS_PATH", "build/sections.json")
 CONTENT_YAML = os.getenv("CONTENT_YAML", "content.yaml")
+BUILD_META_PATH = os.getenv("BUILD_META_PATH", "build/build_meta.json")
 # Repo root (parent of server/), so the rebuild subprocess runs from the same
 # place a manual `cspdx build` would (finds content.yaml, build/, token.json).
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -83,8 +86,85 @@ def admin_reload(token: str):
     return {"status": "ok"}
 
 
-def _admin_page(banner: str = "") -> str:
-    """Render the /admin form, optionally preceded by a result banner."""
+def _format_ts(iso: str) -> str:
+    """Render an ISO/RFC-3339 timestamp as 'YYYY-MM-DD HH:MM UTC' (best-effort)."""
+    if not iso:
+        return "—"  # em dash
+    try:
+        from datetime import datetime, timezone
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    except Exception:
+        return iso
+
+
+def _load_docs_cfg() -> list[dict]:
+    """Read the `docs:` list from content.yaml (id/splitter/name per entry)."""
+    p = Path(CONTENT_YAML)
+    if not p.exists():
+        return []
+    try:
+        return (yaml.safe_load(p.read_text(encoding="utf-8")) or {}).get("docs", []) or []
+    except Exception as e:
+        print(f"[server] could not read docs from {CONTENT_YAML}: {e}")
+        return []
+
+
+def _admin_status() -> str:
+    """HTML block: last-build time + per-document last-modified / changed state.
+
+    The last-build time comes from build_meta.json (no network). The per-doc
+    modified times + change flags are fetched live from Google, best-effort:
+    if that fails we fall back to the values recorded at the last build.
+    """
+    prev_meta = buildmeta.load_meta(BUILD_META_PATH)
+    built_at = _format_ts(prev_meta.get("built_at", "")) if prev_meta else "never"
+
+    states, changed, note = None, set(), ""
+    docs_cfg = _load_docs_cfg()
+    if docs_cfg:
+        try:
+            creds = gdocs.get_creds(mode=os.getenv("GDOC_AUTH_MODE", "oauth"))
+            states = buildmeta.current_doc_states(creds, docs_cfg)
+            changed = set(buildmeta.changed_ids(prev_meta, states))
+        except Exception as e:
+            note = ('<p class="hint">Could not reach Google to check live '
+                    f'document times ({_html.escape(str(e))}); showing values '
+                    'recorded at the last build.</p>')
+    if states is None:  # live fetch failed or no config: fall back to meta
+        states = prev_meta.get("docs", []) or []
+
+    rows = ""
+    for s in states:
+        is_changed = s["id"] in changed
+        flag = ('<span class="yes">Yes &mdash; rebuild recommended</span>'
+                if is_changed else '<span class="no">No</span>')
+        # No previous build to compare against -> change state is unknown.
+        if not prev_meta:
+            flag = '<span class="no">&mdash;</span>'
+        rows += (
+            f"<tr><td>{_html.escape(s.get('name', s['id']))}</td>"
+            f"<td>{_format_ts(s.get('modified_time', ''))}</td>"
+            f"<td>{flag}</td></tr>\n"
+        )
+    if not rows:
+        rows = '<tr><td colspan="3" class="hint">No documents configured.</td></tr>'
+
+    return f"""<section class="status">
+  <p><strong>Last build:</strong> {built_at}</p>
+  {note}
+  <table>
+    <thead><tr><th>Document</th><th>Last changed</th>
+      <th>Changed since last build</th></tr></thead>
+    <tbody>
+{rows}    </tbody>
+  </table>
+</section>"""
+
+
+def _admin_page(banner: str = "", status: str = "") -> str:
+    """Render the /admin form, optionally preceded by a result banner and a
+    status block (last build + per-document timestamps)."""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -96,7 +176,7 @@ def _admin_page(banner: str = "") -> str:
   body {{ font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
          max-width: 760px; margin: 6vh auto; padding: 0 20px; color: #1e2230; }}
   h1 {{ font-size: 1.4rem; }}
-  form {{ display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+  form {{ display: flex; gap: 10px 16px; align-items: flex-end; flex-wrap: wrap;
           margin: 24px 0; }}
   label {{ display: block; font-weight: 600; margin-bottom: 6px; }}
   input[type=password] {{ padding: 10px 12px; font-size: 1rem; min-width: 280px;
@@ -104,6 +184,9 @@ def _admin_page(banner: str = "") -> str:
   button {{ padding: 10px 18px; font-size: 1rem; font-weight: 600; cursor: pointer;
           background: #1e6b3a; color: #fff; border: 0; border-radius: 6px; }}
   button:hover {{ background: #14512b; }}
+  .check {{ font-weight: 400; display: flex; align-items: center; gap: 8px;
+          margin-bottom: 8px; }}
+  .check label {{ font-weight: 400; margin: 0; }}
   .banner {{ padding: 12px 16px; border-radius: 6px; font-weight: 600; }}
   .banner.ok {{ background: #e6f4ea; color: #0d652d; border: 1px solid #9ad3ab; }}
   .banner.err {{ background: #fce8e6; color: #a50e0e; border: 1px solid #f2b3ad; }}
@@ -111,13 +194,21 @@ def _admin_page(banner: str = "") -> str:
           overflow-x: auto; white-space: pre-wrap; font-size: 0.85rem;
           max-height: 50vh; }}
   .hint {{ color: #555; font-size: 0.9rem; }}
+  .status {{ margin: 20px 0; }}
+  table {{ border-collapse: collapse; width: 100%; font-size: 0.92rem; }}
+  th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #e6e8ee; }}
+  th {{ color: #555; font-weight: 600; }}
+  .yes {{ color: #a50e0e; font-weight: 600; }}
+  .no {{ color: #6b7280; }}
 </style>
 </head>
 <body>
 <h1>Rebuild the site</h1>
 <p class="hint">Re-fetches the Google Docs, regenerates every page, and reloads
-the chat index — the same as running <code>cspdx build</code>. This can take
-a minute; leave the tab open until it finishes.</p>
+the chat index — the same as running <code>cspdx build</code>. By default the
+rebuild is skipped if no source document has changed. This can take a minute;
+leave the tab open until it finishes.</p>
+{status}
 {banner}
 <form method="post" action="/admin/rebuild">
   <div>
@@ -126,33 +217,38 @@ a minute; leave the tab open until it finishes.</p>
            autocomplete="current-password" required autofocus>
   </div>
   <button type="submit">Rebuild now</button>
+  <div class="check">
+    <input type="checkbox" id="force" name="force" value="1">
+    <label for="force">Force rebuild even if unchanged</label>
+  </div>
 </form>
 </body>
 </html>"""
 
 
-def _run_build() -> subprocess.CompletedProcess:
+def _run_build(force: bool = False) -> subprocess.CompletedProcess:
     """Run `cspdx build` from the repo root, capturing output. Blocking; call
     via run_in_threadpool so the build's callback to /admin/reload isn't
-    starved by this request holding the event loop."""
+    starved by this request holding the event loop. Unless `force`, pass
+    --skip-unchanged so an unmodified set of docs is a no-op."""
+    cmd = [sys.executable, "-m", "cspdx.cli", "build"]
+    if not force:
+        cmd.append("--skip-unchanged")
     return subprocess.run(
-        [sys.executable, "-m", "cspdx.cli", "build"],
-        cwd=str(REPO_ROOT),
-        capture_output=True,
-        text=True,
-        timeout=600,
+        cmd, cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600,
     )
 
 
 @app.get("/admin", response_class=HTMLResponse)
 def admin_ui():
-    return _admin_page()
+    return _admin_page(status=_admin_status())
 
 
 @app.post("/admin/rebuild", response_class=HTMLResponse)
 async def admin_rebuild(request: Request):
-    body = (await request.body()).decode("utf-8")
-    token = urllib.parse.parse_qs(body).get("token", [""])[0]
+    qs = urllib.parse.parse_qs((await request.body()).decode("utf-8"))
+    token = qs.get("token", [""])[0]
+    force = bool(qs.get("force"))
     if not ADMIN_TOKEN or token != ADMIN_TOKEN:
         # Same message whether or not a token is configured -- don't leak which.
         return HTMLResponse(
@@ -160,20 +256,29 @@ async def admin_rebuild(request: Request):
             status_code=403,
         )
     try:
-        result = await run_in_threadpool(_run_build)
+        result = await run_in_threadpool(_run_build, force)
     except subprocess.TimeoutExpired:
         return HTMLResponse(
-            _admin_page('<p class="banner err">Rebuild timed out after 600s.</p>'),
+            _admin_page('<p class="banner err">Rebuild timed out after 600s.</p>',
+                        status=_admin_status()),
             status_code=504,
         )
     ok = result.returncode == 0
-    tail = _html.escape((result.stdout + result.stderr)[-6000:].strip())
-    banner = (
-        '<p class="banner ok">Rebuild succeeded.</p>' if ok
-        else f'<p class="banner err">Rebuild failed (exit {result.returncode}).</p>'
+    out = result.stdout + result.stderr
+    skipped = ok and "[build] skip:" in out
+    if skipped:
+        banner = ('<p class="banner ok">No documents changed since the last '
+                  'build — nothing to rebuild.</p>')
+    elif ok:
+        banner = '<p class="banner ok">Rebuild succeeded.</p>'
+    else:
+        banner = (f'<p class="banner err">Rebuild failed '
+                  f'(exit {result.returncode}).</p>')
+    body_html = f'{banner}<pre class="log">{_html.escape(out[-6000:].strip())}</pre>'
+    return HTMLResponse(
+        _admin_page(body_html, status=_admin_status()),
+        status_code=200 if ok else 500,
     )
-    body_html = f'{banner}<pre class="log">{tail}</pre>'
-    return HTMLResponse(_admin_page(body_html), status_code=200 if ok else 500)
 
 
 CHAT_UI = r"""<!DOCTYPE html>

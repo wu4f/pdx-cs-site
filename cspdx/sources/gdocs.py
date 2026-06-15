@@ -62,6 +62,25 @@ def docs_service(creds):
     return build("docs", "v1", credentials=creds)
 
 
+def drive_service(creds):
+    return build("drive", "v3", credentials=creds)
+
+
+def get_modified_time(creds, doc_id: str) -> tuple[str, str]:
+    """Return (modifiedTime, name) for a doc from the Drive API.
+
+    modifiedTime is an RFC-3339 timestamp (e.g. '2026-06-13T10:23:45.000Z').
+    Used to show on the admin page when each source doc last changed.
+    """
+    f = (
+        drive_service(creds)
+        .files()
+        .get(fileId=doc_id, fields="modifiedTime,name", supportsAllDrives=True)
+        .execute()
+    )
+    return f.get("modifiedTime", ""), f.get("name", "")
+
+
 def get_doc(creds, doc_id: str) -> dict:
     """Fetch a Google Doc, including tab content if present."""
     return (

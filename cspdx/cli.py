@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from . import buildmeta
 from .admin import reload_chat
 from .models import Section, dump_sections, load_sections
 from .sources import gdocs, tab_splitter, heading_splitter, whole_splitter
@@ -32,6 +33,22 @@ def cmd_build(args):
 
     auth_mode = os.getenv("GDOC_AUTH_MODE", "oauth")
     creds = gdocs.get_creds(mode=auth_mode)
+
+    # Cheap pre-flight: fetch each doc's revisionId + modifiedTime and compare
+    # to the last build, so an unchanged set of docs can skip the full rebuild.
+    meta_path = str(out_dir / "build_meta.json")
+    doc_states = buildmeta.current_doc_states(creds, cfg["docs"])
+    prev_meta = buildmeta.load_meta(meta_path)
+    changed = buildmeta.changed_ids(prev_meta, doc_states)
+    if args.skip_unchanged and prev_meta and not changed:
+        print(
+            f"[build] skip: no documents changed since "
+            f"{prev_meta.get('built_at', '?')}; nothing to rebuild"
+        )
+        return
+    if prev_meta:
+        print(f"[build] {len(changed)} of {len(doc_states)} document(s) changed: "
+              f"{', '.join(changed) if changed else '(none)'}")
 
     all_sections: list[Section] = []
     seen_ids: dict[str, str] = {}  # slug -> first-seen doc name (for collision warnings)
@@ -112,6 +129,9 @@ def cmd_build(args):
     dump_sections(all_sections, str(out_dir / "sections.json"))
     print(f"[build] wrote {len(all_sections)} sections to {out_dir}/sections.json")
 
+    meta = buildmeta.write_meta(doc_states, meta_path)
+    print(f"[build] recorded build metadata ({meta['built_at']}) -> {meta_path}")
+
     # Tell a running chat server to re-read sections.json so its answers
     # reflect the new content without a manual restart. Best-effort: a
     # missing token or an offline server is just a warning.
@@ -167,6 +187,13 @@ def main(argv=None):
         default=None,
         help='Value for the <base> tag (default "/" from content.yaml). '
              'Use "https://web.cs.pdx.edu/" if pages must behave as production.',
+    )
+    pb.add_argument(
+        "--skip-unchanged",
+        action="store_true",
+        help="Skip the rebuild if no source document has changed (by revisionId "
+             "or Drive modifiedTime) since the last recorded build "
+             "(build/build_meta.json).",
     )
     pb.add_argument(
         "--no-reload",
