@@ -10,6 +10,12 @@ docs:
     splitter: headings
     name: "Heading-split Content"
 
+  # Same doc as above, but as a single whole page (no splitting). Lets the
+  # Graduate Handbook be browsed both as per-section pages and in one piece.
+  - id: "1Tp7lrY-nAgmlElgtDCxt3rrhJZuMN_9eBKARa7Ewb_Q"
+    splitter: whole
+    name: "Graduate Handbook (whole)"
+
 categories:
   allowed:
     - about
@@ -30,8 +36,6 @@ templates:
 # the Graduate Handbook over the tabbed catalog where they overlap) and to
 # hide deprecated/archival content.
 landing_exclude:
-  # Duplicate of handbook 'Doctoral Degree (Ph.D.)'
-  - doctor-philosophy-phd
   # Duplicate of handbook 'Cybersecurity Certificate'
   - cybersecurity
   # Duplicate of handbook 'Master's Degree (M.S.)'
@@ -56,6 +60,8 @@ landing_exclude:
 category_overrides:
   accreditation: about
   support: about
+  # Whole-doc Graduate Handbook always belongs under Graduate.
+  cs-graduate-student-handbook: graduate
 
 chat:
   model: "gemini-2.5-flash"
@@ -65,9 +71,6 @@ chat:
   # less authoritative duplicates -- we favor the Graduate Handbook over
   # the older catalog-style tabs where they overlap.
   deprioritize:
-    - doctor-philosophy-phd
-    - graduate-assistantships
-    - graduate-internship-credit
     - cybersecurity
     - masters
     - forms-and-policies
