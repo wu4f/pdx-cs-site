@@ -27,13 +27,18 @@ pip install -r requirements.txt
 #   - OAuth (dev):     put credentials.json in the repo root
 #   - Service account: put service_account.json in the repo root
 #                      and share both docs with the SA email (Viewer)
-export GOOGLE_API_KEY=...           # for Gemini
-export GDOC_AUTH_MODE=oauth         # or service_account (token.json)
-export ADMIN_TOKEN=...              # for refresh and reload
+
+# Config: copy the template and fill it in. The .env is git-ignored and
+# auto-loaded on startup (GOOGLE_API_KEY, ADMIN_TOKEN, GDOC_AUTH_MODE, ...).
+cp .env.example .env
+$EDITOR .env
 
 python -m cspdx.cli build           # produces build/site/ + build/sections.json
 python -m cspdx.cli serve           # http://localhost:8080
 ```
+
+Plain `export GOOGLE_API_KEY=...` still works too — real environment variables
+override `.env`, which is how Docker / Cloud Run supply config (see below).
 
 The chat UI lives at `/ask/`. POST `{"question": "..."}` to `/ask` for JSON.
 

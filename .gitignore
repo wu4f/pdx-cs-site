@@ -1,6 +1,8 @@
 credentials.json
 token.json
 .admin_token
+# Local config/secrets; copy .env.example -> .env (the example stays tracked).
+.env
 *.pyc
 __pycache__
 .venv
