@@ -3,30 +3,21 @@
 The chat server caches sections in memory and in a Gemini context cache, so
 it must be told to reload after `cspdx build` rewrites sections.json. A shared
 secret guards the /admin/reload endpoint; both the server and the build read
-it from $ADMIN_TOKEN, falling back to a gitignored .admin_token file so the
-secret only has to live in one place.
+it from $ADMIN_TOKEN (set directly or via the gitignored .env file).
 """
 from __future__ import annotations
 import os
 import urllib.error
 import urllib.parse
 import urllib.request
-from pathlib import Path
 
-TOKEN_FILE = ".admin_token"
 DEFAULT_RELOAD_URL = "http://127.0.0.1:8080/admin/reload"
 
 
-def load_admin_token(token_file: str = TOKEN_FILE) -> str:
-    """Return the admin token: $ADMIN_TOKEN, else the .admin_token file,
+def load_admin_token() -> str:
+    """Return the admin token from $ADMIN_TOKEN (set directly or via .env),
     else "" (an empty token disables the /admin/reload endpoint)."""
-    env = os.getenv("ADMIN_TOKEN")
-    if env and env.strip():
-        return env.strip()
-    p = Path(token_file)
-    if p.exists():
-        return p.read_text(encoding="utf-8").strip()
-    return ""
+    return (os.getenv("ADMIN_TOKEN") or "").strip()
 
 
 def reload_chat(
@@ -43,7 +34,7 @@ def reload_chat(
     tok = token if token is not None else load_admin_token()
     if not tok:
         return False, (
-            "no admin token set (set $ADMIN_TOKEN or create .admin_token); "
+            "no admin token set (set $ADMIN_TOKEN, directly or via .env); "
             "skipping chat reload"
         )
     full = f"{url}?{urllib.parse.urlencode({'token': tok})}"

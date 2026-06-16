@@ -27,7 +27,7 @@ BUILD_META_PATH = os.getenv("BUILD_META_PATH", "build/build_meta.json")
 # Repo root (parent of server/), so the rebuild subprocess runs from the same
 # place a manual `cspdx build` would (finds content.yaml, build/, token.json).
 REPO_ROOT = Path(__file__).resolve().parent.parent
-# Token guarding /admin/* endpoints: $ADMIN_TOKEN, else the .admin_token file.
+# Token guarding /admin/* endpoints: $ADMIN_TOKEN (set directly or via .env).
 ADMIN_TOKEN = load_admin_token()
 
 app = FastAPI(title="pdx-cs-site")
