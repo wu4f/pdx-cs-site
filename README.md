@@ -56,12 +56,22 @@ gcloud run deploy pdx-cs-site \
 Share both docs with the Cloud Build / Cloud Run service-account email,
 or supply `service_account.json` as a build secret.
 
+## Admin: rebuild + file uploads
+
+The `/admin` page (gated by `$ADMIN_TOKEN`) can rebuild the site and upload PDFs.
+Uploaded files are validated (must be a real `%PDF-`, ≤ 10 MB, filename sanitized
+against path traversal), stored in the top-level `files/` directory, and served at
+`/files/<name>.pdf`. `files/` lives outside `build/`, so a rebuild never wipes it;
+its contents are git-ignored (the directory is kept via `files/.gitkeep`). Override
+the location with `$FILES_DIR`.
+
 ## Deploy behind nginx
 
 1. `python -m cspdx.cli build`  → produces `build/site/`
 2. Run `uvicorn server.app:app --port 8080` under systemd
-3. Point nginx at `build/site/` and proxy `/ask` to `127.0.0.1:8080`
-   (see `nginx.conf.example`).
+3. Point nginx at `build/site/` and proxy `/ask` + `/admin` to `127.0.0.1:8080`;
+   serve `/files/` straight from disk (see `nginx.conf.example`). The `/admin`
+   proxy raises `client_max_body_size` so 10 MB uploads pass through.
 
 ## Rebuilding when docs change
 

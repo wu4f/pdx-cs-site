@@ -32,7 +32,12 @@ COPY --from=builder /app /app
 
 ENV PORT=8080 \
     SITE_DIR=/app/build/site \
-    SECTIONS_PATH=/app/build/sections.json
+    SECTIONS_PATH=/app/build/sections.json \
+    FILES_DIR=/app/files
+
+# Directory for admin-uploaded PDFs (served at /files/). Uploads written here
+# are EPHEMERAL in a container -- mount a volume at /app/files to persist them.
+RUN mkdir -p /app/files
 
 # GOOGLE_API_KEY must be provided at runtime (Cloud Run env var or secret)
 # for the chat to call Gemini. ADMIN_TOKEN gates the /admin/reload endpoint.

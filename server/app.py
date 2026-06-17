@@ -1,9 +1,12 @@
 """FastAPI app: serves the generated site + a /ask endpoint + a tiny chat UI."""
 from __future__ import annotations
+import hmac
 import html as _html
 import os
+import re
 import subprocess
 import sys
+import tempfile
 import urllib.parse
 from pathlib import Path
 
@@ -29,6 +32,11 @@ BUILD_META_PATH = os.getenv("BUILD_META_PATH", "build/build_meta.json")
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Token guarding /admin/* endpoints: $ADMIN_TOKEN (set directly or via .env).
 ADMIN_TOKEN = load_admin_token()
+# Admin-uploaded PDFs, served at /files/<name>.pdf. Lives OUTSIDE build/site so a
+# rebuild never wipes it; in production nginx serves it straight from disk.
+FILES_DIR = Path(os.getenv("FILES_DIR", str(REPO_ROOT / "files"))).resolve()
+FILES_DIR.mkdir(parents=True, exist_ok=True)
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 app = FastAPI(title="pdx-cs-site")
 
@@ -162,9 +170,48 @@ def _admin_status() -> str:
 </section>"""
 
 
+def _safe_pdf_name(original: str) -> str:
+    """Derive a safe, path-traversal-proof .pdf filename from an uploaded name.
+
+    Keeps the admin's original name (case + spaces) but strips any directory
+    components and disallowed characters, neutralizes '..' / leading dots, and
+    forces a .pdf extension. The result contains no '/', '\\', or '..', so it
+    cannot escape FILES_DIR (a second containment check in the handler confirms).
+    """
+    base = os.path.basename((original or "").replace("\\", "/")).strip()
+    base = re.sub(r"[^A-Za-z0-9 ._()\-]", "", base)
+    base = base.replace("..", "").lstrip(". ")
+    base = re.sub(r"\s+", " ", base).strip()
+    stem = os.path.splitext(base)[0] or "upload"
+    return f"{stem}.pdf"
+
+
+def _files_section() -> str:
+    """HTML list of the PDFs currently published under /files/."""
+    try:
+        pdfs = sorted(p for p in FILES_DIR.glob("*.pdf") if p.is_file())
+    except Exception:
+        pdfs = []
+    if not pdfs:
+        return '<p class="hint">No files uploaded yet.</p>'
+    rows = ""
+    for p in pdfs:
+        href = "/files/" + urllib.parse.quote(p.name)
+        kb = max(1, round(p.stat().st_size / 1024))
+        rows += (
+            f'<tr><td><a href="{_html.escape(href)}">{_html.escape(p.name)}</a></td>'
+            f"<td>{kb:,} KB</td></tr>\n"
+        )
+    return (
+        '<table><thead><tr><th>File</th><th>Size</th></tr></thead>\n'
+        f"<tbody>\n{rows}</tbody></table>"
+    )
+
+
 def _admin_page(banner: str = "", status: str = "") -> str:
     """Render the /admin form, optionally preceded by a result banner and a
     status block (last build + per-document timestamps)."""
+    files = _files_section()
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -181,6 +228,10 @@ def _admin_page(banner: str = "", status: str = "") -> str:
   label {{ display: block; font-weight: 600; margin-bottom: 6px; }}
   input[type=password] {{ padding: 10px 12px; font-size: 1rem; min-width: 280px;
           border: 1px solid #aab; border-radius: 6px; }}
+  input[type=file] {{ padding: 8px 0; font-size: 0.95rem; }}
+  h2 {{ font-size: 1.15rem; margin-top: 36px;
+        border-top: 1px solid #e6e8ee; padding-top: 24px; }}
+  a {{ color: #1e6b3a; }}
   button {{ padding: 10px 18px; font-size: 1rem; font-weight: 600; cursor: pointer;
           background: #1e6b3a; color: #fff; border: 0; border-radius: 6px; }}
   button:hover {{ background: #14512b; }}
@@ -222,6 +273,26 @@ leave the tab open until it finishes.</p>
     <label for="force">Force rebuild even if unchanged</label>
   </div>
 </form>
+
+<h2>Upload a PDF</h2>
+<p class="hint">Stores a PDF (max 10&nbsp;MB) so it's served at
+<code>/files/&lt;name&gt;.pdf</code>. The original filename is kept, sanitized;
+re-uploading the same name overwrites it.</p>
+<form method="post" action="/admin/upload" enctype="multipart/form-data">
+  <div>
+    <label for="utoken">Admin token</label>
+    <input type="password" id="utoken" name="token"
+           autocomplete="current-password" required>
+  </div>
+  <div>
+    <label for="pdf">PDF file</label>
+    <input type="file" id="pdf" name="pdf" accept="application/pdf,.pdf" required>
+  </div>
+  <button type="submit">Upload</button>
+</form>
+
+<h2>Published files</h2>
+{files}
 </body>
 </html>"""
 
@@ -279,6 +350,83 @@ async def admin_rebuild(request: Request):
         _admin_page(body_html, status=_admin_status()),
         status_code=200 if ok else 500,
     )
+
+
+def _upload_error(message: str, status_code: int) -> HTMLResponse:
+    return HTMLResponse(
+        _admin_page(f'<p class="banner err">{_html.escape(message)}</p>',
+                    status=_admin_status()),
+        status_code=status_code,
+    )
+
+
+@app.post("/admin/upload", response_class=HTMLResponse)
+async def admin_upload(request: Request):
+    # Cheap early guard: reject an oversized body before parsing it (protects the
+    # direct-uvicorn path; nginx also caps via client_max_body_size in prod).
+    clen = request.headers.get("content-length")
+    if clen and clen.isdigit() and int(clen) > MAX_UPLOAD_BYTES + 1024 * 1024:
+        return _upload_error("File too large (max 10 MB).", 413)
+
+    form = await request.form()
+    token = form.get("token", "")
+    upload = form.get("pdf")
+
+    # Token: timing-safe compare; same message whether or not one is configured.
+    if not ADMIN_TOKEN or not isinstance(token, str) or not hmac.compare_digest(
+        token, ADMIN_TOKEN
+    ):
+        return _upload_error("Invalid admin token.", 403)
+
+    filename = getattr(upload, "filename", None)
+    if not filename or not hasattr(upload, "read"):
+        return _upload_error("No file was uploaded.", 400)
+    if not filename.lower().endswith(".pdf"):
+        return _upload_error("Only .pdf files are accepted.", 400)
+
+    # Read with a hard cap so a lying Content-Length can't blow up memory/disk.
+    data = bytearray()
+    while True:
+        chunk = await upload.read(1024 * 1024)
+        if not chunk:
+            break
+        data.extend(chunk)
+        if len(data) > MAX_UPLOAD_BYTES:
+            return _upload_error("File too large (max 10 MB).", 413)
+
+    if data[:5] != b"%PDF-":
+        return _upload_error("That file is not a valid PDF.", 400)
+
+    safe_name = _safe_pdf_name(filename)
+    target = (FILES_DIR / safe_name).resolve()
+    # Defense in depth: the sanitized name can't contain a separator, but confirm
+    # the resolved path still sits directly inside FILES_DIR before writing.
+    if target.parent != FILES_DIR:
+        return _upload_error("Rejected: unsafe file path.", 400)
+
+    # Atomic write so a partial upload never leaves a corrupt file being served.
+    tmp_path = None
+    try:
+        fd, tmp_path = tempfile.mkstemp(dir=str(FILES_DIR), suffix=".part")
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
+        os.replace(tmp_path, str(target))
+        tmp_path = None
+    except Exception as e:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+        return _upload_error(f"Could not save the file: {e}", 500)
+
+    href = "/files/" + urllib.parse.quote(safe_name)
+    banner = (
+        f'<p class="banner ok">Uploaded — now served at '
+        f'<a href="{_html.escape(href)}">{_html.escape(href)}</a> '
+        f"({len(data) // 1024:,} KB).</p>"
+    )
+    return HTMLResponse(_admin_page(banner, status=_admin_status()), status_code=200)
 
 
 CHAT_UI = r"""<!DOCTYPE html>
@@ -797,6 +945,10 @@ CHAT_UI = r"""<!DOCTYPE html>
 def ask_ui():
     return CHAT_UI
 
+
+# Admin-uploaded PDFs at /files/<name>.pdf. Registered before the catch-all "/"
+# mount so it wins; in production nginx serves this directory directly instead.
+app.mount("/files", StaticFiles(directory=str(FILES_DIR)), name="files")
 
 # Mount the static site last so it serves /, /<slug>/, etc.
 if Path(SITE_DIR).is_dir():

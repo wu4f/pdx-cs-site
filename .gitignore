@@ -13,3 +13,6 @@ build/site/*
 !build/site/index.html
 # Runtime build metadata (timestamps + per-doc revisions); changes every build.
 build/build_meta.json
+# Admin-uploaded PDFs: track the directory (via .gitkeep), not its contents.
+files/*
+!files/.gitkeep
