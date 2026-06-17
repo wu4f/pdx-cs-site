@@ -61,9 +61,9 @@ or supply `service_account.json` as a build secret.
 The `/admin` page (gated by `$ADMIN_TOKEN`) can rebuild the site and upload PDFs.
 Uploaded files are validated (must be a real `%PDF-`, ≤ 10 MB, filename sanitized
 against path traversal), stored in the top-level `files/` directory, and served at
-`/files/<name>.pdf`. `files/` lives outside `build/`, so a rebuild never wipes it;
-its contents are git-ignored (the directory is kept via `files/.gitkeep`). Override
-the location with `$FILES_DIR`.
+`/files/<name>.pdf`. `files/` lives outside `build/`, so a rebuild never wipes it,
+and it's version-controlled — uploads are admin-driven, so they're committed to the
+repo like any other content. Override the location with `$FILES_DIR`.
 
 ## Deploy behind nginx
 
