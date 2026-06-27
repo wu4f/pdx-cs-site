@@ -4,6 +4,7 @@ import hmac
 import html as _html
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -32,9 +33,12 @@ BUILD_META_PATH = os.getenv("BUILD_META_PATH", "build/build_meta.json")
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Token guarding /admin/* endpoints: $ADMIN_TOKEN (set directly or via .env).
 ADMIN_TOKEN = load_admin_token()
-# Admin-uploaded PDFs, served at /files/<name>.pdf. Lives OUTSIDE build/site so a
-# rebuild never wipes it; in production nginx serves it straight from disk.
-FILES_DIR = Path(os.getenv("FILES_DIR", str(REPO_ROOT / "files"))).resolve()
+# Version-controlled static assets. `cspdx build` copies STATIC_DIR/* into
+# build/site/, so build/site is self-contained (served by the "/" mount + nginx).
+STATIC_DIR = Path(os.getenv("STATIC_DIR", str(REPO_ROOT / "static"))).resolve()
+# Admin-uploaded PDFs land here (the version-controlled source) and are also
+# mirrored into build/site/files/ on upload so they're served immediately.
+FILES_DIR = (STATIC_DIR / "files").resolve()
 FILES_DIR.mkdir(parents=True, exist_ok=True)
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
@@ -420,11 +424,24 @@ async def admin_upload(request: Request):
                 pass
         return _upload_error(f"Could not save the file: {e}", 500)
 
+    # Mirror into build/site/files/ so it's served immediately (the next rebuild
+    # re-copies static/ -> build/site/ anyway). Best-effort: if it fails, the
+    # file is still saved to static/files/ and will appear after a rebuild.
+    mirror_note = ""
+    try:
+        site_files = Path(SITE_DIR).resolve() / "files"
+        site_files.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(str(target), str(site_files / safe_name))
+    except Exception as e:
+        mirror_note = (f'<p class="hint">Saved, but could not publish to the live '
+                       f'site ({_html.escape(str(e))}); it will appear after the '
+                       f"next rebuild.</p>")
+
     href = "/files/" + urllib.parse.quote(safe_name)
     banner = (
         f'<p class="banner ok">Uploaded — now served at '
         f'<a href="{_html.escape(href)}">{_html.escape(href)}</a> '
-        f"({len(data) // 1024:,} KB).</p>"
+        f"({len(data) // 1024:,} KB).</p>{mirror_note}"
     )
     return HTMLResponse(_admin_page(banner, status=_admin_status()), status_code=200)
 
@@ -946,10 +963,8 @@ def ask_ui():
     return CHAT_UI
 
 
-# Admin-uploaded PDFs at /files/<name>.pdf. Registered before the catch-all "/"
-# mount so it wins; in production nginx serves this directory directly instead.
-app.mount("/files", StaticFiles(directory=str(FILES_DIR)), name="files")
-
-# Mount the static site last so it serves /, /<slug>/, etc.
+# Mount the static site last so it serves /, /<slug>/, and /files/<name>.pdf.
+# `cspdx build` copies static/ (incl. files/) into build/site, so this single
+# self-contained tree serves both the generated pages and the uploaded PDFs.
 if Path(SITE_DIR).is_dir():
     app.mount("/", StaticFiles(directory=SITE_DIR, html=True), name="site")

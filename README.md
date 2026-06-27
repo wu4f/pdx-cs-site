@@ -60,10 +60,14 @@ or supply `service_account.json` as a build secret.
 
 The `/admin` page (gated by `$ADMIN_TOKEN`) can rebuild the site and upload PDFs.
 Uploaded files are validated (must be a real `%PDF-`, ≤ 10 MB, filename sanitized
-against path traversal), stored in the top-level `files/` directory, and served at
-`/files/<name>.pdf`. `files/` lives outside `build/`, so a rebuild never wipes it,
-and it's version-controlled — uploads are admin-driven, so they're committed to the
-repo like any other content. Override the location with `$FILES_DIR`.
+against path traversal) and saved to `static/files/`, then served at
+`/files/<name>.pdf`.
+
+`static/` holds version-controlled assets; `cspdx build` copies its contents into
+`build/site/` so the rendered site is self-contained (PDFs and all). An admin upload
+writes to `static/files/` (commit it like any other content) and is also mirrored
+into `build/site/files/` so it's served immediately. Override the source dir with
+`$STATIC_DIR`.
 
 ## Deploy behind nginx
 

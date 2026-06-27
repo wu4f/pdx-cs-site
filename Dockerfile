@@ -32,12 +32,12 @@ COPY --from=builder /app /app
 
 ENV PORT=8080 \
     SITE_DIR=/app/build/site \
-    SECTIONS_PATH=/app/build/sections.json \
-    FILES_DIR=/app/files
+    SECTIONS_PATH=/app/build/sections.json
 
-# Directory for admin-uploaded PDFs (served at /files/). Uploads written here
-# are EPHEMERAL in a container -- mount a volume at /app/files to persist them.
-RUN mkdir -p /app/files
+# Version-controlled assets in static/ (incl. uploaded PDFs in static/files/)
+# were copied into build/site by `cspdx build` in the builder stage. Admin
+# uploads at runtime write to static/files/ and are EPHEMERAL in a container --
+# mount a volume at /app/static/files to persist them across restarts.
 
 # GOOGLE_API_KEY must be provided at runtime (Cloud Run env var or secret)
 # for the chat to call Gemini. ADMIN_TOKEN gates the /admin/reload endpoint.

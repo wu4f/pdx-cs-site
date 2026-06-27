@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -22,6 +23,18 @@ SPLITTERS = {
     "headings": heading_splitter.split,
     "whole": whole_splitter.split,
 }
+
+
+def _copy_static(static_dir: Path, site_dir: Path) -> int:
+    """Copy everything under static_dir into site_dir, overlaying existing files.
+
+    This makes build/site self-contained: version-controlled assets like the
+    uploaded PDFs in static/files/ end up at build/site/files/ and are served
+    by the same mechanism as the generated pages (/files/<name>.pdf)."""
+    if not static_dir.is_dir():
+        return 0
+    shutil.copytree(static_dir, site_dir, dirs_exist_ok=True)
+    return sum(1 for p in static_dir.rglob("*") if p.is_file())
 
 
 def cmd_build(args):
@@ -126,6 +139,11 @@ def cmd_build(args):
         exclude_ids=exclude_ids,
     )
 
+    static_dir = Path(args.static)
+    copied = _copy_static(static_dir, site_dir)
+    if copied:
+        print(f"[build] copied {copied} static file(s) from {static_dir}/ -> {site_dir}/")
+
     dump_sections(all_sections, str(out_dir / "sections.json"))
     print(f"[build] wrote {len(all_sections)} sections to {out_dir}/sections.json")
 
@@ -182,6 +200,13 @@ def main(argv=None):
     pb = sub.add_parser("build", help="Fetch docs and build site + index")
     pb.add_argument("--config", default="content.yaml")
     pb.add_argument("--out", default="build")
+    pb.add_argument(
+        "--static",
+        default=os.getenv("STATIC_DIR", "static"),
+        help="Directory whose contents are copied verbatim into build/site "
+             "(e.g. static/files/*.pdf -> build/site/files/). Default 'static' "
+             "or $STATIC_DIR.",
+    )
     pb.add_argument(
         "--base-href",
         default=None,
