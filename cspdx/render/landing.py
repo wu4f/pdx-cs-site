@@ -40,7 +40,10 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    /* Offset anchor jumps (#category links in the nav) by the height of the
+       sticky two-row .topbar (~151px) so the target heading isn't hidden
+       beneath it. */
+    html { scroll-behavior: smooth; scroll-padding-top: 160px; }
     body {
       margin: 0;
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
