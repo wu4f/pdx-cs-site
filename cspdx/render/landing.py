@@ -408,7 +408,7 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
 <header class="topbar">
   <div class="topbar-row primary">
     <a href="{{ base_href }}" class="brand" aria-label="PSU CS home">
-      <img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png"/>
+      <img alt="Portland State University Department of Computer Science" src="{{ base_href }}images/pdx-cs-logo.png"/>
     </a>
     <span class="topbar-spacer"></span>
     <a class="top-cta" href="{{ base_href }}ask/" aria-label="Ask the CS Assistant">

@@ -774,7 +774,7 @@ CHAT_UI = r"""<!DOCTYPE html>
 <header class="topbar">
   <div class="topbar-inner">
     <a href="/" class="brand" aria-label="PSU CS home">
-      <img alt="Portland State University Department of Computer Science" src="https://web.cs.pdx.edu/images/pdx-cs-logo.png"/>
+      <img alt="Portland State University Department of Computer Science" src="/images/pdx-cs-logo.png"/>
     </a>
     <span class="topbar-spacer"></span>
     <a class="back-link" href="/" aria-label="Back to site">
