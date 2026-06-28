@@ -4,6 +4,7 @@ Uses the docs.export endpoint (which respects ?tab=...) for rich HTML,
 then cleans it the same way gdoc2site did.
 """
 from __future__ import annotations
+import time
 from typing import Iterator
 
 from ..models import Section, slugify
@@ -15,11 +16,14 @@ def split(creds, doc_id: str, doc_name: str = "") -> Iterator[Section]:
     doc = gdocs.get_doc(creds, doc_id)
     revision = doc.get("revisionId", "")
 
-    for tab in doc.get("tabs", []) or []:
+    tabs = doc.get("tabs", []) or []
+    for i, tab in enumerate(tabs):
         props = tab.get("tabProperties", {})
         tab_id = props.get("tabId", "")
         title = props.get("title", "").strip() or "untitled"
 
+        if i > 0:
+            time.sleep(1)
         raw = gdocs.export_tab_html(creds, doc_id, tab_id)
         body_html, style_html, text = clean_exported_html(raw)
 
