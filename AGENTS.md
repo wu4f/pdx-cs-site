@@ -53,7 +53,7 @@ Three strategies, selected per-doc in `content.yaml`:
 
 | splitter | unit of split |
 |---|---|
-| `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint, 1 s between requests |
+| `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint with a 60 s timeout and up to 5 retries (exponential back-off) |
 | `headings` | one H1 block → one Section |
 | `whole` | entire doc → one Section |
 
@@ -89,12 +89,16 @@ FastAPI app. Route summary:
 | `/ask` | POST | JSON chatbot API |
 | `/ask/` | GET | Chat UI (inline HTML string, no template; uses root-relative `/images/...` paths) |
 | `/admin` | GET | Admin dashboard |
-| `/admin/rebuild` | POST | Runs `cspdx build` as a subprocess |
+| `/admin/rebuild` | POST | Starts `cspdx build` in a background thread; redirects to admin page with live log |
+| `/admin/rebuild/stream` | GET | SSE endpoint — streams build log lines as they arrive; no auth required |
+| `/admin/clear-build` | POST | Resets build state to idle after a finished build; requires token |
 | `/admin/upload` | POST | PDF upload — 10 MB cap, `%PDF-` magic-byte check, path-traversal-proof filename |
 | `/admin/reload` | POST | Re-reads `sections.json` into the chat backend |
 | `/` | — | `StaticFiles` mount on `build/site/`; registered **last** so dynamic routes take priority |
 
-All `/admin/*` endpoints require `ADMIN_TOKEN` validated via `hmac.compare_digest` (timing-safe). An empty token disables them. Token is loaded from `$ADMIN_TOKEN` (directly or via `.env`) in `cspdx/admin.py`.
+All `/admin/*` endpoints except `/admin/rebuild/stream` require `ADMIN_TOKEN` validated via `hmac.compare_digest` (timing-safe). An empty token disables them. Token is loaded from `$ADMIN_TOKEN` (directly or via `.env`) in `cspdx/admin.py`.
+
+Background build state is kept in `_build_state` (guarded by `_build_lock`). The admin page opens an `EventSource` to `/admin/rebuild/stream` while a build is running, which polls `_build_state["log"]` every 0.5 s and pushes new lines as SSE events. When the build finishes the stream sends a named `done` event and the browser reloads. A "Clear log" button appears after a finished build; the token is stored in `sessionStorage` on rebuild form submit to avoid re-entry.
 
 Chat backend (`cspdx/chat/rag.py`) is lazy-loaded on the first `/ask` request. It uploads all section text to Gemini's context cache once, then reuses the cache handle cheaply across queries.
 
