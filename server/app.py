@@ -8,7 +8,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import urllib.parse
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -16,7 +18,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from starlette.concurrency import run_in_threadpool
+
 
 from cspdx.chat.rag import ChatBackend
 from cspdx.admin import load_admin_token
@@ -47,6 +49,10 @@ app = FastAPI(title="pdx-cs-site")
 # Lazy: don't load sections at import time so the server can start before
 # `cspdx build` has been run, and the venv can import server.app for tests.
 _chat: ChatBackend | None = None
+
+# Background build state — written by the build thread, read by the admin UI.
+_build_lock = threading.Lock()
+_build_state: dict = {"status": "idle", "log": "", "started_at": None, "finished_at": None}
 
 
 def _load_chat_config() -> dict:
@@ -212,10 +218,41 @@ def _files_section() -> str:
     )
 
 
+def _build_status_block() -> tuple[str, bool]:
+    """Return (HTML block, is_running) describing the current background build."""
+    with _build_lock:
+        state = dict(_build_state)
+    status = state["status"]
+    if status == "idle":
+        return "", False
+    started = _format_ts(state.get("started_at") or "")
+    finished = _format_ts(state.get("finished_at") or "")
+    log = _html.escape((state.get("log") or "").strip())
+    if status == "running":
+        return (
+            f'<p class="banner ok">&#9654; Rebuild in progress since {started} &mdash; '
+            f'this page refreshes every 5 seconds.</p>'
+        ), True
+    if status == "ok":
+        skipped = "[build] skip:" in (state.get("log") or "")
+        msg = ("No documents changed — nothing to rebuild." if skipped
+               else f"Rebuild succeeded (finished {finished}).")
+        log_block = f'<pre class="log">{log}</pre>' if log else ""
+        return f'<p class="banner ok">{msg}</p>{log_block}', False
+    # error / timeout
+    label = "timed out" if status == "timeout" else f"failed (finished {finished})"
+    log_block = f'<pre class="log">{log}</pre>' if log else ""
+    return f'<p class="banner err">Rebuild {label}.</p>{log_block}', False
+
+
 def _admin_page(banner: str = "", status: str = "") -> str:
     """Render the /admin form, optionally preceded by a result banner and a
     status block (last build + per-document timestamps)."""
     files = _files_section()
+    build_block, is_running = _build_status_block()
+    refresh_tag = '<meta http-equiv="refresh" content="5">' if is_running else ""
+    # Prepend the background-build block before any caller-supplied banner.
+    banner = build_block + banner
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -223,6 +260,7 @@ def _admin_page(banner: str = "", status: str = "") -> str:
 <title>Admin · Rebuild site</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+{refresh_tag}
 <style>
   body {{ font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
          max-width: 760px; margin: 6vh auto; padding: 0 20px; color: #1e2230; }}
@@ -302,10 +340,9 @@ re-uploading the same name overwrites it.</p>
 
 
 def _run_build(force: bool = False) -> subprocess.CompletedProcess:
-    """Run `cspdx build` from the repo root, capturing output. Blocking; call
-    via run_in_threadpool so the build's callback to /admin/reload isn't
-    starved by this request holding the event loop. Unless `force`, pass
-    --skip-unchanged so an unmodified set of docs is a no-op."""
+    """Run `cspdx build` from the repo root, capturing output. Blocking; intended
+    to be called from a background thread. Unless `force`, passes --skip-unchanged
+    so an unmodified set of docs is a no-op."""
     cmd = [sys.executable, "-m", "cspdx.cli", "build"]
     if not force:
         cmd.append("--skip-unchanged")
@@ -319,40 +356,59 @@ def admin_ui():
     return _admin_page(status=_admin_status())
 
 
+def _build_worker(force: bool) -> None:
+    """Run `cspdx build` in a background thread and update _build_state."""
+    global _chat
+    with _build_lock:
+        _build_state["status"] = "running"
+        _build_state["started_at"] = datetime.now(timezone.utc).isoformat()
+        _build_state["log"] = ""
+        _build_state["finished_at"] = None
+    try:
+        result = _run_build(force)
+        ok = result.returncode == 0
+        log = (result.stdout + result.stderr)[-6000:].strip()
+        with _build_lock:
+            _build_state["status"] = "ok" if ok else "error"
+            _build_state["log"] = log
+            _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
+        if ok:
+            _chat = None  # reload chat index on next /ask
+    except subprocess.TimeoutExpired:
+        with _build_lock:
+            _build_state["status"] = "timeout"
+            _build_state["log"] = "Build process exceeded 600 s and was killed."
+            _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
+    except Exception as e:
+        with _build_lock:
+            _build_state["status"] = "error"
+            _build_state["log"] = str(e)
+            _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
+
+
 @app.post("/admin/rebuild", response_class=HTMLResponse)
 async def admin_rebuild(request: Request):
     qs = urllib.parse.parse_qs((await request.body()).decode("utf-8"))
     token = qs.get("token", [""])[0]
     force = bool(qs.get("force"))
     if not ADMIN_TOKEN or token != ADMIN_TOKEN:
-        # Same message whether or not a token is configured -- don't leak which.
         return HTMLResponse(
             _admin_page('<p class="banner err">Invalid admin token.</p>'),
             status_code=403,
         )
-    try:
-        result = await run_in_threadpool(_run_build, force)
-    except subprocess.TimeoutExpired:
+    with _build_lock:
+        already_running = _build_state["status"] == "running"
+    if already_running:
         return HTMLResponse(
-            _admin_page('<p class="banner err">Rebuild timed out after 600s.</p>',
+            _admin_page('<p class="banner ok">A rebuild is already in progress — '
+                        'refresh this page to see its status.</p>',
                         status=_admin_status()),
-            status_code=504,
         )
-    ok = result.returncode == 0
-    out = result.stdout + result.stderr
-    skipped = ok and "[build] skip:" in out
-    if skipped:
-        banner = ('<p class="banner ok">No documents changed since the last '
-                  'build — nothing to rebuild.</p>')
-    elif ok:
-        banner = '<p class="banner ok">Rebuild succeeded.</p>'
-    else:
-        banner = (f'<p class="banner err">Rebuild failed '
-                  f'(exit {result.returncode}).</p>')
-    body_html = f'{banner}<pre class="log">{_html.escape(out[-6000:].strip())}</pre>'
+    threading.Thread(target=_build_worker, args=(force,), daemon=True).start()
     return HTMLResponse(
-        _admin_page(body_html, status=_admin_status()),
-        status_code=200 if ok else 500,
+        _admin_page('<p class="banner ok">Rebuild started in the background. '
+                    'This page will refresh automatically.</p>',
+                    status=_admin_status()),
     )
 
 
