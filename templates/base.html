@@ -8,28 +8,243 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <link rel="icon" href="https://web.cs.pdx.edu/favicon.ico" type="image/vnd.microsoft.icon">
-    <meta name="author" content="http://bootstraptaste.com">
-    <!-- css (always loaded from production site so preview deploys still look right) -->
-    <link href="https://web.cs.pdx.edu/css/pdx-style.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     {{ style }}
-    <!-- Accessibility overrides: improve link contrast on top of Google's export.
-         Section pages inherit Google's CSS which uses #1155cc and lighter grays;
-         force a darker tone for inline links so they pass WCAG 2.1 AA (>=4.5:1). -->
     <style>
+      :root {
+        --psu-green: #547119;
+        --psu-green-dark: #3f5512;
+        --psu-green-light: #eaf2d4;
+        --psu-gold: #d4a017;
+        --ink: #1e2230;
+        --ink-soft: #4a5060;
+        --ink-muted: #6b7280;
+        --bg: #f7f8fb;
+        --border: #e6e8ee;
+        --shadow-sm: 0 1px 2px rgba(20,25,40,.04), 0 1px 3px rgba(20,25,40,.06);
+        --content-max: 900px;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.65;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ---- Skip link ---- */
       .skip-link {
         position: absolute; left: -10000px; top: 8px;
-        background: #1e2230; color: #fff !important;
+        background: var(--ink); color: #fff !important;
         padding: 10px 16px; border-radius: 6px;
         font-weight: 600; z-index: 1000; text-decoration: none;
       }
       .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
-      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; }
-      main#main-content a, main#main-content a:link, main#main-content a:visited {
-        color: #0b3d91 !important;       /* 9.6:1 on white, passes AA & AAA */
-        text-decoration: underline !important;   /* WCAG 1.4.1: distinguishable
-                                                    without relying on color */
+      :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; border-radius: 4px; }
+
+      /* ---- Header ---- */
+      .site-header {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: var(--shadow-sm);
       }
-      main#main-content a:hover { color: #062a66 !important; }
+      .site-header__inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 14px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .site-header__logo img {
+        height: 72px;
+        width: auto;
+        display: block;
+      }
+      .site-header__spacer { flex: 1; }
+      .site-header__back {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        padding: 8px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background .12s ease, color .12s ease;
+      }
+      .site-header__back:hover {
+        background: rgba(84,113,25,.08);
+        color: var(--psu-green-dark);
+        text-decoration: none;
+      }
+
+      /* ---- Breadcrumb ---- */
+      .breadcrumb {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 10px 28px;
+        font-size: 13px;
+        color: var(--ink-muted);
+      }
+      .breadcrumb__inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .breadcrumb a {
+        color: var(--psu-green-dark);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .breadcrumb a:hover { text-decoration: underline; }
+      .breadcrumb__sep { color: var(--ink-muted); }
+
+      /* ---- Page wrapper ---- */
+      .page-layout {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 2rem 28px 4rem;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      /* ---- Content card ---- */
+      .content-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2.5rem 3rem;
+        box-shadow: var(--shadow-sm);
+        max-width: var(--content-max);
+      }
+
+      /* ---- Typography for Google Docs content ---- */
+      .content-card h1 {
+        font-size: 1.85rem;
+        font-weight: 700;
+        color: var(--psu-green-dark);
+        margin: 0 0 1.5rem;
+        line-height: 1.25;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--psu-green-light);
+      }
+      .content-card h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--psu-green-dark);
+        margin: 2.25rem 0 0.75rem;
+        line-height: 1.3;
+      }
+      .content-card h2:first-child { margin-top: 0; }
+      .content-card h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 1.75rem 0 0.5rem;
+      }
+      .content-card h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 1.25rem 0 0.4rem;
+      }
+      .content-card p {
+        margin: 0 0 1rem;
+        color: var(--ink);
+      }
+      .content-card ul,
+      .content-card ol {
+        margin: 0 0 1rem 1.4rem;
+        padding: 0;
+      }
+      .content-card li { margin-bottom: 0.4rem; }
+      .content-card hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2rem 0;
+      }
+
+      /* ---- Links ---- */
+      .content-card a,
+      .content-card a:link,
+      .content-card a:visited {
+        color: #0b3d91;
+        text-decoration: underline;
+      }
+      .content-card a:hover { color: #062a66; }
+
+      /* ---- Tables ---- */
+      .content-card table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.93rem;
+        overflow-x: auto;
+        display: block;
+      }
+      .content-card thead th {
+        background: var(--psu-green-dark);
+        color: #fff;
+        font-weight: 600;
+        padding: 9px 14px;
+        text-align: left;
+        border: 1px solid var(--psu-green-dark);
+        white-space: nowrap;
+      }
+      .content-card td {
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .content-card tr:nth-child(even) td { background: var(--bg); }
+
+      /* ---- Footer ---- */
+      .site-footer {
+        background: var(--psu-green-dark);
+        color: rgba(255,255,255,.85);
+        padding: 2.5rem 28px;
+        margin-top: 2rem;
+        font-size: 14px;
+      }
+      .site-footer__inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .site-footer__col { min-width: 180px; }
+      .site-footer strong { color: #fff; font-size: 15px; display: block; margin-bottom: 0.5rem; }
+      .site-footer p { margin: 0.2rem 0; }
+      .site-footer a { color: rgba(255,255,255,.8); text-decoration: none; }
+      .site-footer a:hover { color: #fff; text-decoration: underline; }
+
+      /* ---- Responsive ---- */
+      @media (max-width: 700px) {
+        .site-header__inner { padding: 12px 16px; }
+        .site-header__logo img { height: 56px; }
+        .breadcrumb { padding: 8px 16px; }
+        .page-layout { padding: 1rem 16px 3rem; }
+        .content-card { padding: 1.5rem 1.25rem; }
+        .content-card h1 { font-size: 1.45rem; }
+        .content-card h2 { font-size: 1.15rem; }
+        .site-footer { padding: 2rem 16px; }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
           animation-duration: 0.001ms !important;
@@ -37,48 +252,70 @@
         }
       }
     </style>
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-<a class="skip-link" href="#main-content">Skip to main content</a>
-<header role="banner" style="background-color:#fff; border-bottom:1px solid #ccc; padding:10px 20px; display:flex; align-items:center; gap:40px; font-family:Arial, sans-serif;">
-<p><a href="{{ base_href|default('/') }}" aria-label="PSU CS home"><img alt="Portland State University Department of Computer Science" src="{{ base_href|default('/') }}images/pdx-cs-logo.png" style="height:80px;"/></a></p>
-</header>
-<main id="main-content">
-  <div id="wrapper">
-    <section id="content" aria-label="{{ title }}">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="box">
-              <div class="box-gray aligncenter">
-                  {{ body }}
-              </div>
-            </div>
-          </div>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header" role="banner">
+      <div class="site-header__inner">
+        <a class="site-header__logo" href="{{ base_href|default('/') }}" aria-label="PSU CS home">
+          <img alt="Portland State University Department of Computer Science" src="{{ base_href|default('/') }}images/pdx-cs-logo.png">
+        </a>
+        <div class="site-header__spacer"></div>
+        <a class="site-header__back" href="{{ base_href|default('/') }}">← All Topics</a>
+      </div>
+    </header>
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <div class="breadcrumb__inner">
+        <a href="{{ base_href|default('/') }}">Computer Science</a>
+        <span class="breadcrumb__sep" aria-hidden="true">›</span>
+        <span aria-current="page">{{ title }}</span>
+      </div>
+    </nav>
+
+    <main id="main-content">
+      <div class="page-layout">
+        <article class="content-card" aria-label="{{ title }}">
+          {{ body }}
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__col">
+          <strong>Department of Computer Science</strong>
+          <p>Portland State University</p>
+          <p>1900 SW 4th Avenue, Suite 120</p>
+          <p>Portland, OR 97201</p>
+        </div>
+        <div class="site-footer__col">
+          <p>Phone: <a href="tel:+15037254036">503-725-4036</a></p>
+          <p>Email: <a href="mailto:csoffice@pdx.edu">csoffice@pdx.edu</a></p>
+          <p><a href="https://web.cs.pdx.edu/">web.cs.pdx.edu</a></p>
         </div>
       </div>
-    </section>
-  </div>
-</main>
-</body>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CollegeOrUniversity",
-  "name": "Portland State University, Department of Computer Science",
-  "url": "https://web.cs.pdx.edu/",
-  "telephone": "+1-503-725-4036",
-  "email": "csoffice@pdx.edu",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "1900 SW 4th Avenue, Suite 120",
-    "addressLocality": "Portland",
-    "addressRegion": "OR"
-  }
-}
-</script>
+    </footer>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollegeOrUniversity",
+      "name": "Portland State University, Department of Computer Science",
+      "url": "https://web.cs.pdx.edu/",
+      "telephone": "+1-503-725-4036",
+      "email": "csoffice@pdx.edu",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "1900 SW 4th Avenue, Suite 120",
+        "addressLocality": "Portland",
+        "addressRegion": "OR"
+      }
+    }
+    </script>
+  </body>
 </html>
