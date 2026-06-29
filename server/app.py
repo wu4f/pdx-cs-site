@@ -1,5 +1,6 @@
 """FastAPI app: serves the generated site + a /ask endpoint + a tiny chat UI."""
 from __future__ import annotations
+import asyncio
 import hmac
 import html as _html
 import os
@@ -15,7 +16,7 @@ from pathlib import Path
 
 import yaml
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -218,8 +219,30 @@ def _files_section() -> str:
     )
 
 
+_CLEAR_FORM = (
+    '<form method="post" action="/admin/clear-build" style="margin-top:8px">'
+    '<input type="hidden" name="token" id="clear-token">'
+    '<button class="btn-sm" type="submit">Clear log</button>'
+    '</form>'
+    '<script>'
+    '(function(){var t=sessionStorage.getItem("admin-token");'
+    'if(t)document.getElementById("clear-token").value=t;})();'
+    '</script>'
+)
+
+_SSE_JS = (
+    '<script>'
+    'var _lp=document.getElementById("live-log");'
+    'var _es=new EventSource("/admin/rebuild/stream");'
+    '_es.onmessage=function(e){_lp.textContent+=e.data+"\\n";_lp.scrollTop=_lp.scrollHeight;};'
+    '_es.addEventListener("done",function(){_es.close();setTimeout(function(){location.reload();},800);});'
+    '_es.onerror=function(){_es.close();setTimeout(function(){location.reload();},3000);};'
+    '</script>'
+)
+
+
 def _build_status_block() -> tuple[str, bool]:
-    """Return (HTML block, is_running) describing the current background build."""
+    """Return (HTML block, needs_meta_refresh) describing the current background build."""
     with _build_lock:
         state = dict(_build_state)
     status = state["status"]
@@ -229,20 +252,22 @@ def _build_status_block() -> tuple[str, bool]:
     finished = _format_ts(state.get("finished_at") or "")
     log = _html.escape((state.get("log") or "").strip())
     if status == "running":
+        # SSE keeps the log live; no meta refresh needed.
         return (
-            f'<p class="banner ok">&#9654; Rebuild in progress since {started} &mdash; '
-            f'this page refreshes every 5 seconds.</p>'
-        ), True
+            f'<p class="banner ok">&#9654; Rebuild in progress since {started}.</p>'
+            '<pre class="log" id="live-log"></pre>'
+            + _SSE_JS
+        ), False
     if status == "ok":
         skipped = "[build] skip:" in (state.get("log") or "")
         msg = ("No documents changed — nothing to rebuild." if skipped
                else f"Rebuild succeeded (finished {finished}).")
         log_block = f'<pre class="log">{log}</pre>' if log else ""
-        return f'<p class="banner ok">{msg}</p>{log_block}', False
+        return f'<p class="banner ok">{msg}</p>{log_block}{_CLEAR_FORM}', False
     # error / timeout
     label = "timed out" if status == "timeout" else f"failed (finished {finished})"
     log_block = f'<pre class="log">{log}</pre>' if log else ""
-    return f'<p class="banner err">Rebuild {label}.</p>{log_block}', False
+    return f'<p class="banner err">Rebuild {label}.</p>{log_block}{_CLEAR_FORM}', False
 
 
 def _admin_page(banner: str = "", status: str = "") -> str:
@@ -293,6 +318,9 @@ def _admin_page(banner: str = "", status: str = "") -> str:
   th {{ color: #555; font-weight: 600; }}
   .yes {{ color: #a50e0e; font-weight: 600; }}
   .no {{ color: #6b7280; }}
+  .btn-sm {{ padding: 6px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+             background: #6b7280; color: #fff; border: 0; border-radius: 6px; }}
+  .btn-sm:hover {{ background: #4b5563; }}
 </style>
 </head>
 <body>
@@ -303,7 +331,7 @@ rebuild is skipped if no source document has changed. This can take a minute;
 leave the tab open until it finishes.</p>
 {status}
 {banner}
-<form method="post" action="/admin/rebuild">
+<form id="rebuild-form" method="post" action="/admin/rebuild">
   <div>
     <label for="token">Admin token</label>
     <input type="password" id="token" name="token"
@@ -335,20 +363,17 @@ re-uploading the same name overwrites it.</p>
 
 <h2>Published files</h2>
 {files}
+<script>
+  document.getElementById('rebuild-form').addEventListener('submit', function() {{
+    var t = document.getElementById('token').value;
+    if (t) sessionStorage.setItem('admin-token', t);
+  }});
+</script>
 </body>
 </html>"""
 
 
-def _run_build(force: bool = False) -> subprocess.CompletedProcess:
-    """Run `cspdx build` from the repo root, capturing output. Blocking; intended
-    to be called from a background thread. Unless `force`, passes --skip-unchanged
-    so an unmodified set of docs is a no-op."""
-    cmd = [sys.executable, "-m", "cspdx.cli", "build"]
-    if not force:
-        cmd.append("--skip-unchanged")
-    return subprocess.run(
-        cmd, cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600,
-    )
+_BUILD_TIMEOUT = 600  # seconds
 
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -357,32 +382,54 @@ def admin_ui():
 
 
 def _build_worker(force: bool) -> None:
-    """Run `cspdx build` in a background thread and update _build_state."""
+    """Run `cspdx build` in a background thread, streaming output line-by-line."""
     global _chat
+    cmd = [sys.executable, "-m", "cspdx.cli", "build"]
+    if not force:
+        cmd.append("--skip-unchanged")
     with _build_lock:
-        _build_state["status"] = "running"
-        _build_state["started_at"] = datetime.now(timezone.utc).isoformat()
-        _build_state["log"] = ""
-        _build_state["finished_at"] = None
+        _build_state.update({"status": "running", "log": "",
+                             "started_at": datetime.now(timezone.utc).isoformat(),
+                             "finished_at": None})
     try:
-        result = _run_build(force)
-        ok = result.returncode == 0
-        log = (result.stdout + result.stderr)[-6000:].strip()
-        with _build_lock:
-            _build_state["status"] = "ok" if ok else "error"
-            _build_state["log"] = log
-            _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
-        if ok:
-            _chat = None  # reload chat index on next /ask
-    except subprocess.TimeoutExpired:
-        with _build_lock:
-            _build_state["status"] = "timeout"
-            _build_state["log"] = "Build process exceeded 600 s and was killed."
-            _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
+        proc = subprocess.Popen(
+            cmd, cwd=str(REPO_ROOT),
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, bufsize=1,
+        )
+        timed_out = threading.Event()
+
+        def _kill():
+            timed_out.set()
+            proc.kill()
+
+        timer = threading.Timer(_BUILD_TIMEOUT, _kill)
+        timer.start()
+        try:
+            for line in proc.stdout:
+                with _build_lock:
+                    _build_state["log"] = (_build_state["log"] + line)[-6000:]
+            proc.wait()
+        finally:
+            timer.cancel()
+
+        if timed_out.is_set():
+            with _build_lock:
+                _build_state["status"] = "timeout"
+                _build_state["log"] = (_build_state["log"]
+                                       + f"\nBuild exceeded {_BUILD_TIMEOUT} s and was killed.")[-6000:]
+                _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
+        else:
+            ok = proc.returncode == 0
+            with _build_lock:
+                _build_state["status"] = "ok" if ok else "error"
+                _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
+            if ok:
+                _chat = None
     except Exception as e:
         with _build_lock:
             _build_state["status"] = "error"
-            _build_state["log"] = str(e)
+            _build_state["log"] = (_build_state["log"] + f"\n{e}")[-6000:]
             _build_state["finished_at"] = datetime.now(timezone.utc).isoformat()
 
 
@@ -410,6 +457,50 @@ async def admin_rebuild(request: Request):
                     'This page will refresh automatically.</p>',
                     status=_admin_status()),
     )
+
+
+@app.get("/admin/rebuild/stream")
+async def rebuild_stream():
+    """SSE endpoint: streams build log lines as they arrive. No auth needed (output is not sensitive)."""
+    async def generate():
+        last_len = 0
+        while True:
+            with _build_lock:
+                log = _build_state.get("log", "")
+                status = _build_state["status"]
+            new_text = log[last_len:]
+            if new_text:
+                for line in new_text.split("\n"):
+                    if line:
+                        yield f"data: {line}\n\n"
+                last_len = len(log)
+            if status != "running":
+                yield "event: done\ndata: done\n\n"
+                return
+            await asyncio.sleep(0.5)
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@app.post("/admin/clear-build", response_class=HTMLResponse)
+async def admin_clear_build(request: Request):
+    qs = urllib.parse.parse_qs((await request.body()).decode("utf-8"))
+    token = qs.get("token", [""])[0]
+    if not ADMIN_TOKEN or token != ADMIN_TOKEN:
+        return HTMLResponse(
+            _admin_page('<p class="banner err">Invalid admin token.</p>', status=_admin_status()),
+            status_code=403,
+        )
+    with _build_lock:
+        if _build_state["status"] == "running":
+            return HTMLResponse(_admin_page(
+                '<p class="banner err">Cannot clear — build is still running.</p>',
+                status=_admin_status()))
+        _build_state.update({"status": "idle", "log": "", "started_at": None, "finished_at": None})
+    return HTMLResponse(_admin_page("", status=_admin_status()))
 
 
 def _upload_error(message: str, status_code: int) -> HTMLResponse:

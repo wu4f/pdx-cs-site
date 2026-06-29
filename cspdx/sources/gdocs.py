@@ -106,16 +106,27 @@ def get_revision(creds, doc_id: str) -> str:
     return doc.get("revisionId", "")
 
 
+_EXPORT_TIMEOUT = 60  # seconds before a frozen request is killed and retried
+_EXPORT_RETRIES = 5
+
+
 def export_tab_html(creds, doc_id: str, tab_id: Optional[str] = None) -> str:
     """Download a tab (or whole doc) as HTML via the docs export endpoint."""
     url = f"https://docs.google.com/document/d/{doc_id}/export?format=html&id={doc_id}"
     if tab_id:
         url += f"&tab={tab_id}"
     headers = {"Authorization": f"Bearer {creds.token}"}
-    for _ in range(10):
-        r = requests.get(url, headers=headers)
-        if r.status_code == 200:
-            return r.text
-        time.sleep(1)
-    r.raise_for_status()
-    return r.text
+    last_exc: Exception = RuntimeError("no attempts made")
+    for attempt in range(_EXPORT_RETRIES):
+        try:
+            r = requests.get(url, headers=headers, timeout=_EXPORT_TIMEOUT)
+            if r.status_code == 200:
+                return r.text
+            last_exc = requests.HTTPError(response=r)
+        except requests.exceptions.Timeout as e:
+            print(f"  [warn] tab export timed out (attempt {attempt + 1}/{_EXPORT_RETRIES}), retrying...")
+            last_exc = e
+        except requests.exceptions.RequestException as e:
+            last_exc = e
+        time.sleep(2 ** attempt)  # exponential back-off: 1 s, 2 s, 4 s, 8 s ...
+    raise last_exc
