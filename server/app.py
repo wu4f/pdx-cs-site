@@ -384,7 +384,7 @@ def admin_ui():
 def _build_worker(force: bool) -> None:
     """Run `cspdx build` in a background thread, streaming output line-by-line."""
     global _chat
-    cmd = [sys.executable, "-m", "cspdx.cli", "build"]
+    cmd = [sys.executable, "-u", "-m", "cspdx.cli", "build"]
     if not force:
         cmd.append("--skip-unchanged")
     with _build_lock:
@@ -451,12 +451,14 @@ async def admin_rebuild(request: Request):
                         'refresh this page to see its status.</p>',
                         status=_admin_status()),
         )
+    # Pre-set state to "running" before starting the thread so the response
+    # page renders the live-log block (with SSE JS) without a race.
+    with _build_lock:
+        _build_state.update({"status": "running", "log": "",
+                             "started_at": datetime.now(timezone.utc).isoformat(),
+                             "finished_at": None})
     threading.Thread(target=_build_worker, args=(force,), daemon=True).start()
-    return HTMLResponse(
-        _admin_page('<p class="banner ok">Rebuild started in the background. '
-                    'This page will refresh automatically.</p>',
-                    status=_admin_status()),
-    )
+    return HTMLResponse(_admin_page(status=_admin_status()))
 
 
 @app.get("/admin/rebuild/stream")
