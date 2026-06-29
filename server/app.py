@@ -250,7 +250,7 @@ def _admin_page(banner: str = "", status: str = "") -> str:
     status block (last build + per-document timestamps)."""
     files = _files_section()
     build_block, is_running = _build_status_block()
-    refresh_tag = '<meta http-equiv="refresh" content="5">' if is_running else ""
+    refresh_tag = '<meta http-equiv="refresh" content="5; url=/admin">' if is_running else ""
     # Prepend the background-build block before any caller-supplied banner.
     banner = build_block + banner
     return f"""<!DOCTYPE html>
