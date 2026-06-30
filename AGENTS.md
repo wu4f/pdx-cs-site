@@ -65,10 +65,12 @@ Calls Gemini once per section to assign a category slug from `content.yaml`→`c
 
 ### Rendering (`cspdx/render/`)
 
-- **`page.py`** — Jinja2-renders `templates/base.html` for each section → `build/site/<id>/index.html`
-- **`landing.py`** — Self-contained inline HTML (no template), writes the categorized landing page → `build/site/index.html`
+- **`landing.py`** — Self-contained Jinja2 template string; writes the categorized landing page → `build/site/index.html`. Exports `build_nav_groups(sections, exclude_ids)` which groups sections by category in `CATEGORY_ORDER` order — used by both the landing page and section pages to populate the shared nav bar.
+- **`page.py`** — Jinja2-renders `templates/base.html` for each section → `build/site/<id>/index.html`. Accepts `nav_sections` / `nav_exclude_ids` and calls `build_nav_groups()` to pass `nav_groups`, `cat_labels`, `cat_icons` to the template.
 
-**Critical build-order invariant**: in `cmd_build`, `render_landing()` runs first, then `_copy_static()` overlays `static/` onto `build/site/`. Placing an `index.html` in `static/` would overwrite the freshly generated landing page and must be avoided.
+Both pages share a sticky two-row header: brand/CTA row + a horizontal category nav row. Each category entry has a text link (navigates to `/#category`) and a `▾` caret button that toggles a dropdown (JS, `position: fixed`) listing every page in that category. `position: fixed` is required because the nav row has `overflow-x: auto`, which would clip `position: absolute` dropdowns.
+
+**Critical build-order invariant**: in `cmd_build`, `render_landing()` runs first, then `_copy_static()` overlays `static/` onto `build/site/`. `static/` must not contain an `index.html` — it would overwrite the generated landing page.
 
 ### Static assets (`static/`)
 
