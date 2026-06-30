@@ -131,12 +131,10 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
     }
     .topbar-row.secondary::-webkit-scrollbar { display: none; }
 
-    /* ---- Per-category dropdown menus (JS-toggled, position:fixed avoids overflow clipping) ---- */
+    /* ---- Per-category dropdown menus (hover-triggered, position:fixed avoids overflow clipping) ---- */
     .nav-caret {
-      background: none; border: none; cursor: pointer; padding: 0 3px;
-      font-size: 11px; color: var(--ink-muted); line-height: 1; vertical-align: middle;
+      font-size: 10px; line-height: 1; opacity: 0.6;
     }
-    .nav-caret:hover { color: var(--psu-green-dark); }
     .nav-dropdown {
       position: fixed;
       min-width: 200px; max-width: 340px;
@@ -187,6 +185,8 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
       padding: 8px 14px; border-radius: 8px;
       white-space: nowrap;
       transition: background .12s ease, color .12s ease;
+      display: inline-flex; align-items: center; gap: 5px;
+      cursor: pointer;
     }
     .top-link:hover {
       background: rgba(109,141,36,.08);
@@ -459,7 +459,7 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
   <nav class="topbar-row secondary" aria-label="Category navigation">
     {% for cat, items in grouped %}
       <div class="nav-item">
-        <a class="top-link" href="#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}</a><button class="nav-caret" aria-haspopup="true" aria-expanded="false" aria-label="Pages in {{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}">▾</button>
+        <a class="top-link" href="#{{ cat }}" aria-haspopup="true" aria-expanded="false">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}<span class="nav-caret" aria-hidden="true">▾</span></a>
         <ul class="nav-dropdown" role="list" hidden>
           {% for s in items %}
           <li><a href="{{ s.url_path }}">{{ s.title }}</a></li>
@@ -597,32 +597,43 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
   function askSubmit(e) { e.preventDefault(); ask(INPUT.value.trim()); return false; }
   function quickAsk(q) { ask(q); window.scrollTo({top: 0, behavior: 'smooth'}); }
 
-  // Nav dropdowns: click the ▾ caret to open; position:fixed so overflow:auto can't clip them.
   (function(){
+    var closeTimer=null;
     function closeAll(){
+      clearTimeout(closeTimer);
       document.querySelectorAll('.nav-dropdown:not([hidden])').forEach(function(d){
         d.hidden=true;
-        var b=d.closest('.nav-item').querySelector('.nav-caret');
-        if(b) b.setAttribute('aria-expanded','false');
+        var a=d.closest('.nav-item').querySelector('.top-link');
+        if(a) a.setAttribute('aria-expanded','false');
       });
     }
-    document.querySelectorAll('.nav-caret').forEach(function(btn){
-      btn.addEventListener('click',function(e){
-        e.stopPropagation();
-        var dd=btn.closest('.nav-item').querySelector('.nav-dropdown');
-        var wasOpen=!dd.hidden;
-        closeAll();
-        if(!wasOpen){
-          var r=btn.getBoundingClientRect();
-          dd.style.top=(r.bottom+2)+'px';
-          dd.style.left=Math.max(0,Math.min(r.left,window.innerWidth-344))+'px';
-          dd.hidden=false;
-          btn.setAttribute('aria-expanded','true');
-        }
+    function openItem(item){
+      clearTimeout(closeTimer);
+      var dd=item.querySelector('.nav-dropdown');
+      var label=item.querySelector('.top-link');
+      if(!dd||!dd.hidden) return;
+      closeAll();
+      var r=label.getBoundingClientRect();
+      dd.style.top=(r.bottom+2)+'px';
+      dd.style.left=Math.max(0,Math.min(r.left,window.innerWidth-344))+'px';
+      dd.hidden=false;
+      label.setAttribute('aria-expanded','true');
+    }
+    document.querySelectorAll('.nav-item').forEach(function(item){
+      var label=item.querySelector('.top-link');
+      var dd=item.querySelector('.nav-dropdown');
+      if(!dd) return;
+      item.addEventListener('mouseenter',function(){ openItem(item); });
+      item.addEventListener('mouseleave',function(){ closeTimer=setTimeout(closeAll,150); });
+      dd.addEventListener('mouseenter',function(){ clearTimeout(closeTimer); });
+      dd.addEventListener('mouseleave',function(){ closeTimer=setTimeout(closeAll,150); });
+      label.addEventListener('click',function(e){
+        e.preventDefault();
+        if(!dd.hidden){ closeAll(); } else { openItem(item); }
       });
     });
-    document.addEventListener('click',closeAll);
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll();});
+    document.addEventListener('click',function(e){ if(!e.target.closest('.nav-item')) closeAll(); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAll(); });
   })();
 </script>
 
