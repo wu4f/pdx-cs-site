@@ -131,6 +131,43 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
     }
     .topbar-row.secondary::-webkit-scrollbar { display: none; }
 
+    /* ---- Per-category dropdown menus ---- */
+    .nav-item { position: relative; }
+    .nav-item:hover .nav-dropdown,
+    .nav-item:focus-within .nav-dropdown { display: block; }
+    .nav-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      min-width: 200px;
+      max-width: 340px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(20,25,40,.12), 0 1px 4px rgba(20,25,40,.06);
+      padding: 6px 0;
+      z-index: 200;
+      list-style: none;
+      margin: 0;
+    }
+    .nav-dropdown li { list-style: none; margin: 0; }
+    .nav-dropdown a {
+      display: block;
+      padding: 8px 16px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-dropdown a:hover {
+      background: var(--psu-green-light);
+      color: var(--psu-green-dark);
+      text-decoration: none;
+    }
+    .top-link .caret { font-size: 10px; opacity: .6; }
+
     .brand {
       display: flex;
       align-items: center;
@@ -421,9 +458,16 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
       <span class="label">Ask the Assistant</span>
     </a>
   </div>
-  <nav class="topbar-row secondary" aria-label="Section navigation">
+  <nav class="topbar-row secondary" aria-label="Category navigation">
     {% for cat, items in grouped %}
-      <a class="top-link" href="#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}</a>
+      <div class="nav-item">
+        <a class="top-link" href="#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}<span class="caret" aria-hidden="true"> ▾</span></a>
+        <ul class="nav-dropdown" role="list">
+          {% for s in items %}
+          <li><a href="{{ s.url_path }}">{{ s.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
     {% endfor %}
   </nav>
 </header>
@@ -592,6 +636,24 @@ CATEGORY_ORDER = [
 ]
 
 
+def build_nav_groups(
+    sections: list[Section],
+    exclude_ids: list[str] | None = None,
+) -> list[tuple[str, list[Section]]]:
+    """Group sections by category in canonical display order, omitting exclude_ids."""
+    skip = set(exclude_ids or [])
+    by_cat: dict[str, list[Section]] = defaultdict(list)
+    for s in sections:
+        if s.id not in skip:
+            by_cat[s.category or "other"].append(s)
+    for items in by_cat.values():
+        items.sort(key=lambda s: s.title.lower())
+    ordered = [(c, by_cat[c]) for c in CATEGORY_ORDER if c in by_cat]
+    extras = sorted(c for c in by_cat if c not in CATEGORY_ORDER)
+    ordered += [(c, by_cat[c]) for c in extras]
+    return ordered
+
+
 def render_landing(
     sections: list[Section],
     out_path: str,
@@ -605,19 +667,7 @@ def render_landing(
     and remain reachable by URL; they're just omitted from the home page
     (and from the in-page nav / footer / quick links).
     """
-    skip = set(exclude_ids or [])
-
-    by_cat: dict[str, list[Section]] = defaultdict(list)
-    for s in sections:
-        if s.id in skip:
-            continue
-        by_cat[s.category or "other"].append(s)
-    for items in by_cat.values():
-        items.sort(key=lambda s: s.title.lower())
-
-    ordered = [(c, by_cat[c]) for c in CATEGORY_ORDER if c in by_cat]
-    extras = sorted(c for c in by_cat if c not in CATEGORY_ORDER)
-    ordered += [(c, by_cat[c]) for c in extras]
+    ordered = build_nav_groups(sections, exclude_ids)
 
     tpl = jinja2.Template(LANDING_TEMPLATE)
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)

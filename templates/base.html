@@ -233,6 +233,78 @@
       .site-footer a { color: rgba(255,255,255,.8); text-decoration: none; }
       .site-footer a:hover { color: #fff; text-decoration: underline; }
 
+      /* ---- Category nav bar ---- */
+      .nav-bar {
+        background: #fafbfd;
+        border-top: 1px solid var(--border);
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .nav-bar::-webkit-scrollbar { display: none; }
+      .nav-bar__inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 6px 28px;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .nav-item { position: relative; }
+      .nav-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 7px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        border-radius: 6px;
+        white-space: nowrap;
+        transition: background .12s ease, color .12s ease;
+        text-decoration: none;
+      }
+      .nav-label:hover,
+      .nav-item:hover .nav-label,
+      .nav-item:focus-within .nav-label {
+        background: rgba(84,113,25,.08);
+        color: var(--psu-green-dark);
+        text-decoration: none;
+      }
+      .nav-label .caret { font-size: 10px; opacity: .6; }
+      .nav-item:hover .nav-dropdown,
+      .nav-item:focus-within .nav-dropdown { display: block; }
+      .nav-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 0;
+        min-width: 200px;
+        max-width: 340px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(20,25,40,.12), 0 1px 4px rgba(20,25,40,.06);
+        padding: 6px 0;
+        z-index: 200;
+        list-style: none;
+        margin: 0;
+      }
+      .nav-dropdown li { list-style: none; margin: 0; }
+      .nav-dropdown a {
+        display: block;
+        padding: 8px 16px;
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .nav-dropdown a:hover {
+        background: var(--psu-green-light);
+        color: var(--psu-green-dark);
+        text-decoration: none;
+      }
+
       /* ---- Responsive ---- */
       @media (max-width: 700px) {
         .site-header__inner { padding: 12px 16px; }
@@ -267,6 +339,22 @@
         <div class="site-header__spacer"></div>
         <a class="site-header__back" href="{{ base_href|default('/') }}">← All Topics</a>
       </div>
+      {% if nav_groups %}
+      <nav class="nav-bar" aria-label="Category navigation">
+        <div class="nav-bar__inner">
+          {% for cat, items in nav_groups %}
+          <div class="nav-item">
+            <a class="nav-label" href="{{ base_href|default('/') }}#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}<span class="caret" aria-hidden="true"> ▾</span></a>
+            <ul class="nav-dropdown" role="list">
+              {% for s in items %}
+              <li><a href="{{ s.url_path }}">{{ s.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+      </nav>
+      {% endif %}
     </header>
 
     <nav class="breadcrumb" aria-label="Breadcrumb">

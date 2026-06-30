@@ -123,14 +123,16 @@ def cmd_build(args):
         print(f"[build] applied {applied} category overrides")
 
     base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
+    exclude_ids = cfg.get("landing_exclude", []) or []
     print(f"[build] rendering pages -> {site_dir}  (base_href={base_href!r})")
     template = cfg.get("templates", {}).get("page", "templates/base.html")
     render_sections(
         all_sections, template_path=template, out_dir=str(site_dir),
         base_href=base_href,
+        nav_sections=all_sections,
+        nav_exclude_ids=exclude_ids,
     )
 
-    exclude_ids = cfg.get("landing_exclude", []) or []
     print(f"[build] rendering landing page (excluding {len(exclude_ids)} sections)")
     render_landing(
         all_sections,
