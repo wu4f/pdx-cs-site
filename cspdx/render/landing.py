@@ -475,7 +475,7 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
   <div class="hero-inner">
     <a class="eyebrow" href="https://pdx.edu" target="_blank" rel="noopener">Portland State University ↗</a>
     <h1>Department of Computer Science</h1>
-    <p class="sub">Programs, courses, faculty, and student resources — plus an AI assistant trained on the department's own content.</p>
+    <p class="sub">Program and faculty information — plus an AI assistant to answer your questions.</p>
     <form class="ask-card" id="askForm" onsubmit="return askSubmit(event)" role="search" aria-label="Ask the CS assistant">
       <span aria-hidden="true" style="padding-left:6px; color:var(--ink-muted)">🔍</span>
       <label for="askInput" class="visually-hidden">Your question</label>
