@@ -646,30 +646,21 @@ CATEGORY_LABELS = {
     "about": "About",
     "undergraduate": "Undergraduate",
     "graduate": "Graduate",
-    "student-resources": "Student Resources",
-    "faculty": "Faculty & Research",
-    "news": "News & Announcements",
-    "other": "More",
+    "resources": "Resources",
 }
 
 CATEGORY_ICONS = {
     "about": "🏛️",
     "undergraduate": "🎓",
     "graduate": "📚",
-    "student-resources": "🛟",
-    "faculty": "👥",
-    "news": "📰",
-    "other": "📄",
+    "resources": "🛟",
 }
 
 CATEGORY_ORDER = [
     "about",
     "undergraduate",
     "graduate",
-    "student-resources",
-    "faculty",
-    "news",
-    "other",
+    "resources",
 ]
 
 

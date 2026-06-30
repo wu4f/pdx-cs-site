@@ -61,7 +61,9 @@ All paths call `cleaner.clean_exported_html()` which strips Google's wrapper mar
 
 ### Categorization (`cspdx/categorize.py`)
 
-Calls Gemini once per section to assign a category slug from `content.yaml`→`categories.allowed`. Cache key is `<id>@<revisionId>` stored in `build/category_cache.json` — the only file under `build/` that is committed to git. Manual overrides live in `content.yaml`→`category_overrides`.
+Looks up each section's slug in `build/category.json` (slug → category) — the only file under `build/` that is committed to git. Five allowed categories: `about`, `undergraduate`, `graduate`, `resources`, and `ignore`. Slugs absent from the file default to `about` and are written back for manual review. No LLM calls; edit `build/category.json` directly to reclassify a section.
+
+Sections with category `ignore` have their HTML pages rendered (so existing URLs keep working) but are excluded from the landing page, the nav bar on every section page, and `sections.json` (so the chatbot never sees them).
 
 ### Rendering (`cspdx/render/`)
 
@@ -109,11 +111,11 @@ Chat backend (`cspdx/chat/rag.py`) is lazy-loaded on the first `/ask` request. I
 Single declarative config that drives the entire pipeline:
 
 - `docs[]` — which Google Doc IDs to fetch and which splitter to use
-- `categories.allowed` — valid category slugs for Gemini to assign
-- `category_overrides` — force a specific section to a category
-- `landing_exclude` — section slugs hidden from the landing page (pages still generated and chatbot-reachable)
-- `chat.deprioritize` — slugs tagged `priority="secondary"` in the RAG prompt so the model prefers canonical versions over older duplicates
+- `categories.allowed` — valid category slugs (`about`, `undergraduate`, `graduate`, `resources`, `ignore`)
 - `templates.page` — path to the Jinja2 section template
+- `chat.model` — Gemini model for the chatbot
+
+To suppress a page, set its slug to `ignore` in `build/category.json`.
 
 ### nginx split (production)
 
@@ -144,5 +146,5 @@ build/
   site/               # fully generated; nginx serves this directory
   sections.json       # loaded by the chat backend at startup / reload
   build_meta.json     # revisionId + modifiedTime of each doc at last build (gitignored)
-  category_cache.json # ← committed; LLM categorization keyed by id@revision
+  category.json       # ← committed; manual slug → category map (edit to reclassify)
 ```

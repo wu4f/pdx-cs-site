@@ -94,51 +94,40 @@ def cmd_build(args):
             all_sections.append(sec)
             time.sleep(0.2)
 
-    allowed = cfg.get("categories", {}).get("allowed", ["other"])
-    if "other" not in allowed:
-        allowed = list(allowed) + ["other"]
+    allowed = cfg.get("categories", {}).get("allowed", ["about"])
+    if "ignore" not in allowed:
+        allowed = list(allowed) + ["ignore"]
 
     print(f"[build] categorizing {len(all_sections)} sections")
     categorize_sections(
         all_sections,
         allowed=allowed,
-        cache_path=str(out_dir / "category_cache.json"),
-        model=os.getenv("GEMINI_MODEL") or cfg.get("chat", {}).get("model", "gemini-3.5-flash"),
+        cache_path=str(out_dir / "category.json"),
     )
 
-    # Apply manual category overrides from config.
-    overrides = cfg.get("category_overrides", {}) or {}
-    if overrides:
-        applied = 0
-        for sec in all_sections:
-            if sec.id in overrides:
-                target = overrides[sec.id]
-                if target not in allowed:
-                    print(f"  ! override target {target!r} not in allowed categories; skipping {sec.id}")
-                    continue
-                if sec.category != target:
-                    print(f"  override: {sec.id} {sec.category!r} -> {target!r}")
-                    sec.category = target
-                    applied += 1
-        print(f"[build] applied {applied} category overrides")
+    # Sections marked "ignore" get their HTML rendered (so existing URLs keep
+    # working) but are excluded from the landing page, nav bar, and chatbot.
+    active_sections = [s for s in all_sections if s.category != "ignore"]
+    ignored_count = len(all_sections) - len(active_sections)
+    if ignored_count:
+        print(f"[build] {ignored_count} section(s) marked ignore: excluded from landing/nav/chat")
 
     base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
-    exclude_ids = cfg.get("landing_exclude", []) or []
     print(f"[build] rendering pages -> {site_dir}  (base_href={base_href!r})")
     template = cfg.get("templates", {}).get("page", "templates/base.html")
     render_sections(
         all_sections, template_path=template, out_dir=str(site_dir),
         base_href=base_href,
-        nav_sections=all_sections,
-        nav_exclude_ids=exclude_ids,
+        nav_sections=active_sections,
+        nav_exclude_ids=[],
     )
 
-    print(f"[build] rendering landing page (excluding {len(exclude_ids)} sections)")
+    print(f"[build] rendering landing page ({len(active_sections)} active sections)")
     render_landing(
-        all_sections,
+        active_sections,
         out_path=str(site_dir / "index.html"),
         base_href=base_href,
-        exclude_ids=exclude_ids,
+        exclude_ids=[],
     )
 
     static_dir = Path(args.static)
@@ -146,8 +135,8 @@ def cmd_build(args):
     if copied:
         print(f"[build] copied {copied} static file(s) from {static_dir}/ -> {site_dir}/")
 
-    dump_sections(all_sections, str(out_dir / "sections.json"))
-    print(f"[build] wrote {len(all_sections)} sections to {out_dir}/sections.json")
+    dump_sections(active_sections, str(out_dir / "sections.json"))
+    print(f"[build] wrote {len(active_sections)} sections to {out_dir}/sections.json")
 
     meta = buildmeta.write_meta(doc_states, meta_path)
     print(f"[build] recorded build metadata ({meta['built_at']}) -> {meta_path}")
@@ -165,9 +154,9 @@ def cmd_build(args):
 def cmd_render_landing(args):
     """Re-render only the landing page from an existing sections.json.
 
-    Useful after editing `landing_exclude` (or other landing-only config) in
-    content.yaml: it picks up the new config and rewrites index.html without
-    re-fetching the Google Docs or re-categorizing.
+    Useful after editing category.json without a full rebuild: rewrites
+    index.html from the already-built sections.json (sections already filtered
+    to active at build time).
     """
     cfg = yaml.safe_load(Path(args.config).read_text())
     sections_path = args.sections or str(Path(args.out) / "sections.json")
@@ -176,17 +165,16 @@ def cmd_render_landing(args):
 
     sections = load_sections(sections_path)
     base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
-    exclude_ids = cfg.get("landing_exclude", []) or []
     out_path = str(Path(args.out) / "site" / "index.html")
     print(
         f"[render-landing] {len(sections)} sections from {sections_path}, "
-        f"excluding {len(exclude_ids)}, base_href={base_href!r} -> {out_path}"
+        f"base_href={base_href!r} -> {out_path}"
     )
     render_landing(
         sections,
         out_path=out_path,
         base_href=base_href,
-        exclude_ids=exclude_ids,
+        exclude_ids=[],
     )
 
 
@@ -237,8 +225,7 @@ def main(argv=None):
 
     pr = sub.add_parser(
         "render-landing",
-        help="Re-render only the landing page from an existing sections.json "
-             "(e.g. after editing landing_exclude). No Google fetch.",
+        help="Re-render only the landing page from an existing sections.json. No Google fetch.",
     )
     pr.add_argument("--config", default="content.yaml")
     pr.add_argument("--out", default="build")
