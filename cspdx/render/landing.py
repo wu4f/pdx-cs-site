@@ -131,26 +131,25 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
     }
     .topbar-row.secondary::-webkit-scrollbar { display: none; }
 
-    /* ---- Per-category dropdown menus ---- */
-    .nav-item { position: relative; }
-    .nav-item:hover .nav-dropdown,
-    .nav-item:focus-within .nav-dropdown { display: block; }
+    /* ---- Per-category dropdown menus (JS-toggled, position:fixed avoids overflow clipping) ---- */
+    .nav-caret {
+      background: none; border: none; cursor: pointer; padding: 0 3px;
+      font-size: 11px; color: var(--ink-muted); line-height: 1; vertical-align: middle;
+    }
+    .nav-caret:hover { color: var(--psu-green-dark); }
     .nav-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 2px);
-      left: 0;
-      min-width: 200px;
-      max-width: 340px;
+      position: fixed;
+      min-width: 200px; max-width: 340px;
       background: #fff;
       border: 1px solid var(--border);
       border-radius: 10px;
       box-shadow: 0 4px 16px rgba(20,25,40,.12), 0 1px 4px rgba(20,25,40,.06);
       padding: 6px 0;
-      z-index: 200;
+      z-index: 1000;
       list-style: none;
       margin: 0;
     }
+    .nav-dropdown[hidden] { display: none; }
     .nav-dropdown li { list-style: none; margin: 0; }
     .nav-dropdown a {
       display: block;
@@ -166,7 +165,6 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
       color: var(--psu-green-dark);
       text-decoration: none;
     }
-    .top-link .caret { font-size: 10px; opacity: .6; }
 
     .brand {
       display: flex;
@@ -461,8 +459,8 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
   <nav class="topbar-row secondary" aria-label="Category navigation">
     {% for cat, items in grouped %}
       <div class="nav-item">
-        <a class="top-link" href="#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}<span class="caret" aria-hidden="true"> ▾</span></a>
-        <ul class="nav-dropdown" role="list">
+        <a class="top-link" href="#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}</a><button class="nav-caret" aria-haspopup="true" aria-expanded="false" aria-label="Pages in {{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}">▾</button>
+        <ul class="nav-dropdown" role="list" hidden>
           {% for s in items %}
           <li><a href="{{ s.url_path }}">{{ s.title }}</a></li>
           {% endfor %}
@@ -598,6 +596,34 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
 
   function askSubmit(e) { e.preventDefault(); ask(INPUT.value.trim()); return false; }
   function quickAsk(q) { ask(q); window.scrollTo({top: 0, behavior: 'smooth'}); }
+
+  // Nav dropdowns: click the ▾ caret to open; position:fixed so overflow:auto can't clip them.
+  (function(){
+    function closeAll(){
+      document.querySelectorAll('.nav-dropdown:not([hidden])').forEach(function(d){
+        d.hidden=true;
+        var b=d.closest('.nav-item').querySelector('.nav-caret');
+        if(b) b.setAttribute('aria-expanded','false');
+      });
+    }
+    document.querySelectorAll('.nav-caret').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        var dd=btn.closest('.nav-item').querySelector('.nav-dropdown');
+        var wasOpen=!dd.hidden;
+        closeAll();
+        if(!wasOpen){
+          var r=btn.getBoundingClientRect();
+          dd.style.top=(r.bottom+2)+'px';
+          dd.style.left=Math.max(0,Math.min(r.left,window.innerWidth-344))+'px';
+          dd.hidden=false;
+          btn.setAttribute('aria-expanded','true');
+        }
+      });
+    });
+    document.addEventListener('click',closeAll);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll();});
+  })();
 </script>
 
 </body>
