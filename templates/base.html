@@ -88,29 +88,6 @@
         text-decoration: none;
       }
 
-      /* ---- Breadcrumb ---- */
-      .breadcrumb {
-        background: #fff;
-        border-bottom: 1px solid var(--border);
-        padding: 10px 28px;
-        font-size: 13px;
-        color: var(--ink-muted);
-      }
-      .breadcrumb__inner {
-        max-width: 1240px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .breadcrumb a {
-        color: var(--psu-green-dark);
-        text-decoration: none;
-        font-weight: 500;
-      }
-      .breadcrumb a:hover { text-decoration: underline; }
-      .breadcrumb__sep { color: var(--ink-muted); }
-
       /* ---- Page wrapper ---- */
       .page-layout {
         max-width: 1240px;
@@ -250,17 +227,16 @@
         align-items: center;
       }
       .nav-label {
-        display: inline-flex; align-items: center; gap: 4px;
+        display: inline-flex; align-items: center; gap: 5px;
         padding: 7px 12px; font-size: 14px; font-weight: 600;
         color: var(--ink-soft); border-radius: 6px; white-space: nowrap;
         transition: background .12s ease, color .12s ease; text-decoration: none;
+        cursor: pointer;
       }
       .nav-label:hover { background: rgba(84,113,25,.08); color: var(--psu-green-dark); text-decoration: none; }
       .nav-caret {
-        background: none; border: none; cursor: pointer; padding: 0 3px;
-        font-size: 11px; color: var(--ink-muted); line-height: 1; vertical-align: middle;
+        font-size: 10px; line-height: 1; opacity: 0.6;
       }
-      .nav-caret:hover { color: var(--psu-green-dark); }
       .nav-dropdown {
         position: fixed;
         min-width: 200px; max-width: 340px;
@@ -285,7 +261,6 @@
       @media (max-width: 700px) {
         .site-header__inner { padding: 12px 16px; }
         .site-header__logo img { height: 56px; }
-        .breadcrumb { padding: 8px 16px; }
         .page-layout { padding: 1rem 16px 3rem; }
         .content-card { padding: 1.5rem 1.25rem; }
         .content-card h1 { font-size: 1.45rem; }
@@ -320,7 +295,7 @@
         <div class="nav-bar__inner">
           {% for cat, items in nav_groups %}
           <div class="nav-item">
-            <a class="nav-label" href="{{ base_href|default('/') }}#{{ cat }}">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}</a><button class="nav-caret" aria-haspopup="true" aria-expanded="false" aria-label="Pages in {{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}">▾</button>
+            <a class="nav-label" href="{{ base_href|default('/') }}#{{ cat }}" aria-haspopup="true" aria-expanded="false">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}<span class="nav-caret" aria-hidden="true">▾</span></a>
             <ul class="nav-dropdown" role="list" hidden>
               {% for s in items %}
               <li><a href="{{ s.url_path }}">{{ s.title }}</a></li>
@@ -332,14 +307,6 @@
       </nav>
       {% endif %}
     </header>
-
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <div class="breadcrumb__inner">
-        <a href="{{ base_href|default('/') }}">Computer Science</a>
-        <span class="breadcrumb__sep" aria-hidden="true">›</span>
-        <span aria-current="page">{{ title }}</span>
-      </div>
-    </nav>
 
     <main id="main-content">
       <div class="page-layout">
@@ -366,32 +333,43 @@
     </footer>
 
     <script>
-    // Nav dropdowns: click ▾ caret to open; position:fixed so overflow:auto can't clip them.
     (function(){
+      var closeTimer=null;
       function closeAll(){
+        clearTimeout(closeTimer);
         document.querySelectorAll('.nav-dropdown:not([hidden])').forEach(function(d){
           d.hidden=true;
-          var b=d.closest('.nav-item').querySelector('.nav-caret');
-          if(b) b.setAttribute('aria-expanded','false');
+          var a=d.closest('.nav-item').querySelector('.nav-label');
+          if(a) a.setAttribute('aria-expanded','false');
         });
       }
-      document.querySelectorAll('.nav-caret').forEach(function(btn){
-        btn.addEventListener('click',function(e){
-          e.stopPropagation();
-          var dd=btn.closest('.nav-item').querySelector('.nav-dropdown');
-          var wasOpen=!dd.hidden;
-          closeAll();
-          if(!wasOpen){
-            var r=btn.getBoundingClientRect();
-            dd.style.top=(r.bottom+2)+'px';
-            dd.style.left=Math.max(0,Math.min(r.left,window.innerWidth-344))+'px';
-            dd.hidden=false;
-            btn.setAttribute('aria-expanded','true');
-          }
+      function openItem(item){
+        clearTimeout(closeTimer);
+        var dd=item.querySelector('.nav-dropdown');
+        var label=item.querySelector('.nav-label');
+        if(!dd||!dd.hidden) return;
+        closeAll();
+        var r=label.getBoundingClientRect();
+        dd.style.top=(r.bottom+2)+'px';
+        dd.style.left=Math.max(0,Math.min(r.left,window.innerWidth-344))+'px';
+        dd.hidden=false;
+        label.setAttribute('aria-expanded','true');
+      }
+      document.querySelectorAll('.nav-item').forEach(function(item){
+        var label=item.querySelector('.nav-label');
+        var dd=item.querySelector('.nav-dropdown');
+        if(!dd) return;
+        item.addEventListener('mouseenter',function(){ openItem(item); });
+        item.addEventListener('mouseleave',function(){ closeTimer=setTimeout(closeAll,150); });
+        dd.addEventListener('mouseenter',function(){ clearTimeout(closeTimer); });
+        dd.addEventListener('mouseleave',function(){ closeTimer=setTimeout(closeAll,150); });
+        label.addEventListener('click',function(e){
+          e.preventDefault();
+          if(!dd.hidden){ closeAll(); } else { openItem(item); }
         });
       });
-      document.addEventListener('click',closeAll);
-      document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll();});
+      document.addEventListener('click',function(e){ if(!e.target.closest('.nav-item')) closeAll(); });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAll(); });
     })();
     </script>
     <script type="application/ld+json">
