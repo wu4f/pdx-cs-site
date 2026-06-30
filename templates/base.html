@@ -360,10 +360,10 @@
         var label=item.querySelector('.nav-label');
         var dd=item.querySelector('.nav-dropdown');
         if(!dd) return;
-        item.addEventListener('mouseenter',function(){ openItem(item); });
-        item.addEventListener('mouseleave',function(){ closeTimer=setTimeout(closeAll,150); });
-        dd.addEventListener('mouseenter',function(){ clearTimeout(closeTimer); });
-        dd.addEventListener('mouseleave',function(){ closeTimer=setTimeout(closeAll,150); });
+        item.addEventListener('pointerenter',function(e){ if(e.pointerType!=='mouse') return; openItem(item); });
+        item.addEventListener('pointerleave',function(e){ if(e.pointerType!=='mouse') return; closeTimer=setTimeout(closeAll,150); });
+        dd.addEventListener('pointerenter',function(e){ if(e.pointerType!=='mouse') return; clearTimeout(closeTimer); });
+        dd.addEventListener('pointerleave',function(e){ if(e.pointerType!=='mouse') return; closeTimer=setTimeout(closeAll,150); });
         label.addEventListener('click',function(e){
           e.preventDefault();
           if(!dd.hidden){ closeAll(); } else { openItem(item); }
