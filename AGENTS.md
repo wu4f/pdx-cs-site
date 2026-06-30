@@ -129,6 +129,7 @@ nginx serves `build/site/` directly for all static traffic. Only `/ask` and `/ad
 | `STATIC_DIR` | Asset source directory (default `static/`) |
 | `SITE_DIR` | Generated site directory to serve (default `build/site`) |
 | `CSPDX_RELOAD_URL` | Where `cspdx build` POSTs after finishing (default `http://127.0.0.1:8080/admin/reload`) |
+| `GEMINI_MODEL` | Gemini model for categorization and chat (default `gemini-3.5-flash`; overrides `content.yaml` `chat.model`) |
 
 ### `<base href>` convention
 

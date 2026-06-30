@@ -103,7 +103,7 @@ def cmd_build(args):
         all_sections,
         allowed=allowed,
         cache_path=str(out_dir / "category_cache.json"),
-        model=cfg.get("chat", {}).get("model", "gemini-2.5-flash"),
+        model=os.getenv("GEMINI_MODEL") or cfg.get("chat", {}).get("model", "gemini-3.5-flash"),
     )
 
     # Apply manual category overrides from config.

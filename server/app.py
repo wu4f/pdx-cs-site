@@ -79,7 +79,7 @@ def get_chat() -> ChatBackend:
         chat_cfg = _load_chat_config()
         _chat = ChatBackend(
             sections_path=SECTIONS_PATH,
-            model=chat_cfg.get("model", "gemini-2.5-flash"),
+            model=os.getenv("GEMINI_MODEL") or chat_cfg.get("model", "gemini-3.5-flash"),
             deprioritize=tuple(chat_cfg.get("deprioritize", []) or []),
         )
     return _chat

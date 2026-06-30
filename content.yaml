@@ -64,7 +64,7 @@ category_overrides:
   cs-graduate-student-handbook: graduate
 
 chat:
-  model: "gemini-2.5-flash"
+  model: "gemini-3.5-flash"
   # Sections marked here are treated as 'secondary' by the chat: when a
   # question is also covered by a non-deprioritized ('primary') section,
   # the model prefers and cites the primary one. Use this for older or

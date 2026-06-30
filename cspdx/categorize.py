@@ -11,6 +11,7 @@ from typing import Iterable
 from google import genai
 from google.genai import types
 
+from . import DEFAULT_MODEL
 from .models import Section
 
 
@@ -44,7 +45,7 @@ def categorize_sections(
     sections: Iterable[Section],
     allowed: list[str],
     cache_path: str = "build/category_cache.json",
-    model: str = "gemini-2.5-flash",
+    model: str = DEFAULT_MODEL,
     api_key: str | None = None,
 ) -> None:
     """Mutates each Section's `category` field. Uses revision-keyed cache."""

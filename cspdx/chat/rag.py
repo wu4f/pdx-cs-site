@@ -13,6 +13,7 @@ from typing import Optional
 from google import genai
 from google.genai import types
 
+from .. import DEFAULT_MODEL
 from ..models import Section, load_sections
 
 
@@ -84,7 +85,7 @@ def build_context_block(
 @dataclass
 class ChatBackend:
     sections_path: str
-    model: str = "gemini-2.5-flash"
+    model: str = DEFAULT_MODEL
     api_key: Optional[str] = None
     cache_ttl_minutes: int = 60
     deprioritize: tuple[str, ...] = ()  # section ids to mark priority='secondary'
