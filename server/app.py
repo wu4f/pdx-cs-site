@@ -235,8 +235,8 @@ _SSE_JS = (
     'var _lp=document.getElementById("live-log");'
     'var _es=new EventSource("/admin/rebuild/stream");'
     '_es.onmessage=function(e){_lp.textContent+=e.data+"\\n";_lp.scrollTop=_lp.scrollHeight;};'
-    '_es.addEventListener("done",function(){_es.close();setTimeout(function(){location.reload();},800);});'
-    '_es.onerror=function(){_es.close();setTimeout(function(){location.reload();},3000);};'
+    '_es.addEventListener("done",function(){_es.close();location.reload();});'
+    '_es.onerror=function(){_es.close();};'
     '</script>'
 )
 
@@ -252,12 +252,13 @@ def _build_status_block() -> tuple[str, bool]:
     finished = _format_ts(state.get("finished_at") or "")
     log = _html.escape((state.get("log") or "").strip())
     if status == "running":
-        # SSE keeps the log live; no meta refresh needed.
+        # Meta-refresh is the reliable fallback; SSE updates the log live and
+        # reloads immediately when done (bypassing the 5 s wait when it works).
         return (
             f'<p class="banner ok">&#9654; Rebuild in progress since {started}.</p>'
             '<pre class="log" id="live-log"></pre>'
             + _SSE_JS
-        ), False
+        ), True
     if status == "ok":
         skipped = "[build] skip:" in (state.get("log") or "")
         msg = ("No documents changed — nothing to rebuild." if skipped
