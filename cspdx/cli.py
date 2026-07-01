@@ -178,6 +178,30 @@ def cmd_render_landing(args):
     )
 
 
+def cmd_render_sections(args):
+    """Re-render all section pages from an existing sections.json. No Google fetch."""
+    cfg = yaml.safe_load(Path(args.config).read_text())
+    sections_path = args.sections or str(Path(args.out) / "sections.json")
+    if not Path(sections_path).exists():
+        sys.exit(f"sections.json not found at {sections_path}; run `cspdx build` first")
+
+    sections = load_sections(sections_path)
+    base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
+    template = cfg.get("templates", {}).get("page", "templates/base.html")
+    site_dir = str(Path(args.out) / "site")
+    print(
+        f"[render-sections] {len(sections)} sections from {sections_path}, "
+        f"base_href={base_href!r} -> {site_dir}/"
+    )
+    render_sections(
+        sections, template_path=template, out_dir=site_dir,
+        base_href=base_href,
+        nav_sections=sections,
+        nav_exclude_ids=[],
+    )
+    print(f"[render-sections] done")
+
+
 def cmd_serve(args):
     import uvicorn
     uvicorn.run("server.app:app", host=args.host, port=args.port, reload=args.reload)
@@ -240,6 +264,24 @@ def main(argv=None):
         help='Value for the <base> tag (default from content.yaml or "/").',
     )
     pr.set_defaults(func=cmd_render_landing)
+
+    prs = sub.add_parser(
+        "render-sections",
+        help="Re-render all section pages from an existing sections.json. No Google fetch.",
+    )
+    prs.add_argument("--config", default="content.yaml")
+    prs.add_argument("--out", default="build")
+    prs.add_argument(
+        "--sections",
+        default=None,
+        help="Path to sections.json (default <out>/sections.json).",
+    )
+    prs.add_argument(
+        "--base-href",
+        default=None,
+        help='Value for the <base> tag (default from content.yaml or "/").',
+    )
+    prs.set_defaults(func=cmd_render_sections)
 
     ps = sub.add_parser("serve", help="Serve site + /ask")
     ps.add_argument("--host", default="0.0.0.0")
