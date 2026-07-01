@@ -26,7 +26,9 @@ def render_sections(
     appears on each section page. Pass nav_sections to enable the nav bar.
     """
     nav_groups = build_nav_groups(nav_sections, nav_exclude_ids) if nav_sections else []
-    tpl = jinja2.Template(Path(template_path).read_text(encoding="utf-8"))
+    tpl_path = Path(template_path)
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(tpl_path.parent)))
+    tpl = env.get_template(tpl_path.name)
     for s in sections:
         target = Path(out_dir) / s.id
         target.mkdir(parents=True, exist_ok=True)

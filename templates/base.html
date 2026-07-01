@@ -49,44 +49,7 @@
       .skip-link:focus { left: 16px; outline: 3px solid #ffd54f; }
       :focus-visible { outline: 3px solid #2a6cff; outline-offset: 2px; border-radius: 4px; }
 
-      /* ---- Header ---- */
-      .site-header {
-        background: #fff;
-        border-bottom: 1px solid var(--border);
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        box-shadow: var(--shadow-sm);
-      }
-      .site-header__inner {
-        max-width: 1240px;
-        margin: 0 auto;
-        padding: 14px 28px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-      }
-      .site-header__logo img {
-        height: 72px;
-        width: auto;
-        display: block;
-      }
-      .site-header__spacer { flex: 1; }
-      .site-header__back {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--ink-soft);
-        padding: 8px 14px;
-        border-radius: 8px;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: background .12s ease, color .12s ease;
-      }
-      .site-header__back:hover {
-        background: rgba(84,113,25,.08);
-        color: var(--psu-green-dark);
-        text-decoration: none;
-      }
+      {% include 'partials/header_styles.html' %}
 
       /* ---- Page wrapper ---- */
       .page-layout {
@@ -210,58 +173,13 @@
       .site-footer a { color: rgba(255,255,255,.8); text-decoration: none; }
       .site-footer a:hover { color: #fff; text-decoration: underline; }
 
-      /* ---- Category nav bar ---- */
-      .nav-bar {
-        background: #fafbfd;
-        border-top: 1px solid var(--border);
-        overflow-x: auto;
-        scrollbar-width: none;
-      }
-      .nav-bar::-webkit-scrollbar { display: none; }
-      .nav-bar__inner {
-        max-width: 1240px;
-        margin: 0 auto;
-        padding: 6px 28px;
-        display: flex;
-        gap: 4px;
-        align-items: center;
-      }
-      .nav-label {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 7px 12px; font-size: 14px; font-weight: 600;
-        color: var(--ink-soft); border-radius: 6px; white-space: nowrap;
-        transition: background .12s ease, color .12s ease; text-decoration: none;
-        cursor: pointer;
-      }
-      .nav-label:hover { background: rgba(84,113,25,.08); color: var(--psu-green-dark); text-decoration: none; }
-      .nav-caret {
-        font-size: 10px; line-height: 1; opacity: 0.6;
-      }
-      .nav-dropdown {
-        position: fixed;
-        min-width: 200px; max-width: 340px;
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        box-shadow: 0 4px 16px rgba(20,25,40,.12), 0 1px 4px rgba(20,25,40,.06);
-        padding: 6px 0;
-        z-index: 1000;
-        list-style: none;
-        margin: 0;
-      }
-      .nav-dropdown[hidden] { display: none; }
-      .nav-dropdown li { list-style: none; margin: 0; }
-      .nav-dropdown a {
-        display: block; padding: 8px 16px; font-size: 13.5px;
-        color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        text-decoration: none;
-      }
-      .nav-dropdown a:hover { background: var(--psu-green-light); color: var(--psu-green-dark); text-decoration: none; }
-
       /* ---- Responsive ---- */
       @media (max-width: 700px) {
         .site-header__inner { padding: 12px 16px; }
         .site-header__logo img { height: 56px; }
+        .site-header__cta .label { display: none; }
+        .site-header__cta { padding: 10px 12px; }
+        .nav-bar__inner { padding-left: 16px; padding-right: 16px; }
         .page-layout { padding: 1rem 16px 3rem; }
         .content-card { padding: 1.5rem 1.25rem; }
         .content-card h1 { font-size: 1.45rem; }
@@ -281,33 +199,7 @@
     <![endif]-->
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-
-    <header class="site-header" role="banner">
-      <div class="site-header__inner">
-        <a class="site-header__logo" href="{{ base_href|default('/') }}" aria-label="PSU CS home">
-          <img alt="Portland State University Department of Computer Science" src="{{ base_href|default('/') }}images/pdx-cs-logo.png">
-        </a>
-        <div class="site-header__spacer"></div>
-        <a class="site-header__back" href="{{ base_href|default('/') }}">← All Topics</a>
-      </div>
-      {% if nav_groups %}
-      <nav class="nav-bar" aria-label="Category navigation">
-        <div class="nav-bar__inner">
-          {% for cat, items in nav_groups %}
-          <div class="nav-item">
-            <a class="nav-label" href="{{ base_href|default('/') }}#{{ cat }}" aria-haspopup="true" aria-expanded="false">{{ cat_labels.get(cat, cat.replace('-', ' ').title()) }}<span class="nav-caret" aria-hidden="true">▾</span></a>
-            <ul class="nav-dropdown" role="list" hidden>
-              {% for s in items %}
-              <li><a href="{{ s.url_path }}">{{ s.title }}</a></li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endfor %}
-        </div>
-      </nav>
-      {% endif %}
-    </header>
+    {% include 'partials/header.html' %}
 
     <main id="main-content">
       <div class="page-layout">
@@ -334,44 +226,7 @@
     </footer>
 
     <script>
-    (function(){
-      var closeTimer=null;
-      function closeAll(){
-        clearTimeout(closeTimer);
-        document.querySelectorAll('.nav-dropdown:not([hidden])').forEach(function(d){
-          d.hidden=true;
-          var a=d.closest('.nav-item').querySelector('.nav-label');
-          if(a) a.setAttribute('aria-expanded','false');
-        });
-      }
-      function openItem(item){
-        clearTimeout(closeTimer);
-        var dd=item.querySelector('.nav-dropdown');
-        var label=item.querySelector('.nav-label');
-        if(!dd||!dd.hidden) return;
-        closeAll();
-        var r=label.getBoundingClientRect();
-        dd.style.top=(r.bottom+2)+'px';
-        dd.style.left=Math.max(0,Math.min(r.left,window.innerWidth-344))+'px';
-        dd.hidden=false;
-        label.setAttribute('aria-expanded','true');
-      }
-      document.querySelectorAll('.nav-item').forEach(function(item){
-        var label=item.querySelector('.nav-label');
-        var dd=item.querySelector('.nav-dropdown');
-        if(!dd) return;
-        item.addEventListener('pointerenter',function(e){ if(e.pointerType!=='mouse') return; openItem(item); });
-        item.addEventListener('pointerleave',function(e){ if(e.pointerType!=='mouse') return; closeTimer=setTimeout(closeAll,150); });
-        dd.addEventListener('pointerenter',function(e){ if(e.pointerType!=='mouse') return; clearTimeout(closeTimer); });
-        dd.addEventListener('pointerleave',function(e){ if(e.pointerType!=='mouse') return; closeTimer=setTimeout(closeAll,150); });
-        label.addEventListener('click',function(e){
-          e.preventDefault();
-          if(!dd.hidden){ closeAll(); } else { openItem(item); }
-        });
-      });
-      document.addEventListener('click',function(e){ if(!e.target.closest('.nav-item')) closeAll(); });
-      document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAll(); });
-    })();
+    {% include 'partials/nav_js.html' %}
     </script>
     <script type="application/ld+json">
     {
