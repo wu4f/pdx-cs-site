@@ -169,12 +169,6 @@
     }
     .ask-card button:hover { background: var(--psu-green-dark); transform: translateY(-1px); }
     .ask-card button:disabled { background: var(--ink-muted); cursor: wait; transform: none; }
-    .ask-hint {
-      font-size: 13px; color: var(--ink-muted);
-      margin: 10px auto 0;
-      max-width: 600px;
-    }
-    .ask-hint b { color: var(--psu-green-dark); font-weight: 600; }
     .quick-asks {
       display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
       margin: 12px auto 0; max-width: 720px;
@@ -335,8 +329,6 @@
       <button class="quick-ask" onclick="quickAsk('What is the cybersecurity certificate?')">Cybersecurity certificate</button>
       <button class="quick-ask" onclick="quickAsk('Tell me about the Discover CS cohort.')">Discover CS</button>
     </div>
-
-    <p class="ask-hint">Or jump straight to the full chat: <a href="{{ base_href }}ask/"><b>open the assistant →</b></a></p>
 
     <div class="ask-answer" id="askAnswer" role="region" aria-label="Assistant answer" aria-live="polite">
       <h4>Assistant</h4>
