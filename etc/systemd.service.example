@@ -1,0 +1,14 @@
+[Unit]
+Description=uvicorn instance to serve project
+After=network.target
+
+[Service]
+User=wuchang
+Group=www-data
+WorkingDirectory=/var/www/pdx-cs-site
+Environment="GOOGLE_API_KEY=<FMI>"
+Environment="ADMIN_TOKEN=<FMI>"
+ExecStart=/var/www/pdx-cs-site/.venv/bin/uvicorn server.app:app --port 8080
+
+[Install]
+WantedBy=multi-user.target

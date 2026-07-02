@@ -4,11 +4,12 @@
 docs:
   - id: "11azwsMnSUPpR9ClIHSqZ3AcLvKdo0VqBMQyO9GacI9M"
     splitter: tabs
-    name: "Main CS Site"
+    name: "web.cs.pdx.edu"
 
-  - id: "1Tp7lrY-nAgmlElgtDCxt3rrhJZuMN_9eBKARa7Ewb_Q"
-    splitter: headings
-    name: "Heading-split Content"
+  # No longer needed since content rolled into main document
+  #- id: "1Tp7lrY-nAgmlElgtDCxt3rrhJZuMN_9eBKARa7Ewb_Q"
+  #  splitter: headings
+  #  name: "Heading-split Content"
 
   # Same doc as above, but as a single whole page (no splitting). Lets the
   # Graduate Handbook be browsed both as per-section pages and in one piece.
