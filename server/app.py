@@ -279,9 +279,6 @@ def _admin_page(banner: str = "", status: str = "") -> str:
   button {{ padding: 10px 18px; font-size: 1rem; font-weight: 600; cursor: pointer;
           background: #1e6b3a; color: #fff; border: 0; border-radius: 6px; }}
   button:hover {{ background: #14512b; }}
-  .check {{ font-weight: 400; display: flex; align-items: center; gap: 8px;
-          margin-bottom: 8px; }}
-  .check label {{ font-weight: 400; margin: 0; }}
   .banner {{ padding: 12px 16px; border-radius: 6px; font-weight: 600; }}
   .banner.ok {{ background: #e6f4ea; color: #0d652d; border: 1px solid #9ad3ab; }}
   .banner.err {{ background: #fce8e6; color: #a50e0e; border: 1px solid #f2b3ad; }}
@@ -301,9 +298,8 @@ def _admin_page(banner: str = "", status: str = "") -> str:
 <body>
 <h1>Rebuild the site</h1>
 <p class="hint">Re-fetches the Google Docs, regenerates every page, and reloads
-the chat index — the same as running <code>cspdx build</code>. By default the
-rebuild is skipped if no source document has changed. This can take a minute;
-leave the tab open until it finishes.</p>
+the chat index — the same as running <code>cspdx build</code>. This can take a
+minute; leave the tab open until it finishes.</p>
 {status}
 {banner}
 <form id="rebuild-form" method="post" action="/admin/rebuild">
@@ -313,10 +309,6 @@ leave the tab open until it finishes.</p>
            autocomplete="current-password" required autofocus>
   </div>
   <button type="submit">Rebuild now</button>
-  <div class="check">
-    <input type="checkbox" id="force" name="force" value="1">
-    <label for="force">Force rebuild even if unchanged</label>
-  </div>
 </form>
 
 <h2>Upload a PDF</h2>
@@ -356,12 +348,10 @@ def admin_ui():
     return _admin_page(status=_admin_status())
 
 
-def _build_worker(force: bool) -> None:
+def _build_worker() -> None:
     """Run `cspdx build` in a background thread, streaming output line-by-line."""
     global _chat
-    cmd = [sys.executable, "-u", "-m", "cspdx.cli", "build"]
-    if not force:
-        cmd.append("--skip-unchanged")
+    cmd = [sys.executable, "-u", "-m", "cspdx.cli", "build", "--skip-unchanged"]
     with _build_lock:
         _build_state.update({"status": "running", "log": "",
                              "started_at": datetime.now(timezone.utc).isoformat(),
@@ -412,7 +402,6 @@ def _build_worker(force: bool) -> None:
 async def admin_rebuild(request: Request):
     qs = urllib.parse.parse_qs((await request.body()).decode("utf-8"))
     token = qs.get("token", [""])[0]
-    force = bool(qs.get("force"))
     if not ADMIN_TOKEN or token != ADMIN_TOKEN:
         return HTMLResponse(
             _admin_page('<p class="banner err">Invalid admin token.</p>'),
@@ -432,7 +421,7 @@ async def admin_rebuild(request: Request):
         _build_state.update({"status": "running", "log": "",
                              "started_at": datetime.now(timezone.utc).isoformat(),
                              "finished_at": None})
-    threading.Thread(target=_build_worker, args=(force,), daemon=True).start()
+    threading.Thread(target=_build_worker, daemon=True).start()
     return HTMLResponse(_admin_page(status=_admin_status()))
 
 
