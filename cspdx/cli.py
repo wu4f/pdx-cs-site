@@ -154,9 +154,10 @@ def cmd_build(args):
 def cmd_render_landing(args):
     """Re-render only the landing page from an existing sections.json.
 
-    Useful after editing category.json without a full rebuild: rewrites
-    index.html from the already-built sections.json (sections already filtered
-    to active at build time).
+    Useful after editing category.json without a full rebuild: re-applies
+    category.json to re-categorize sections, then rewrites index.html.
+    Note: sections that were marked 'ignore' at the last full build are absent
+    from sections.json; un-ignoring them requires a full rebuild.
     """
     cfg = yaml.safe_load(Path(args.config).read_text())
     sections_path = args.sections or str(Path(args.out) / "sections.json")
@@ -164,14 +165,26 @@ def cmd_render_landing(args):
         sys.exit(f"sections.json not found at {sections_path}; run `cspdx build` first")
 
     sections = load_sections(sections_path)
+
+    # Re-apply category.json so edits take effect without a full rebuild.
+    allowed = cfg.get("categories", {}).get("allowed", ["about"])
+    if "ignore" not in allowed:
+        allowed = list(allowed) + ["ignore"]
+    categorize_sections(sections, allowed=allowed, cache_path=str(Path(args.out) / "category.json"))
+
+    active_sections = [s for s in sections if s.category != "ignore"]
+    ignored_count = len(sections) - len(active_sections)
+    if ignored_count:
+        print(f"[render-landing] {ignored_count} section(s) re-categorized as ignore: excluded")
+
     base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
     out_path = str(Path(args.out) / "site" / "index.html")
     print(
-        f"[render-landing] {len(sections)} sections from {sections_path}, "
+        f"[render-landing] {len(active_sections)} sections from {sections_path}, "
         f"base_href={base_href!r} -> {out_path}"
     )
     render_landing(
-        sections,
+        active_sections,
         out_path=out_path,
         base_href=base_href,
         exclude_ids=[],
