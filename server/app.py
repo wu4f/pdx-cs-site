@@ -24,7 +24,6 @@ from pydantic import BaseModel
 from cspdx.chat.rag import ChatBackend
 from cspdx.admin import load_admin_token
 from cspdx import buildmeta
-from cspdx.sources import gdocs
 
 
 SITE_DIR = os.getenv("SITE_DIR", "build/site")
@@ -130,54 +129,31 @@ def _load_docs_cfg() -> list[dict]:
 
 
 def _admin_status() -> str:
-    """HTML block: last-build time + per-document last-modified / changed state.
-
-    The last-build time comes from build_meta.json (no network). The per-doc
-    modified times + change flags are fetched live from Google, best-effort:
-    if that fails we fall back to the values recorded at the last build.
-    """
+    """HTML block: last-build time + links to each configured Google Doc."""
     prev_meta = buildmeta.load_meta(BUILD_META_PATH)
     built_at = _format_ts(prev_meta.get("built_at", "")) if prev_meta else "never"
 
-    states, changed, note = None, set(), ""
     docs_cfg = _load_docs_cfg()
-    if docs_cfg:
-        try:
-            creds = gdocs.get_creds(mode=os.getenv("GDOC_AUTH_MODE", "oauth"))
-            states = buildmeta.current_doc_states(creds, docs_cfg)
-            changed = set(buildmeta.changed_ids(prev_meta, states))
-        except Exception as e:
-            note = ('<p class="hint">Could not reach Google to check live '
-                    f'document times ({_html.escape(str(e))}); showing values '
-                    'recorded at the last build.</p>')
-    if states is None:  # live fetch failed or no config: fall back to meta
-        states = prev_meta.get("docs", []) or []
+    seen: dict[str, dict] = {}
+    for d in docs_cfg:
+        seen.setdefault(d["id"], d)
+    unique = list(seen.values())
 
-    rows = ""
-    for s in states:
-        is_changed = s["id"] in changed
-        flag = ('<span class="yes">Yes &mdash; rebuild recommended</span>'
-                if is_changed else '<span class="no">No</span>')
-        # No previous build to compare against -> change state is unknown.
-        if not prev_meta:
-            flag = '<span class="no">&mdash;</span>'
-        rows += (
-            f"<tr><td>{_html.escape(s.get('name', s['id']))}</td>"
-            f"<td>{_format_ts(s.get('modified_time', ''))}</td>"
-            f"<td>{flag}</td></tr>\n"
-        )
-    if not rows:
-        rows = '<tr><td colspan="3" class="hint">No documents configured.</td></tr>'
+    if unique:
+        items = ""
+        for d in unique:
+            doc_id = _html.escape(d["id"])
+            name = _html.escape(d.get("name", d["id"]))
+            url = f"https://docs.google.com/document/d/{doc_id}/edit"
+            items += f'<li><a href="{url}" target="_blank" rel="noopener">{name}</a></li>\n'
+        links = f"<ul>\n{items}</ul>"
+    else:
+        links = '<p class="hint">No documents configured.</p>'
 
     return f"""<section class="status">
   <p><strong>Last build:</strong> {built_at}</p>
-  {note}
-  <table>
-    <thead><tr><th>Document</th><th>Last changed</th>
-      <th>Changed since last build</th></tr></thead>
-    <tbody>
-{rows}    </tbody>
-  </table>
+  <p><strong>Source documents</strong></p>
+  {links}
 </section>"""
 
 
@@ -317,8 +293,6 @@ def _admin_page(banner: str = "", status: str = "") -> str:
   table {{ border-collapse: collapse; width: 100%; font-size: 0.92rem; }}
   th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #e6e8ee; }}
   th {{ color: #555; font-weight: 600; }}
-  .yes {{ color: #a50e0e; font-weight: 600; }}
-  .no {{ color: #6b7280; }}
   .btn-sm {{ padding: 6px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
              background: #6b7280; color: #fff; border: 0; border-radius: 6px; }}
   .btn-sm:hover {{ background: #4b5563; }}
