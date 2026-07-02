@@ -16,7 +16,7 @@ python -m cspdx.cli build
 # Build skipping unchanged docs (compares revisionId / modifiedTime)
 python -m cspdx.cli build --skip-unchanged
 
-# Re-render only the landing page from an existing sections.json (no Google API calls)
+# Re-render the landing page and all section pages from an existing sections.json (no Google API calls)
 python -m cspdx.cli render-landing
 
 # Run the dev server

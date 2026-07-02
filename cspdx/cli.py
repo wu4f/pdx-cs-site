@@ -152,10 +152,11 @@ def cmd_build(args):
 
 
 def cmd_render_landing(args):
-    """Re-render only the landing page from an existing sections.json.
+    """Re-render the landing page and all section pages from an existing sections.json.
 
     Useful after editing category.json without a full rebuild: re-applies
-    category.json to re-categorize sections, then rewrites index.html.
+    category.json to re-categorize sections, rewrites index.html, and
+    re-renders every section page so their nav bar dropdowns stay in sync.
     Note: sections that were marked 'ignore' at the last full build are absent
     from sections.json; un-ignoring them requires a full rebuild.
     """
@@ -178,7 +179,18 @@ def cmd_render_landing(args):
         print(f"[render-landing] {ignored_count} section(s) re-categorized as ignore: excluded")
 
     base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
-    out_path = str(Path(args.out) / "site" / "index.html")
+    site_dir = str(Path(args.out) / "site")
+    out_path = str(Path(site_dir) / "index.html")
+
+    template = cfg.get("templates", {}).get("page", "templates/base.html")
+    print(f"[render-landing] re-rendering {len(active_sections)} section pages -> {site_dir}/")
+    render_sections(
+        active_sections, template_path=template, out_dir=site_dir,
+        base_href=base_href,
+        nav_sections=active_sections,
+        nav_exclude_ids=[],
+    )
+
     print(
         f"[render-landing] {len(active_sections)} sections from {sections_path}, "
         f"base_href={base_href!r} -> {out_path}"
