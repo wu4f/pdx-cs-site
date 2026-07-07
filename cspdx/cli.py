@@ -16,6 +16,7 @@ from .sources import gdocs, tab_splitter, heading_splitter, whole_splitter
 from .categorize import categorize_sections
 from .render.page import render_sections
 from .render.landing import render_landing
+from .schedule import generate_schedule
 
 
 SPLITTERS = {
@@ -134,6 +135,12 @@ def cmd_build(args):
     copied = _copy_static(static_dir, site_dir)
     if copied:
         print(f"[build] copied {copied} static file(s) from {static_dir}/ -> {site_dir}/")
+
+    if not args.no_schedule:
+        try:
+            generate_schedule(site_dir / "files" / "schedule.xlsx")
+        except Exception as exc:
+            print(f"[build] WARNING: schedule generation failed: {exc}", flush=True)
 
     dump_sections(active_sections, str(out_dir / "sections.json"))
     print(f"[build] wrote {len(active_sections)} sections to {out_dir}/sections.json")
@@ -258,6 +265,11 @@ def main(argv=None):
         help="Skip the rebuild if no source document has changed (by revisionId "
              "or Drive modifiedTime) since the last recorded build "
              "(build/build_meta.json).",
+    )
+    pb.add_argument(
+        "--no-schedule",
+        action="store_true",
+        help="Skip generating build/site/files/schedule.xlsx from Banner.",
     )
     pb.add_argument(
         "--no-reload",
