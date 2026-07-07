@@ -1,16 +1,20 @@
-"""Generate the CS course schedule spreadsheet from Banner SSB.
+"""Generate the CS course schedule HTML page from Banner SSB.
 
-Fetches the 3 most recent terms, writes each to a separate sheet,
-and saves the result to the given path.
+Fetches the 3 most recent terms, builds a tabbed HTML table page,
+and renders it through base.html so it matches the rest of the site.
+Written to build/site/course-schedule/index.html, overwriting whatever
+the Google Doc tab produced for that slug.
 """
 from __future__ import annotations
 import html
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+import jinja2
 import requests
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-from openpyxl.utils import get_column_letter
+
+if TYPE_CHECKING:
+    pass
 
 BASE_URL = "https://app.banner.pdx.edu/StudentRegistrationSsb/ssb"
 
@@ -21,19 +25,15 @@ _HEADERS = {
 }
 
 _COLUMNS = [
-    ("CRN",        "courseReferenceNumber", 8),
-    ("Course",     None,                    10),
-    ("Section",    "sequenceNumber",        8),
-    ("Title",      "courseTitle",           36),
-    ("Credits",    "creditHours",           8),
-    ("Days",       None,                    7),
-    ("Time",       None,                    13),
-    ("Instructor", None,                    24),
+    ("CRN",        8),
+    ("Course",     10),
+    ("Section",    8),
+    ("Title",      36),
+    ("Credits",    8),
+    ("Days",       7),
+    ("Time",       13),
+    ("Instructor", 24),
 ]
-
-_HDR_FILL  = PatternFill("solid", fgColor="003366")
-_HDR_FONT  = Font(color="FFFFFF", bold=True)
-_EVEN_FILL = PatternFill("solid", fgColor="EEF2FF")
 
 
 def _get_terms(n: int = 3) -> list[dict]:
@@ -119,41 +119,117 @@ def _instructor(course: dict) -> str:
     return (primary.get("displayName") or "").strip() if primary else ""
 
 
-def _row(course: dict) -> list:
+def _row_values(course: dict) -> list[str]:
     days, time_str = _meeting_info(course)
     return [
-        course.get("courseReferenceNumber", ""),
+        str(course.get("courseReferenceNumber", "")),
         f"{course.get('subject', '')} {course.get('courseNumber', '')}".strip(),
-        course.get("sequenceNumber", ""),
+        str(course.get("sequenceNumber", "")),
         html.unescape(course.get("courseTitle", "") or ""),
-        course.get("creditHours", ""),
+        str(course.get("creditHours", "")),
         days,
         time_str,
         _instructor(course),
     ]
 
 
-def _write_sheet(wb: Workbook, courses: list[dict], sheet_name: str) -> None:
-    ws = wb.create_sheet(title=sheet_name[:31])
-    ws.append([col[0] for col in _COLUMNS])
-    for cell in ws[1]:
-        cell.fill = _HDR_FILL
-        cell.font = _HDR_FONT
-        cell.alignment = Alignment(horizontal="center", vertical="center")
-    ws.row_dimensions[1].height = 18
-    for row_idx, course in enumerate(courses, start=2):
-        ws.append(_row(course))
-        if row_idx % 2 == 0:
-            for cell in ws[row_idx]:
-                cell.fill = _EVEN_FILL
-    for col_idx, (_, _, width) in enumerate(_COLUMNS, start=1):
-        ws.column_dimensions[get_column_letter(col_idx)].width = width
-    ws.freeze_panes = "A2"
-    ws.auto_filter.ref = ws.dimensions
+def _build_table(courses: list[dict]) -> str:
+    headers = [col[0] for col in _COLUMNS]
+    thead_cells = "".join(f"<th>{h}</th>" for h in headers)
+    rows = []
+    for course in courses:
+        cells = "".join(f"<td>{html.escape(v)}</td>" for v in _row_values(course))
+        rows.append(f"<tr>{cells}</tr>")
+    tbody = "\n".join(rows)
+    return (
+        f"<table>"
+        f"<thead><tr>{thead_cells}</tr></thead>"
+        f"<tbody>{tbody}</tbody>"
+        f"</table>"
+    )
 
 
-def generate_schedule(out_path: Path) -> None:
-    """Fetch Banner schedule for the 3 most recent terms and save to out_path."""
+def _build_body(term_data: list[tuple[str, list[dict]]]) -> str:
+    tab_btns = []
+    tab_panels = []
+    for i, (desc, courses) in enumerate(term_data):
+        tab_id = f"sched-t{i}"
+        active_cls = " active" if i == 0 else ""
+        hidden_attr = "" if i == 0 else " hidden"
+        tab_btns.append(
+            f'<button class="sched-tab-btn{active_cls}" '
+            f'onclick="schedShowTab(this,\'{tab_id}\')">'
+            f'{html.escape(desc)}</button>'
+        )
+        tab_panels.append(
+            f'<div id="{tab_id}" class="sched-tab-panel"{hidden_attr}>'
+            f"<p>{len(courses)} section(s) offered</p>"
+            f"{_build_table(courses)}"
+            f"</div>"
+        )
+
+    btns = "\n    ".join(tab_btns)
+    panels = "\n  ".join(tab_panels)
+    return f"""\
+<h1>CS Course Schedule</h1>
+<div class="sched-tabs">
+  <div class="sched-tab-btns">
+    {btns}
+  </div>
+  {panels}
+</div>
+<script>
+function schedShowTab(btn, id) {{
+  document.querySelectorAll('.sched-tab-panel').forEach(function(p) {{ p.hidden = true; }});
+  document.querySelectorAll('.sched-tab-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+  document.getElementById(id).hidden = false;
+  btn.classList.add('active');
+}}
+</script>"""
+
+
+_STYLE = """\
+<style>
+.sched-tab-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--psu-green-light);
+}
+.sched-tab-btn {
+  background: transparent;
+  border: 2px solid var(--psu-green);
+  border-radius: 6px;
+  padding: 0.4rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--psu-green-dark);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.sched-tab-btn:hover { background: var(--psu-green-light); }
+.sched-tab-btn.active {
+  background: var(--psu-green-dark);
+  color: #fff;
+  border-color: var(--psu-green-dark);
+}
+.content-card { max-width: 100%; }
+</style>"""
+
+
+def generate_schedule_page(
+    out_path: Path,
+    template_path: str,
+    base_href: str = "/",
+    nav_sections=None,
+    nav_exclude_ids=None,
+) -> None:
+    """Fetch Banner schedule for the 3 most recent terms and render to out_path."""
+    from .render.landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS
+
     print("[schedule] fetching available terms...", flush=True)
     terms = _get_terms(3)
     if not terms:
@@ -162,9 +238,7 @@ def generate_schedule(out_path: Path) -> None:
     descriptions = [t["description"].replace(" (View Only)", "").strip() for t in terms]
     print(f"[schedule] terms: {', '.join(descriptions)}", flush=True)
 
-    wb = Workbook()
-    wb.remove(wb.active)
-
+    term_data: list[tuple[str, list[dict]]] = []
     for term in terms:
         code = term["code"]
         desc = term["description"].replace(" (View Only)", "").strip()
@@ -173,12 +247,24 @@ def generate_schedule(out_path: Path) -> None:
         print(f"[schedule] [{desc}] fetching CS courses...", flush=True)
         courses = _fetch_courses(session, code)
         print(f"[schedule] [{desc}] {len(courses)} sections found", flush=True)
-        _write_sheet(wb, courses, desc)
+        term_data.append((desc, courses))
 
-    if not wb.sheetnames:
-        raise RuntimeError("no data retrieved for any term")
+    body = _build_body(term_data)
+    nav_groups = build_nav_groups(nav_sections, nav_exclude_ids) if nav_sections else []
 
-    wb.active = wb.worksheets[0]
+    tpl_path = Path(template_path)
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(tpl_path.parent)))
+    tpl = env.get_template(tpl_path.name)
+    rendered = tpl.render(
+        title="CS Course Schedule",
+        body=body,
+        style=_STYLE,
+        base_href=base_href,
+        nav_groups=nav_groups,
+        cat_labels=CATEGORY_LABELS,
+        cat_icons=CATEGORY_ICONS,
+    )
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(out_path)
+    out_path.write_text(rendered, encoding="utf-8")
     print(f"[schedule] saved -> {out_path}", flush=True)

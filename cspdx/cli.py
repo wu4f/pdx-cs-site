@@ -16,7 +16,7 @@ from .sources import gdocs, tab_splitter, heading_splitter, whole_splitter
 from .categorize import categorize_sections
 from .render.page import render_sections
 from .render.landing import render_landing
-from .schedule import generate_schedule
+from .schedule import generate_schedule_page
 
 
 SPLITTERS = {
@@ -138,7 +138,14 @@ def cmd_build(args):
 
     if not args.no_schedule:
         try:
-            generate_schedule(site_dir / "files" / "schedule.xlsx")
+            print("[build] generating course schedule page...")
+            generate_schedule_page(
+                site_dir / "course-schedule" / "index.html",
+                template_path=template,
+                base_href=base_href,
+                nav_sections=active_sections,
+                nav_exclude_ids=[],
+            )
         except Exception as exc:
             print(f"[build] WARNING: schedule generation failed: {exc}", flush=True)
 
@@ -269,7 +276,7 @@ def main(argv=None):
     pb.add_argument(
         "--no-schedule",
         action="store_true",
-        help="Skip generating build/site/files/schedule.xlsx from Banner.",
+        help="Skip generating the course schedule page from Banner.",
     )
     pb.add_argument(
         "--no-reload",
