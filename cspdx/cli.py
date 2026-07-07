@@ -165,6 +165,34 @@ def cmd_build(args):
         print(f"[build] {msg}")
 
 
+def cmd_render_schedule(args):
+    """Refresh the course schedule page from Banner without a full rebuild."""
+    cfg = yaml.safe_load(Path(args.config).read_text())
+    sections_path = args.sections or str(Path(args.out) / "sections.json")
+    if not Path(sections_path).exists():
+        sys.exit(f"sections.json not found at {sections_path}; run `cspdx build` first")
+
+    sections = load_sections(sections_path)
+    allowed = cfg.get("categories", {}).get("allowed", ["about"])
+    if "ignore" not in allowed:
+        allowed = list(allowed) + ["ignore"]
+    categorize_sections(sections, allowed=allowed, cache_path=str(Path(args.out) / "category.json"))
+    active_sections = [s for s in sections if s.category != "ignore"]
+
+    base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
+    template = cfg.get("templates", {}).get("page", "templates/base.html")
+    site_dir = Path(args.out) / "site"
+    out_path = site_dir / "course-schedule" / "index.html"
+
+    generate_schedule_page(
+        out_path,
+        template_path=template,
+        base_href=base_href,
+        nav_sections=active_sections,
+        nav_exclude_ids=[],
+    )
+
+
 def cmd_render_landing(args):
     """Re-render the landing page and all section pages from an existing sections.json.
 
@@ -290,6 +318,24 @@ def main(argv=None):
              "http://127.0.0.1:8080/admin/reload).",
     )
     pb.set_defaults(func=cmd_build)
+
+    psc = sub.add_parser(
+        "render-schedule",
+        help="Refresh the course schedule page from Banner. No Google Docs fetch.",
+    )
+    psc.add_argument("--config", default="content.yaml")
+    psc.add_argument("--out", default="build")
+    psc.add_argument(
+        "--sections",
+        default=None,
+        help="Path to sections.json (default <out>/sections.json).",
+    )
+    psc.add_argument(
+        "--base-href",
+        default=None,
+        help='Value for the <base> tag (default from content.yaml or "/").',
+    )
+    psc.set_defaults(func=cmd_render_schedule)
 
     pr = sub.add_parser(
         "render-landing",
