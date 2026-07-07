@@ -140,7 +140,7 @@ def cmd_build(args):
         try:
             print("[build] generating course schedule page...")
             generate_schedule_page(
-                site_dir / "course-schedule" / "index.html",
+                site_dir / "course-schedules" / "index.html",
                 template_path=template,
                 base_href=base_href,
                 nav_sections=active_sections,
@@ -182,7 +182,7 @@ def cmd_render_schedule(args):
     base_href = args.base_href or cfg.get("site", {}).get("base_href", "/")
     template = cfg.get("templates", {}).get("page", "templates/base.html")
     site_dir = Path(args.out) / "site"
-    out_path = site_dir / "course-schedule" / "index.html"
+    out_path = site_dir / "course-schedules" / "index.html"
 
     generate_schedule_page(
         out_path,
