@@ -36,7 +36,7 @@ _COLUMNS = [
 ]
 
 
-def _get_terms(n: int = 3) -> list[dict]:
+def _get_terms(n: int = 8) -> list[dict]:
     resp = requests.get(
         f"{BASE_URL}/classSearch/getTerms",
         params={"searchTerm": "", "offset": 1, "max": 100},
@@ -231,7 +231,7 @@ def generate_schedule_page(
     from .render.landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS
 
     print("[schedule] fetching available terms...", flush=True)
-    terms = _get_terms(3)
+    terms = _get_terms(8)
     if not terms:
         raise RuntimeError("could not retrieve terms from Banner")
 
