@@ -5,7 +5,7 @@ from pathlib import Path
 import jinja2
 
 from ..models import Section
-from .landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS
+from .landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS, meta_description, _site_base_url
 
 
 def render_sections(
@@ -26,16 +26,23 @@ def render_sections(
     appears on each section page. Pass nav_sections to enable the nav bar.
     """
     nav_groups = build_nav_groups(nav_sections, nav_exclude_ids) if nav_sections else []
+    base_url = _site_base_url()
     tpl_path = Path(template_path)
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(tpl_path.parent)))
     tpl = env.get_template(tpl_path.name)
     for s in sections:
         target = Path(out_dir) / s.id
         target.mkdir(parents=True, exist_ok=True)
+        desc = (
+            meta_description(s.text) if s.text.strip()
+            else f"Information about {s.title} for the Department of Computer Science at Portland State University."
+        )
         html = tpl.render(
             title=s.title, body=s.html, style=s.style, base_href=base_href,
             nav_groups=nav_groups,
             cat_labels=CATEGORY_LABELS,
             cat_icons=CATEGORY_ICONS,
+            canonical_url=base_url + s.url_path,
+            meta_description=desc,
         )
         (target / "index.html").write_text(html, encoding="utf-8")

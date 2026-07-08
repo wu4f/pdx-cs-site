@@ -1,10 +1,29 @@
 """Landing page renderer — loads templates/landing.html via FileSystemLoader."""
 from __future__ import annotations
 from collections import defaultdict
+import os
 from pathlib import Path
 import jinja2
 
 from ..models import Section
+
+_LANDING_DESCRIPTION = (
+    "Portland State University Department of Computer Science: undergraduate, "
+    "graduate, and student resources, plus an AI assistant trained on department content."
+)
+
+
+def _site_base_url() -> str:
+    return os.getenv("SITE_BASE_URL", "https://web.cs.pdx.edu").rstrip("/")
+
+
+def meta_description(text: str, max_len: int = 160) -> str:
+    clean = " ".join(text.split())
+    if len(clean) <= max_len:
+        return clean
+    truncated = clean[:max_len]
+    last_space = truncated.rfind(" ")
+    return (truncated[:last_space] if last_space > 0 else truncated) + "…"
 
 
 _TEMPLATES_DIR = Path(__file__).parent.parent.parent / "templates"
@@ -64,6 +83,7 @@ def render_landing(
     """
     nav_groups = build_nav_groups(sections, exclude_ids)
 
+    canonical_url = _site_base_url() + "/"
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(_TEMPLATES_DIR)))
     tpl = env.get_template("landing.html")
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
@@ -73,6 +93,8 @@ def render_landing(
             cat_labels=CATEGORY_LABELS,
             cat_icons=CATEGORY_ICONS,
             base_href=base_href,
+            canonical_url=canonical_url,
+            meta_description=_LANDING_DESCRIPTION,
         ),
         encoding="utf-8",
     )

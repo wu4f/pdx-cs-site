@@ -3,8 +3,14 @@
   <head>
     <title>{{ title }} | Portland State University, Department of Computer Science</title>
     <base href="{{ base_href|default('/') }}">
+    <link rel="canonical" href="{{ canonical_url }}">
     <meta content="width=device-width,initial-scale=1" name="viewport"/>
-    <meta name="description" content="Information about {{ title }} for the Department of Computer Science at Portland State University in Portland, Oregon.">
+    <meta name="description" content="{{ meta_description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PSU Computer Science">
+    <meta property="og:title" content="{{ title }} | Portland State University, Department of Computer Science">
+    <meta property="og:description" content="{{ meta_description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <link rel="icon" href="https://web.cs.pdx.edu/favicon.ico" type="image/vnd.microsoft.icon">
@@ -194,9 +200,6 @@
         }
       }
     </style>
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
   </head>
   <body>
     {% include 'partials/header.html' %}

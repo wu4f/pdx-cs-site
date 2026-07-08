@@ -252,6 +252,8 @@ def generate_schedule_page(
     body = _build_body(term_data)
     nav_groups = build_nav_groups(nav_sections, nav_exclude_ids) if nav_sections else []
 
+    import os
+    base_url = os.getenv("SITE_BASE_URL", "https://web.cs.pdx.edu").rstrip("/")
     tpl_path = Path(template_path)
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(tpl_path.parent)))
     tpl = env.get_template(tpl_path.name)
@@ -263,6 +265,11 @@ def generate_schedule_page(
         nav_groups=nav_groups,
         cat_labels=CATEGORY_LABELS,
         cat_icons=CATEGORY_ICONS,
+        canonical_url=base_url + "/course-schedules/",
+        meta_description=(
+            "CS course schedules by term for Portland State University — "
+            "browse CRN, title, credits, days, time, and instructor for all CS sections."
+        ),
     )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
