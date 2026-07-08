@@ -76,8 +76,8 @@ Sections with category `ignore` have their HTML pages rendered (so existing URLs
 
 ### Rendering (`cspdx/render/`)
 
-- **`landing.py`** — Self-contained Jinja2 template string; writes the categorized landing page → `build/site/index.html`. Exports `build_nav_groups(sections, exclude_ids)` which groups sections by category in `CATEGORY_ORDER` order — used by both the landing page and section pages to populate the shared nav bar.
-- **`page.py`** — Jinja2-renders `templates/base.html` for each section → `build/site/<id>/index.html`. Accepts `nav_sections` / `nav_exclude_ids` and calls `build_nav_groups()` to pass `nav_groups`, `cat_labels`, `cat_icons` to the template.
+- **`landing.py`** — Renders `templates/landing.html` → `build/site/index.html`. Exports `build_nav_groups(sections, exclude_ids)` (groups sections by category in `CATEGORY_ORDER` order, used by all pages), `meta_description(text)` (truncates plain text at last word boundary ≤160 chars), and `_site_base_url()` (reads `$SITE_BASE_URL`).
+- **`page.py`** — Jinja2-renders `templates/base.html` for each section → `build/site/<id>/index.html`. Computes per-section `canonical_url` and `meta_description` from `section.text` (falls back to a generic sentence for empty text).
 
 Both pages share a sticky two-row header: brand/CTA row + a horizontal category nav row. Each category entry has a text link (navigates to `/#category`) and a `▾` caret button that toggles a dropdown (JS, `position: fixed`) listing every page in that category. `position: fixed` is required because the nav row has `overflow-x: auto`, which would clip `position: absolute` dropdowns.
 
@@ -152,6 +152,17 @@ nginx serves `build/site/` directly for all static traffic. Only `/ask` and `/ad
 | `CSPDX_RELOAD_URL` | Where `cspdx build` POSTs after finishing (default `http://127.0.0.1:8080/admin/reload`) |
 | `GEMINI_MODEL` | Gemini model for categorization and chat (default `gemini-3.5-flash`; overrides `content.yaml` `chat.model`) |
 | `SITE_BASE_URL` | Canonical base URL written into `sitemap.xml` `<loc>` tags and `robots.txt` (default `https://web.cs.pdx.edu`) |
+
+### SEO (`templates/base.html`, `templates/landing.html`)
+
+Every generated page includes:
+
+- `<link rel="canonical" href="{{ canonical_url }}">` — absolute self-referencing URL built from `$SITE_BASE_URL + url_path`
+- `<meta name="description">` — section pages use `meta_description(section.text)` (first ≤160 chars of plain text); landing and schedule pages use hand-written descriptions
+- Open Graph tags: `og:type`, `og:site_name`, `og:title`, `og:description`, `og:url`
+- JSON-LD `CollegeOrUniversity` structured data block (in `base.html`)
+
+`canonical_url` and `meta_description` are passed as template variables by each renderer (`render/page.py`, `render/landing.py`, `schedule.py`). Both depend on `$SITE_BASE_URL`.
 
 ### `<base href>` convention
 
