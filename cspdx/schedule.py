@@ -171,7 +171,7 @@ def _build_body(term_data: list[tuple[str, list[dict]]]) -> str:
     btns = "\n    ".join(tab_btns)
     panels = "\n  ".join(tab_panels)
     return f"""\
-<h1>CS Course Schedule</h1>
+<h1>Course Schedules</h1>
 <div class="sched-tabs">
   <div class="sched-tab-btns">
     {btns}
@@ -256,7 +256,7 @@ def generate_schedule_page(
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(tpl_path.parent)))
     tpl = env.get_template(tpl_path.name)
     rendered = tpl.render(
-        title="CS Course Schedule",
+        title="Course Schedules",
         body=body,
         style=_STYLE,
         base_href=base_href,
