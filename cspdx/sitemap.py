@@ -33,3 +33,10 @@ def generate_sitemap(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(xml, encoding="utf-8")
     return base
+
+
+def generate_robots_txt(out_path: Path, *, base_url: str | None = None) -> None:
+    base = (base_url or os.getenv("SITE_BASE_URL", DEFAULT_BASE_URL)).rstrip("/")
+    content = f"User-agent: *\nAllow: /\n\nSitemap: {base}/sitemap.xml\n"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(content, encoding="utf-8")

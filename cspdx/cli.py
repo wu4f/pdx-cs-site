@@ -17,7 +17,7 @@ from .categorize import categorize_sections
 from .render.page import render_sections
 from .render.landing import render_landing
 from .schedule import generate_schedule_page
-from .sitemap import generate_sitemap
+from .sitemap import generate_sitemap, generate_robots_txt
 
 
 SPLITTERS = {
@@ -150,13 +150,16 @@ def cmd_build(args):
         except Exception as exc:
             print(f"[build] WARNING: schedule generation failed: {exc}", flush=True)
 
-    sitemap_base = generate_sitemap(
-        active_sections,
-        site_dir / "sitemap.xml",
-        include_schedule=not args.no_schedule,
-    )
-    sitemap_count = 1 + len(active_sections) + (0 if args.no_schedule else 1)
-    print(f"[build] wrote sitemap.xml ({sitemap_count} URLs, base={sitemap_base})")
+    if not args.no_sitemap:
+        sitemap_base = generate_sitemap(
+            active_sections,
+            site_dir / "sitemap.xml",
+            include_schedule=not args.no_schedule,
+        )
+        sitemap_count = 1 + len(active_sections) + (0 if args.no_schedule else 1)
+        print(f"[build] wrote sitemap.xml ({sitemap_count} URLs, base={sitemap_base})")
+        generate_robots_txt(site_dir / "robots.txt")
+        print(f"[build] wrote robots.txt (Sitemap: {sitemap_base}/sitemap.xml)")
 
     dump_sections(active_sections, str(out_dir / "sections.json"))
     print(f"[build] wrote {len(active_sections)} sections to {out_dir}/sections.json")
@@ -314,6 +317,11 @@ def main(argv=None):
         "--no-schedule",
         action="store_true",
         help="Skip generating the course schedule page from Banner.",
+    )
+    pb.add_argument(
+        "--no-sitemap",
+        action="store_true",
+        help="Skip generating sitemap.xml and robots.txt.",
     )
     pb.add_argument(
         "--no-reload",
