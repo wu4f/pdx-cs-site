@@ -19,6 +19,9 @@ python -m cspdx.cli build --skip-unchanged
 # Re-render the landing page and all section pages from an existing sections.json (no Google API calls)
 python -m cspdx.cli render-landing
 
+# Regenerate sitemap.xml and robots.txt from an existing sections.json (no Google API calls)
+python -m cspdx.cli render-sitemap
+
 # Run the dev server
 python -m cspdx.cli serve               # http://localhost:8080
 uvicorn server.app:app --host 0.0.0.0 --port 8080  # equivalent

@@ -205,6 +205,32 @@ def cmd_render_schedule(args):
     )
 
 
+def cmd_render_sitemap(args):
+    """Regenerate sitemap.xml and robots.txt from an existing sections.json."""
+    cfg = yaml.safe_load(Path(args.config).read_text())
+    sections_path = args.sections or str(Path(args.out) / "sections.json")
+    if not Path(sections_path).exists():
+        sys.exit(f"sections.json not found at {sections_path}; run `cspdx build` first")
+
+    sections = load_sections(sections_path)
+    allowed = cfg.get("categories", {}).get("allowed", ["about"])
+    if "ignore" not in allowed:
+        allowed = list(allowed) + ["ignore"]
+    categorize_sections(sections, allowed=allowed, cache_path=str(Path(args.out) / "category.json"))
+    active_sections = [s for s in sections if s.category != "ignore"]
+
+    site_dir = Path(args.out) / "site"
+    sitemap_base = generate_sitemap(
+        active_sections,
+        site_dir / "sitemap.xml",
+        include_schedule=not args.no_schedule,
+    )
+    sitemap_count = 1 + len(active_sections) + (0 if args.no_schedule else 1)
+    print(f"[render-sitemap] wrote sitemap.xml ({sitemap_count} URLs, base={sitemap_base})")
+    generate_robots_txt(site_dir / "robots.txt")
+    print(f"[render-sitemap] wrote robots.txt (Sitemap: {sitemap_base}/sitemap.xml)")
+
+
 def cmd_render_landing(args):
     """Re-render the landing page and all section pages from an existing sections.json.
 
@@ -353,6 +379,24 @@ def main(argv=None):
         help='Value for the <base> tag (default from content.yaml or "/").',
     )
     psc.set_defaults(func=cmd_render_schedule)
+
+    psi = sub.add_parser(
+        "render-sitemap",
+        help="Regenerate sitemap.xml and robots.txt from an existing sections.json. No Google fetch.",
+    )
+    psi.add_argument("--config", default="content.yaml")
+    psi.add_argument("--out", default="build")
+    psi.add_argument(
+        "--sections",
+        default=None,
+        help="Path to sections.json (default <out>/sections.json).",
+    )
+    psi.add_argument(
+        "--no-schedule",
+        action="store_true",
+        help="Omit /course-schedules/ from the sitemap.",
+    )
+    psi.set_defaults(func=cmd_render_sitemap)
 
     pr = sub.add_parser(
         "render-landing",
