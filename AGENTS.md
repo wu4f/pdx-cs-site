@@ -19,6 +19,9 @@ python -m cspdx.cli build --skip-unchanged
 # Re-render the landing page and all section pages from an existing sections.json (no Google API calls)
 python -m cspdx.cli render-landing
 
+# Refresh only the course schedule page from Banner (no Google Docs fetch)
+python -m cspdx.cli render-schedule
+
 # Regenerate sitemap.xml and robots.txt from an existing sections.json (no Google API calls)
 python -m cspdx.cli render-sitemap
 
@@ -37,10 +40,13 @@ echo $! > logs/server.pid
 ### Pipeline overview
 
 ```
-Google Docs ──► sources/ (splitters) ──► []Section ──► categorize.py (Gemini)
-                                                    ──► render/page.py   → build/site/<slug>/index.html
+Google Docs ──► sources/ (splitters) ──► []Section ──► categorize.py
+                                                    ──► render/page.py    → build/site/<slug>/index.html
                                                     ──► render/landing.py → build/site/index.html
-                                                    ──► _copy_static()   → build/site/{files,images,...}
+                                                    ──► _copy_static()    → build/site/{files,images,...}
+                                                    ──► schedule.py       → build/site/course-schedules/index.html
+                                                    ──► sitemap.py        → build/site/sitemap.xml
+                                                    ──► sitemap.py        → build/site/robots.txt
                                                     ──► build/sections.json (chat index)
 ```
 
@@ -76,6 +82,14 @@ Sections with category `ignore` have their HTML pages rendered (so existing URLs
 Both pages share a sticky two-row header: brand/CTA row + a horizontal category nav row. Each category entry has a text link (navigates to `/#category`) and a `▾` caret button that toggles a dropdown (JS, `position: fixed`) listing every page in that category. `position: fixed` is required because the nav row has `overflow-x: auto`, which would clip `position: absolute` dropdowns.
 
 **Critical build-order invariant**: in `cmd_build`, `render_landing()` runs first, then `_copy_static()` overlays `static/` onto `build/site/`. `static/` must not contain an `index.html` — it would overwrite the generated landing page.
+
+### Course schedule (`cspdx/schedule.py`)
+
+Fetches the 8 most recent terms from Banner SSB (`app.banner.pdx.edu`) and renders a tabbed HTML table page via `templates/base.html` → `build/site/course-schedules/index.html`. It shares the same nav bar as all other section pages. The page is generated automatically at the end of `cspdx build` (skip with `--no-schedule`); it can also be refreshed independently without a full rebuild via `cspdx render-schedule`.
+
+### Sitemap and robots (`cspdx/sitemap.py`)
+
+`generate_sitemap()` writes `build/site/sitemap.xml` listing the root `/`, every active section page, and `/course-schedules/` (omitted when `--no-schedule` is set). `generate_robots_txt()` writes `build/site/robots.txt` pointing at `<SITE_BASE_URL>/sitemap.xml`. Both are generated at the end of `cspdx build` (skip with `--no-sitemap`) and can be regenerated independently via `cspdx render-sitemap`.
 
 ### Static assets (`static/`)
 
@@ -137,6 +151,7 @@ nginx serves `build/site/` directly for all static traffic. Only `/ask` and `/ad
 | `SITE_DIR` | Generated site directory to serve (default `build/site`) |
 | `CSPDX_RELOAD_URL` | Where `cspdx build` POSTs after finishing (default `http://127.0.0.1:8080/admin/reload`) |
 | `GEMINI_MODEL` | Gemini model for categorization and chat (default `gemini-3.5-flash`; overrides `content.yaml` `chat.model`) |
+| `SITE_BASE_URL` | Canonical base URL written into `sitemap.xml` `<loc>` tags and `robots.txt` (default `https://web.cs.pdx.edu`) |
 
 ### `<base href>` convention
 
@@ -146,7 +161,14 @@ Every generated page has `<base href="{{ base_href }}">`. Template asset referen
 
 ```
 build/
-  site/               # fully generated; nginx serves this directory
+  site/                          # fully generated; nginx serves this directory
+    index.html                   # landing page
+    <slug>/index.html            # one page per section
+    course-schedules/index.html  # Banner course schedule (tabbed by term)
+    sitemap.xml                  # all active page URLs (absolute, base = $SITE_BASE_URL)
+    robots.txt                   # Allow: / + Sitemap: pointer
+    files/                       # PDFs (copied from static/files/)
+    images/                      # images (copied from static/images/)
   sections.json       # loaded by the chat backend at startup / reload
   build_meta.json     # revisionId + modifiedTime of each doc at last build (gitignored)
   category.json       # ← committed; manual slug → category map (edit to reclassify)
