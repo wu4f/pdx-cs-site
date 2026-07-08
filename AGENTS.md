@@ -89,7 +89,7 @@ Fetches the 8 most recent terms from Banner SSB (`app.banner.pdx.edu`) and rende
 
 ### Sitemap and robots (`cspdx/sitemap.py`)
 
-`generate_sitemap()` writes `build/site/sitemap.xml` listing the root `/`, every active section page, and `/course-schedules/` (omitted when `--no-schedule` is set). `generate_robots_txt()` writes `build/site/robots.txt` pointing at `<SITE_BASE_URL>/sitemap.xml`. Both are generated at the end of `cspdx build` (skip with `--no-sitemap`) and can be regenerated independently via `cspdx render-sitemap`.
+`generate_sitemap()` writes `build/site/sitemap.xml` listing the root `/`, every active section page, and `/course-schedules/` (omitted when `--no-schedule` is set). `generate_robots_txt()` writes `build/site/robots.txt` pointing at `<SITE_BASE_URL>/sitemap.xml`. Both are generated at the end of `cspdx build` and can be regenerated independently via `cspdx render-sitemap`.
 
 ### Static assets (`static/`)
 
