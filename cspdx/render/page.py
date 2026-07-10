@@ -6,6 +6,7 @@ import jinja2
 
 from ..models import Section
 from .landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS, meta_description, _site_base_url
+from .toc import inject_toc
 
 
 def render_sections(
@@ -38,7 +39,7 @@ def render_sections(
             else f"Information about {s.title} for the Department of Computer Science at Portland State University."
         )
         html = tpl.render(
-            title=s.title, body=s.html, style=s.style, base_href=base_href,
+            title=s.title, body=inject_toc(s.html, url_path=s.url_path), style=s.style, base_href=base_href,
             nav_groups=nav_groups,
             cat_labels=CATEGORY_LABELS,
             cat_icons=CATEGORY_ICONS,
