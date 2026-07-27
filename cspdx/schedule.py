@@ -66,22 +66,27 @@ def _establish_session(term_code: str) -> requests.Session:
     return session
 
 
-def _fetch_courses(session: requests.Session, term_code: str, subject: str = "CS", page_size: int = 500) -> list[dict]:
+def _fetch_courses(session: requests.Session, term_code: str, subjects: list[str] | None = None, page_size: int = 500) -> list[dict]:
+    if subjects is None:
+        subjects = ["CS"]
     courses: list[dict] = []
     offset = 0
     while True:
+        params = (
+            [("txt_subject", s) for s in subjects]
+            + [
+                ("txt_term", term_code),
+                ("startDatepicker", ""),
+                ("endDatepicker", ""),
+                ("pageOffset", offset),
+                ("pageMaxSize", page_size),
+                ("sortColumn", "subjectDescription"),
+                ("sortDirection", "asc"),
+            ]
+        )
         resp = session.get(
             f"{BASE_URL}/searchResults/searchResults",
-            params={
-                "txt_subject": subject,
-                "txt_term": term_code,
-                "startDatepicker": "",
-                "endDatepicker": "",
-                "pageOffset": offset,
-                "pageMaxSize": page_size,
-                "sortColumn": "subjectDescription",
-                "sortDirection": "asc",
-            },
+            params=params,
             timeout=60,
         )
         resp.raise_for_status()
@@ -244,8 +249,8 @@ def generate_schedule_page(
         desc = term["description"].replace(" (View Only)", "").strip()
         print(f"[schedule] [{desc}] establishing session...", flush=True)
         session = _establish_session(code)
-        print(f"[schedule] [{desc}] fetching CS courses...", flush=True)
-        courses = _fetch_courses(session, code)
+        print(f"[schedule] [{desc}] fetching CS/AI courses...", flush=True)
+        courses = _fetch_courses(session, code, subjects=["CS", "AI"])
         print(f"[schedule] [{desc}] {len(courses)} sections found", flush=True)
         term_data.append((desc, courses))
 
@@ -267,8 +272,8 @@ def generate_schedule_page(
         cat_icons=CATEGORY_ICONS,
         canonical_url=base_url + "/course-schedules/",
         meta_description=(
-            "CS course schedules by term for Portland State University — "
-            "browse CRN, title, credits, days, time, and instructor for all CS sections."
+            "CS and AI course schedules by term for Portland State University — "
+            "browse CRN, title, credits, days, time, and instructor for all CS and AI sections."
         ),
     )
 
