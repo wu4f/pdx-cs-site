@@ -6,6 +6,7 @@ After=network.target
 User=wuchang
 Group=www-data
 WorkingDirectory=/var/www/pdx-cs-site
+Restart=always
 Environment="GOOGLE_API_KEY=<FMI>"
 Environment="ADMIN_TOKEN=<FMI>"
 ExecStart=/var/www/pdx-cs-site/.venv/bin/uvicorn server.app:app --port 8080
