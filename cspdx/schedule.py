@@ -258,7 +258,7 @@ def generate_schedule_page(
         code = term["code"]
         desc = term["description"].replace(" (View Only)", "").strip()
         print(f"[schedule] [{desc}] fetching CS/AI courses...", flush=True)
-        courses = _fetch_courses(code, subjects=["CS", "AI"])
+        courses = _fetch_courses(code, subjects=["AI", "CS"])
         print(f"[schedule] [{desc}] {len(courses)} sections found", flush=True)
         term_data.append((desc, courses))
 
