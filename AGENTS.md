@@ -86,7 +86,7 @@ Both pages share a sticky two-row header: brand/CTA row + a horizontal category 
 
 ### Course schedule (`cspdx/schedule.py`)
 
-Fetches the 8 most recent terms from Banner SSB (`app.banner.pdx.edu`) and renders a tabbed HTML table page via `templates/base.html` → `build/site/course-schedules/index.html`. Each term fetches both **CS** and **AI** subject codes in a single request (multiple `txt_subject` params). It shares the same nav bar as all other section pages. The page is generated automatically at the end of `cspdx build` (skip with `--no-schedule`); it can also be refreshed independently without a full rebuild via `cspdx render-schedule`.
+Fetches the 8 most recent terms from Banner SSB (`app.banner.pdx.edu`) and renders a tabbed HTML table page via `templates/base.html` → `build/site/course-schedules/index.html`. Each term fetches both **CS** and **AI** subject codes by making a separate Banner SSB request per subject (each with its own `_establish_session` call), then merging the results. A single session cannot be reused across subjects — Banner carries subject state server-side and returns stale results if the session is reused. It shares the same nav bar as all other section pages. The page is generated automatically at the end of `cspdx build` (skip with `--no-schedule`); it can also be refreshed independently without a full rebuild via `cspdx render-schedule`.
 
 ### Sitemap and robots (`cspdx/sitemap.py`)
 
