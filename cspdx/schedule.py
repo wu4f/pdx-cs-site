@@ -66,27 +66,22 @@ def _establish_session(term_code: str) -> requests.Session:
     return session
 
 
-def _fetch_courses(session: requests.Session, term_code: str, subjects: list[str] | None = None, page_size: int = 500) -> list[dict]:
-    if subjects is None:
-        subjects = ["CS"]
+def _fetch_subject(session: requests.Session, term_code: str, subject: str, page_size: int = 500) -> list[dict]:
     courses: list[dict] = []
     offset = 0
     while True:
-        params = (
-            [("txt_subject", s) for s in subjects]
-            + [
-                ("txt_term", term_code),
-                ("startDatepicker", ""),
-                ("endDatepicker", ""),
-                ("pageOffset", offset),
-                ("pageMaxSize", page_size),
-                ("sortColumn", "subjectDescription"),
-                ("sortDirection", "asc"),
-            ]
-        )
         resp = session.get(
             f"{BASE_URL}/searchResults/searchResults",
-            params=params,
+            params={
+                "txt_subject": subject,
+                "txt_term": term_code,
+                "startDatepicker": "",
+                "endDatepicker": "",
+                "pageOffset": offset,
+                "pageMaxSize": page_size,
+                "sortColumn": "subjectDescription",
+                "sortDirection": "asc",
+            },
             timeout=60,
         )
         resp.raise_for_status()
@@ -98,6 +93,21 @@ def _fetch_courses(session: requests.Session, term_code: str, subjects: list[str
         offset += page_size
         if offset >= total:
             break
+    return courses
+
+
+def _fetch_courses(term_code: str, subjects: list[str] | None = None, page_size: int = 500) -> list[dict]:
+    """Fetch courses for one or more subject codes and return them merged.
+
+    Each subject gets its own session because Banner SSB carries subject state
+    server-side; reusing a session across subjects returns stale results.
+    """
+    if subjects is None:
+        subjects = ["CS"]
+    courses: list[dict] = []
+    for subject in subjects:
+        session = _establish_session(term_code)
+        courses.extend(_fetch_subject(session, term_code, subject, page_size))
     return courses
 
 
@@ -247,10 +257,8 @@ def generate_schedule_page(
     for term in terms:
         code = term["code"]
         desc = term["description"].replace(" (View Only)", "").strip()
-        print(f"[schedule] [{desc}] establishing session...", flush=True)
-        session = _establish_session(code)
         print(f"[schedule] [{desc}] fetching CS/AI courses...", flush=True)
-        courses = _fetch_courses(session, code, subjects=["CS", "AI"])
+        courses = _fetch_courses(code, subjects=["CS", "AI"])
         print(f"[schedule] [{desc}] {len(courses)} sections found", flush=True)
         term_data.append((desc, courses))
 
