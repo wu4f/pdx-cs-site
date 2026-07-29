@@ -6,10 +6,10 @@ docs:
     splitter: tabs
     name: "web.cs.pdx.edu"
 
-  # The Graduate Handbook, rendered as a single whole page (no splitting).
-  - id: "1Tp7lrY-nAgmlElgtDCxt3rrhJZuMN_9eBKARa7Ewb_Q"
+  # Graduate Handbook all-in-one (pieces of this copied to web.cs.pdx.edu).
+  - id: "1ZkNQsxW-Vv5zV-l0a1k2T1JebRdP-FQPgp5lKiRVSYk"
     splitter: whole
-    name: "Graduate Handbook (whole)"
+    name: "CS Graduate Student Handbook (whole)"
 
 categories:
   allowed:
