@@ -18,7 +18,9 @@ def _load(path: Path) -> dict:
 
 
 def _save(path: Path, data: dict) -> None:
-    path.write_text(json.dumps(data, indent=2, sort_keys=True))
+    # Trailing newline: this file is committed, so without it every build
+    # produces a spurious one-line diff on the closing brace.
+    path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
 
 
 def categorize_sections(
