@@ -63,7 +63,11 @@ Two strategies, selected per-doc in `content.yaml`:
 | splitter | unit of split |
 |---|---|
 | `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint, then `cleaner.clean_exported_html()` strips Google's wrapper markup and returns `(body_html, style_html, plain_text)`. 60 s timeout, up to 5 retries (exponential back-off) |
-| `whole` | entire doc → one Section; renders the Docs API structural elements with a minimal in-house renderer in `whole_splitter.py` (paragraphs, text runs, headings, lists; tables are a placeholder) |
+| `whole` | entire doc → one Section; renders the Docs API structural elements with a minimal in-house renderer in `whole_splitter.py` (paragraphs, text runs, headings, lists, tables; images/inline objects are skipped) |
+
+Line breaks: the Docs API ends every paragraph with `\n` and represents a soft break (Shift+Enter) as `\v`. Both become `<br/>`, then `_strip_trailing_br()` drops the run of breaks at the end of each paragraph, heading, list item, and cell — otherwise every block ends with a dangling blank line on top of its own bottom margin.
+
+Table rendering in `whole_splitter.py` emits `<table class="doc-table">` with `<thead>`/`<tbody>`. Two things the Docs API makes non-obvious: (1) cells merged away by a neighbour's `rowSpan`/`columnSpan` still come back as empty placeholder cells at their grid position, so the renderer tracks covered `(row, col)` pairs and skips them — otherwise every merged row grows extra cells; (2) `tableRowStyle.tableHeader` is only set when the author pins a header row, which most docs never do, so the leading row is treated as the header by default. Only a *leading* run of pinned rows can become `<thead>`, since `<thead>` must precede `<tbody>`. The `doc-table` class exists so `templates/base.html` can relax the `white-space: nowrap` header rule that the short-headed schedule tables rely on.
 
 ### Categorization (`cspdx/categorize.py`)
 

@@ -159,6 +159,18 @@
         vertical-align: top;
       }
       .content-card tr:nth-child(even) td { background: var(--bg); }
+      /* Multi-paragraph cell content comes through as <p>/<ul>; don't let their
+         block margins and colours leak into the row. */
+      .content-card th > :first-child,
+      .content-card td > :first-child { margin-top: 0; }
+      .content-card th > :last-child,
+      .content-card td > :last-child { margin-bottom: 0; }
+      .content-card thead th p { color: inherit; }
+      .content-card td ul,
+      .content-card td ol { margin-left: 1.1rem; }
+      /* Tables from whole-doc sources have prose-length headers, so let them
+         wrap instead of forcing a horizontal scroll. */
+      .content-card .doc-table thead th { white-space: normal; }
 
       /* ---- Footer ---- */
       .site-footer {

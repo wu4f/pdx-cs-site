@@ -2,8 +2,9 @@
 
 Renders every body (root + tabs) with a minimal in-house renderer, which
 handles the common subset of structural elements: paragraphs, text runs
-(bold/italic/underline/links), headings, and lists. Tables/images/inline
-objects are rendered as placeholders; extend as needed.
+(bold/italic/underline/links), headings, lists, and tables (including
+merged cells and nested tables). Images/inline objects are skipped;
+extend as needed.
 """
 from __future__ import annotations
 from html import escape
@@ -28,7 +29,10 @@ def _render_text_run(run: dict) -> str:
     if not el:
         return ""
     raw = el.get("content", "")
-    content = escape(raw).replace("\n", "<br/>")
+    # The Docs API uses \v for a soft line break (Shift+Enter) and \n for the
+    # paragraph terminator; both are line breaks here. Emitting \v verbatim
+    # would leave a raw control character in the HTML.
+    content = escape(raw).replace("\v", "<br/>").replace("\n", "<br/>")
     style = el.get("textStyle", {}) or {}
     if style.get("link", {}).get("url"):
         # WCAG 2.4.4 / 2.4.9 (link purpose): never emit an <a> with no
@@ -45,18 +49,94 @@ def _render_text_run(run: dict) -> str:
     return content
 
 
+def _strip_trailing_br(inner: str) -> str:
+    """Drop trailing <br/>s: the paragraph's terminating newline, plus any soft
+    breaks the author left at the end of it. Both render as dangling blank
+    lines, and the paragraph's own bottom margin already provides the gap."""
+    out = inner.rstrip()
+    while out.endswith("<br/>"):
+        out = out[: -len("<br/>")].rstrip()
+    return out
+
+
 def _render_paragraph(p: dict) -> str:
     style = (p.get("paragraphStyle") or {}).get("namedStyleType", "NORMAL_TEXT")
-    inner = "".join(_render_text_run(e) for e in p.get("elements", []))
+    inner = _strip_trailing_br(
+        "".join(_render_text_run(e) for e in p.get("elements", []))
+    )
     tag = _HEADING_TAGS.get(style)
     if not tag:
         return f"<p>{inner}</p>"
-    # Headings carry a trailing newline from the paragraph, which our renderer
-    # turns into a stray <br/>. Drop it so headings render cleanly.
-    heading = inner.rstrip()
-    if heading.endswith("<br/>"):
-        heading = heading[: -len("<br/>")].rstrip()
-    return tag.format(heading)
+    return tag.format(inner)
+
+
+def _render_cell(cell: dict) -> str:
+    """Render a table cell's structural elements (paragraphs, lists, sub-tables)."""
+    content = cell.get("content") or []
+    paragraphs = [el["paragraph"] for el in content if "paragraph" in el]
+    if len(content) == len(paragraphs) == 1 and not paragraphs[0].get("bullet"):
+        # Single-paragraph cells are the common case: emit the runs inline so the
+        # cell text doesn't pick up <p>'s block margins and colour.
+        inner = "".join(_render_text_run(e) for e in paragraphs[0].get("elements", []))
+        return _strip_trailing_br(inner)
+    return "".join(_walk_elements(content))
+
+
+def _render_table(table: dict) -> str:
+    rows = table.get("tableRows") or []
+    if not rows:
+        return ""
+
+    # Only the *leading* run of pinned rows can become <thead>; <thead> must
+    # precede <tbody>, so honouring a flag further down would reorder the table.
+    header_rows: set[int] = set()
+    for i, row in enumerate(rows):
+        if not (row.get("tableRowStyle") or {}).get("tableHeader"):
+            break
+        header_rows.add(i)
+    # Google Docs only sets tableHeader when the author pins a header row, which
+    # most docs never do. Fall back to treating the first row as the header so
+    # screen readers get a <th scope="col"> to announce per column.
+    if not header_rows and len(rows) > 1:
+        header_rows = {0}
+
+    # Cells merged away by a neighbour's rowSpan/columnSpan still come back from
+    # the API as empty placeholders at their grid position; track those
+    # positions so we don't emit duplicate cells for them.
+    covered: set[tuple[int, int]] = set()
+    head_trs: list[str] = []
+    body_trs: list[str] = []
+
+    for r, row in enumerate(rows):
+        cells: list[str] = []
+        for c, cell in enumerate(row.get("tableCells") or []):
+            if (r, c) in covered:
+                continue
+            cell_style = cell.get("tableCellStyle") or {}
+            rowspan = cell_style.get("rowSpan") or 1
+            colspan = cell_style.get("columnSpan") or 1
+            for dr in range(rowspan):
+                for dc in range(colspan):
+                    if dr or dc:
+                        covered.add((r + dr, c + dc))
+            tag = "th" if r in header_rows else "td"
+            attrs = ' scope="col"' if tag == "th" else ""
+            if rowspan > 1:
+                attrs += f' rowspan="{rowspan}"'
+            if colspan > 1:
+                attrs += f' colspan="{colspan}"'
+            cells.append(f"<{tag}{attrs}>{_render_cell(cell)}</{tag}>")
+        tr = "<tr>" + "".join(cells) + "</tr>"
+        (head_trs if r in header_rows else body_trs).append(tr)
+
+    # .doc-table lets the stylesheet relax the nowrap header rule that the
+    # (short-headed) schedule tables rely on; doc headers are prose-length.
+    out = '<table class="doc-table">'
+    if head_trs:
+        out += "<thead>" + "".join(head_trs) + "</thead>"
+    if body_trs:
+        out += "<tbody>" + "".join(body_trs) + "</tbody>"
+    return out + "</table>"
 
 
 def _walk_elements(body_content: list[dict]) -> Iterator[str]:
@@ -68,14 +148,17 @@ def _walk_elements(body_content: list[dict]) -> Iterator[str]:
             # Detect list items by presence of bullet
             if p.get("bullet"):
                 inner = "".join(_render_text_run(e) for e in p.get("elements", []))
-                list_buffer.append(f"<li>{inner}</li>")
+                list_buffer.append(f"<li>{_strip_trailing_br(inner)}</li>")
                 continue
             if list_buffer:
                 yield "<ul>" + "".join(list_buffer) + "</ul>"
                 list_buffer = []
             yield _render_paragraph(p)
         elif "table" in el:
-            yield "<!-- TODO: table rendering -->"
+            if list_buffer:
+                yield "<ul>" + "".join(list_buffer) + "</ul>"
+                list_buffer = []
+            yield _render_table(el["table"])
     if list_buffer:
         yield "<ul>" + "".join(list_buffer) + "</ul>"
 
