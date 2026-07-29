@@ -12,7 +12,7 @@ import yaml
 from . import buildmeta
 from .admin import reload_chat
 from .models import Section, dump_sections, load_sections
-from .sources import gdocs, tab_splitter, heading_splitter, whole_splitter
+from .sources import gdocs, tab_splitter, whole_splitter
 from .categorize import categorize_sections
 from .render.page import render_sections
 from .render.landing import render_landing
@@ -22,7 +22,6 @@ from .sitemap import generate_sitemap, generate_robots_txt
 
 SPLITTERS = {
     "tabs": tab_splitter.split,
-    "headings": heading_splitter.split,
     "whole": whole_splitter.split,
 }
 

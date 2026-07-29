@@ -58,15 +58,12 @@ Every content unit is a `Section` dataclass: `id` (URL slug), `title`, `html`, `
 
 ### Sources / splitters (`cspdx/sources/`)
 
-Three strategies, selected per-doc in `content.yaml`:
+Two strategies, selected per-doc in `content.yaml`:
 
 | splitter | unit of split |
 |---|---|
-| `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint with a 60 s timeout and up to 5 retries (exponential back-off) |
-| `headings` | one H1 block → one Section |
-| `whole` | entire doc → one Section |
-
-All paths call `cleaner.clean_exported_html()` which strips Google's wrapper markup and returns `(body_html, style_html, plain_text)`.
+| `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint, then `cleaner.clean_exported_html()` strips Google's wrapper markup and returns `(body_html, style_html, plain_text)`. 60 s timeout, up to 5 retries (exponential back-off) |
+| `whole` | entire doc → one Section; renders the Docs API structural elements with a minimal in-house renderer in `whole_splitter.py` (paragraphs, text runs, headings, lists; tables are a placeholder) |
 
 ### Categorization (`cspdx/categorize.py`)
 
@@ -78,7 +75,7 @@ Sections with category `ignore` have their HTML pages rendered (so existing URLs
 
 - **`landing.py`** — Renders `templates/landing.html` → `build/site/index.html`. Exports `build_nav_groups(sections, exclude_ids)` (groups sections by category in `CATEGORY_ORDER` order, used by all pages), `meta_description(text)` (truncates plain text at last word boundary ≤160 chars), and `_site_base_url()` (reads `$SITE_BASE_URL`).
 - **`page.py`** — Jinja2-renders `templates/base.html` for each section → `build/site/<id>/index.html`. Computes per-section `canonical_url` and `meta_description` from `section.text` (falls back to a generic sentence for empty text). Calls `inject_toc()` on each section's HTML before passing it to the template.
-- **`toc.py`** — `inject_toc(body_html, threshold=7, url_path="")` injects a clickable table of contents when the page has ≥ 7 headings. Two modes: **single-section** (one H1, e.g. tab or heading-split pages) counts h2/h3/h4 and injects after the first `</h1>`; **whole-doc** (two or more H1s) counts h1/h2/h3 and injects before the first `<h1>` so the H1 sections themselves appear as top-level TOC entries. Any heading that lacks an `id` attribute gets one auto-generated from its text (slugified, deduplicated). Links are prefixed with `url_path` so they resolve correctly under `<base href="/">`. Hierarchical numbering (`1.`, `1.2.`, `1.2.3.`) is computed in Python (not CSS counters — CSS `counter-reset` on a sibling `li` does not reset the counter for subsequent siblings in CSS 2.1 browser behavior); numbers are emitted as `<span class="toc-num">N.M.</span>` inline in each link. Single-section pages use `.toc__list` and whole-doc pages use `.toc__list.toc__list--doc` (controls indentation only). All content headings carry `scroll-margin-top: 160px` to keep them clear of the sticky two-row header when navigating via anchor.
+- **`toc.py`** — `inject_toc(body_html, threshold=7, url_path="")` injects a clickable table of contents when the page has ≥ 7 headings. Two modes: **single-section** (one H1, e.g. tab pages) counts h2/h3/h4 and injects after the first `</h1>`; **whole-doc** (two or more H1s) counts h1/h2/h3 and injects before the first `<h1>` so the H1 sections themselves appear as top-level TOC entries. Any heading that lacks an `id` attribute gets one auto-generated from its text (slugified, deduplicated). Links are prefixed with `url_path` so they resolve correctly under `<base href="/">`. Hierarchical numbering (`1.`, `1.2.`, `1.2.3.`) is computed in Python (not CSS counters — CSS `counter-reset` on a sibling `li` does not reset the counter for subsequent siblings in CSS 2.1 browser behavior); numbers are emitted as `<span class="toc-num">N.M.</span>` inline in each link. Single-section pages use `.toc__list` and whole-doc pages use `.toc__list.toc__list--doc` (controls indentation only). All content headings carry `scroll-margin-top: 160px` to keep them clear of the sticky two-row header when navigating via anchor.
 
 Both pages share a sticky two-row header: brand/CTA row + a horizontal category nav row. Each category entry has a text link (navigates to `/#category`) and a `▾` caret button that toggles a dropdown (JS, `position: fixed`) listing every page in that category. `position: fixed` is required because the nav row has `overflow-x: auto`, which would clip `position: absolute` dropdowns.
 

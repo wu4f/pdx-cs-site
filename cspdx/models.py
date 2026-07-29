@@ -1,6 +1,6 @@
 """Core data model. A 'Section' is the unit of content shared across:
 - tab-split docs (one tab == one section)
-- heading-split docs (one H1 block == one section)
+- whole docs (one doc == one section)
 - HTML page generation (one section == one /slug/index.html)
 - LLM context (one section == one <section> tag in the prompt)
 """
