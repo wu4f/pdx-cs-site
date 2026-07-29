@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /usr/local/home/wuchang/git/pdx-cs-site add server/app.py)",
+      "Bash(git -C /usr/local/home/wuchang/git/pdx-cs-site commit -m ' *)",
+      "Bash(git -C /usr/local/home/wuchang/git/pdx-cs-site push)",
+      "Bash(git -C /usr/local/home/wuchang/git/pdx-cs-site rm static/index.html)",
+      "Bash(git -C /usr/local/home/wuchang/git/pdx-cs-site add cspdx/cli.py)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python3 *)",
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(.venv/bin/python -m cspdx.cli --help)",
+      "Bash(.venv/bin/python *)",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --window-size=1280,700 --screenshot=/tmp/table.png --virtual-time-budget=2000 \"file:///tmp/table_only.html\")",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --window-size=1280,640 --screenshot=/tmp/table2.png --virtual-time-budget=2000 \"file:///tmp/table_only.html\")",
+      "Bash(sed -n '/:root/,/}/p' templates/base.html)",
+      "Bash(sed -n '/content-card h1/,/content-card p {/p' templates/base.html)",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --window-size=1000,1150 --screenshot=/tmp/num.png --virtual-time-budget=2000 \"file:///tmp/num.html\")",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --window-size=1000,900 --screenshot=/tmp/num2.png --virtual-time-budget=2000 \"file:///tmp/num2.html\")",
+      "Bash(google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --window-size=1000,420 --screenshot=/tmp/num3.png --virtual-time-budget=2000 \"file:///tmp/num3.html\")",
+      "Bash(git commit *)"
+    ]
+  }
+}

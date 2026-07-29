@@ -251,6 +251,14 @@
       .toc__list--doc .toc-h2 { padding-left: 1.1rem; }
       .toc__list--doc .toc-h3 { padding-left: 2.2rem; }
       .toc-num { font-weight: 600; color: var(--psu-green-dark); margin-right: 0.2em; }
+      /* Section numbers repeated in the body headings of whole-doc pages, so
+         they match the TOC. Inherit the heading's colour and size; tabular
+         figures keep multi-level numbers from looking ragged. */
+      .content-card .heading-num {
+        font-variant-numeric: tabular-nums;
+        margin-right: 0.15em;   /* a literal space follows the span too */
+        opacity: 0.75;
+      }
     </style>
   </head>
   <body>

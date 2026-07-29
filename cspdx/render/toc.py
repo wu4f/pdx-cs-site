@@ -22,13 +22,21 @@ def _make_id(text: str, seen: dict[str, int]) -> str:
     return slug
 
 
+def _is_doc_title(h) -> bool:
+    """True for the <h1 class="title"> the whole splitter emits for a doc's TITLE
+    style. It names the document rather than a section, so it is left out of the
+    numbering — otherwise every top-level section is off by one."""
+    return h.name == "h1" and "title" in (h.get("class") or [])
+
+
 def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") -> str:
     """Return body_html with a TOC nav injected.
 
     Single-section pages (one H1): counts H2/H3/H4; injects after the H1.
     Whole-doc pages (two or more H1s): counts H1/H2/H3; injects before the
-    first H1. Adds id attributes to any heading that is missing one.
-    Does nothing when the heading count is below `threshold`.
+    first H1, and repeats each heading's number in the heading itself so the
+    body matches the TOC. Adds id attributes to any heading that is missing
+    one. Does nothing when the heading count is below `threshold`.
 
     url_path must be passed (e.g. "/ms-in-cs/") so that fragment links resolve
     correctly when a <base href="/"> tag is present on the page.
@@ -38,7 +46,7 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
     multi_h1 = len(h1s) >= 2  # whole-doc: multiple H1 sections on one page
 
     levels = _DOC_LEVELS if multi_h1 else _SUB_LEVELS
-    counted = soup.find_all(levels)
+    counted = [h for h in soup.find_all(levels) if not _is_doc_title(h)]
 
     if len(counted) < threshold:
         return body_html
@@ -53,6 +61,7 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
 
     counters = [0] * len(levels)
     items: list[str] = []
+    numbered = False
     for h in counted:
         level_idx = levels.index(h.name)
         counters[level_idx] += 1
@@ -60,6 +69,8 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
             counters[i] = 0
         num_str = ".".join(str(counters[i]) for i in range(level_idx + 1)) + "."
         anchor = h.get("id", "")
+        # Read the heading text before numbering it, or the TOC label would
+        # repeat the number ("1. 1. Introduction").
         text = _html.escape(h.get_text(strip=True))
         if anchor and text:
             items.append(
@@ -68,6 +79,14 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
                 f'<span class="toc-num">{num_str}</span> {text}'
                 f'</a></li>'
             )
+            if multi_h1:
+                # Whole-doc pages only: tab pages number their TOC but their
+                # headings (course codes, policy names) read better unnumbered.
+                num = soup.new_tag("span", attrs={"class": "heading-num"})
+                num.string = num_str
+                h.insert(0, num)
+                h.insert(1, " ")
+                numbered = True
 
     if not items:
         return body_html
@@ -80,9 +99,9 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
         "</nav>"
     )
 
-    # When ids were added we must use the soup-serialised HTML so the new
-    # id attributes are actually present in the output.
-    if ids_added:
+    # When ids were added or headings were numbered we must use the
+    # soup-serialised HTML so those edits are actually present in the output.
+    if ids_added or numbered:
         body = soup.body
         inject_html = body.decode_contents() if body else str(soup)
     else:
