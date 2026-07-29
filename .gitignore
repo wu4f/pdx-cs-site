@@ -13,3 +13,4 @@ logs/
 # can re-include a file under it.
 build/*
 !build/category.json
+.claude
