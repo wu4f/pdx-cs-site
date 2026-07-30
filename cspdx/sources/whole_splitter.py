@@ -204,6 +204,22 @@ def _nesting_level(ctx: _Ctx, list_id: str, level: int) -> dict:
     return levels[level] if 0 <= level < len(levels) else {}
 
 
+def _indent(p: dict, ctx: _Ctx) -> float:
+    """Left indent of a paragraph, in points.
+
+    Bullets usually carry their own `indentStart`; when they don't they inherit
+    it from the list's nesting-level definition.
+    """
+    ind = ((p.get("paragraphStyle") or {}).get("indentStart") or {}).get("magnitude")
+    if ind is not None:
+        return float(ind)
+    bullet = p.get("bullet") or {}
+    if bullet:
+        level = _nesting_level(ctx, bullet.get("listId", ""), bullet.get("nestingLevel", 0) or 0)
+        return float((level.get("indentStart") or {}).get("magnitude") or 0)
+    return 0.0
+
+
 def _list_kind(ctx: _Ctx, list_id: str, level: int) -> tuple[str, str]:
     """Return (tag, CSS list-style-type) for one level of one list."""
     hit = ctx.glyphs.get((list_id.replace(".", "_"), level))
@@ -223,42 +239,80 @@ def _open_list(tag: str, style: str, start: int) -> str:
     return f"<{tag}{attrs}>"
 
 
-def _render_list(ctx: _Ctx, items: list[tuple[dict, str]]) -> str:
-    """Render a consecutive run of bullet paragraphs as nested <ul>/<ol>.
+def _depths(items: list[tuple[dict | None, float, str]]) -> list[int]:
+    """Nesting depth of each entry in a run, derived from paragraph indent.
 
-    Each item carries its own `listId` and `nestingLevel`; a deeper level opens
-    a sub-list *inside* the item above it (which is why the enclosing <li> is
-    left open until its children are done), and a shallower one closes back out.
+    Docs' own `nestingLevel` counts only *within* one list, and an author who
+    indents a sub-list (rather than using Tab inside the parent list) gets a
+    brand new list whose items are all at nestingLevel 0 — so depth has to come
+    from the indent as well. A continuation block sits at the depth of the
+    innermost bullet indented no further than it is.
+    """
+    bullet_indents = sorted({ind for b, ind, _ in items if b})
+    rank = {ind: i for i, ind in enumerate(bullet_indents)}
+    depths: list[int] = []
+    for bullet, ind, _ in items:
+        if bullet:
+            depths.append(max(bullet.get("nestingLevel", 0) or 0, rank[ind]))
+        else:
+            enclosing = [r for i, r in rank.items() if i <= ind]
+            depths.append(max(enclosing, default=0))
+    return depths
+
+
+def _render_list(ctx: _Ctx, items: list[tuple[dict | None, float, str]]) -> str:
+    """Render a run of bullet paragraphs (and their continuation blocks) as
+    nested <ul>/<ol>.
+
+    Each entry is (bullet or None, indent, html): a bullet becomes an <li>, and
+    a None entry is a block that belongs *inside* the <li> above it (see
+    _walk_elements). A deeper level opens a sub-list inside the item above it
+    (which is why the enclosing <li> is left open until its children are done),
+    and a shallower one closes back out.
     """
     out: list[str] = []
     stack: list[tuple[int, str, str]] = []  # (level, tag, style)
     li_open = False
 
-    for bullet, inner in items:
+    def unwind_to(level: int) -> None:
+        """Close sub-lists until the innermost open one holds `level`."""
+        nonlocal li_open
+        while len(stack) > 1 and level < stack[-1][0]:
+            if li_open:
+                out.append("</li>")
+            out.append(f"</{stack.pop()[1]}>")
+            li_open = True  # the parent's <li> is still open
+
+    for (bullet, _indent_pt, inner), level in zip(items, _depths(items)):
+        if bullet is None:
+            # Continuation content: reopen nothing, just drop back to the <li>
+            # this block was indented under and emit it there.
+            unwind_to(level)
+            out.append(inner)
+            continue
+
         list_id = bullet.get("listId", "")
-        level = bullet.get("nestingLevel", 0) or 0
-        tag, style = _list_kind(ctx, list_id, level)
+        # Glyphs, counters and start numbers are all keyed by the *Docs* level;
+        # only the HTML nesting follows the indent-derived depth.
+        doc_level = bullet.get("nestingLevel", 0) or 0
+        tag, style = _list_kind(ctx, list_id, doc_level)
 
         # Docs restarts a nested level under each new parent item, but keeps
         # counting at the same level across an interruption (a paragraph
         # dropped between two runs of one list) — which HTML won't do on its
         # own, hence the explicit start= below.
-        for stale in [k for k in ctx.counts if k[0] == list_id and k[1] > level]:
+        for stale in [k for k in ctx.counts if k[0] == list_id and k[1] > doc_level]:
             del ctx.counts[stale]
-        emitted = ctx.counts.get((list_id, level), 0)
-        ctx.counts[(list_id, level)] = emitted + 1
-        start = (_nesting_level(ctx, list_id, level).get("startNumber") or 1) + emitted
+        emitted = ctx.counts.get((list_id, doc_level), 0)
+        ctx.counts[(list_id, doc_level)] = emitted + 1
+        start = (_nesting_level(ctx, list_id, doc_level).get("startNumber") or 1) + emitted
 
         if stack and level > stack[-1][0]:
             out.append(_open_list(tag, style, start))  # nests in the open <li>
             stack.append((level, tag, style))
             li_open = False
         else:
-            while len(stack) > 1 and level < stack[-1][0]:
-                if li_open:
-                    out.append("</li>")
-                out.append(f"</{stack.pop()[1]}>")
-                li_open = True  # the parent's <li> is still open
+            unwind_to(level)
             if li_open:
                 out.append("</li>")
                 li_open = False
@@ -350,20 +404,44 @@ def _render_table(table: dict, ctx: _Ctx) -> str:
     return out + "</table>"
 
 
+def _is_continuation(p: dict, ctx: _Ctx, run: list[tuple[dict | None, float, str]]) -> bool:
+    """Does this un-bulleted paragraph belong inside the bullet above it?
+
+    Pressing Enter inside a bullet and then clearing the bullet is how a Docs
+    author writes a multi-paragraph list item: the text keeps the item's
+    indent, and Docs lays it out hanging under the bullet. Rendered as a
+    top-level <p> it would lose that indent and read as if the list had ended,
+    so anything still indented at least as far as the list's outermost bullet
+    stays part of the run.
+    """
+    if (p.get("paragraphStyle") or {}).get("namedStyleType", "NORMAL_TEXT") in _HEADING_TAGS:
+        return False
+    base = min((ind for b, ind, _ in run if b), default=0.0)
+    return base > 0 and _indent(p, ctx) >= base
+
+
 def _walk_elements(body_content: list[dict], ctx: _Ctx) -> Iterator[str]:
     """Yield HTML fragments for each structural element.
 
-    Consecutive bullet paragraphs are buffered and handed to _render_list()
-    together, since only the whole run tells us where sub-lists open and close.
+    Consecutive bullet paragraphs (plus any indented continuation blocks
+    between them) are buffered and handed to _render_list() together, since
+    only the whole run tells us where sub-lists open and close.
     """
-    run: list[tuple[dict, str]] = []
+    run: list[tuple[dict | None, float, str]] = []
     for el in body_content:
         if "paragraph" in el:
             p = el["paragraph"]
             # Detect list items by presence of bullet
             if p.get("bullet"):
                 inner = "".join(_render_text_run(e) for e in p.get("elements", []))
-                run.append((p["bullet"], _strip_trailing_br(inner)))
+                run.append((p["bullet"], _indent(p, ctx), _strip_trailing_br(inner)))
+                continue
+            if run and _is_continuation(p, ctx, run):
+                # A blank indented line is Docs' paragraph spacing, not
+                # content; skip it without breaking the run.
+                if any(e.get("textRun", {}).get("content", "").strip()
+                       for e in p.get("elements", [])):
+                    run.append((None, _indent(p, ctx), _render_paragraph(p)))
                 continue
             if run:
                 yield _render_list(ctx, run)
