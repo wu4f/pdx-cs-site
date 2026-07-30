@@ -3,7 +3,7 @@
   "advising": "about",
   "ap-ib-credits": "undergraduate",
   "artificial-intelligence-certificate": "graduate",
-  "assistantships": "graduate",
+  "assistantships": "about",
   "biomedical-informatics": "graduate",
   "bs-in-ai": "undergraduate",
   "bs-in-cs": "undergraduate",
@@ -31,6 +31,7 @@
   "research-areas": "about",
   "strategic-vision": "ignore",
   "student-resources": "about",
+  "support": "about",
   "transitioning-from-cs-to-ai": "undergraduate",
   "undergraduate-admission": "undergraduate",
   "undergraduate-courses": "undergraduate"

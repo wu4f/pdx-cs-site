@@ -16,7 +16,8 @@ python -m cspdx.cli build
 # Build skipping unchanged docs (compares revisionId / modifiedTime)
 python -m cspdx.cli build --skip-unchanged
 
-# Re-render the landing page and all section pages from an existing sections.json (no Google API calls)
+# Re-render the landing page and all section pages from an existing sections.json (no Google API
+# calls; does refetch the course schedule from Banner — add --no-schedule to skip)
 python -m cspdx.cli render-landing
 
 # Refresh only the course schedule page from Banner (no Google Docs fetch)
@@ -94,6 +95,8 @@ Both pages share a sticky two-row header: brand/CTA row + a horizontal category 
 ### Course schedule (`cspdx/schedule.py`)
 
 Fetches the 8 most recent terms from Banner SSB (`app.banner.pdx.edu`) and renders a tabbed HTML table page via `templates/base.html` → `build/site/course-schedules/index.html`. Each term fetches both **CS** and **AI** subject codes by making a separate Banner SSB request per subject (each with its own `_establish_session` call), then merging the results. A single session cannot be reused across subjects — Banner carries subject state server-side and returns stale results if the session is reused. It shares the same nav bar as all other section pages. The page is generated automatically at the end of `cspdx build` (skip with `--no-schedule`); it can also be refreshed independently without a full rebuild via `cspdx render-schedule`.
+
+`sections.json` also carries a placeholder `course-schedules` section — a near-empty Google Doc tab ("do not modify") that exists only so the schedule gets a nav entry and a landing-page card like every other page. Its `url_path` is `/course-schedules/`, so any command that calls `render_sections()` over all sections writes that stub to the *same path* the generated page occupies. `cmd_build` and `cmd_render_landing` therefore both run `generate_schedule_page()` afterwards to overwrite it; `render-landing` accepts `--no-schedule` to skip the Banner fetch, at the cost of leaving the stub in place. `cmd_render_sections` has no such follow-up, so `render-sections` does clobber the schedule page — run `render-schedule` after it.
 
 ### Sitemap and robots (`cspdx/sitemap.py`)
 

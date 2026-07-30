@@ -241,6 +241,11 @@ def cmd_render_landing(args):
     re-renders every section page so their nav bar dropdowns stay in sync.
     Note: sections that were marked 'ignore' at the last full build are absent
     from sections.json; un-ignoring them requires a full rebuild.
+
+    The `course-schedules` section in sections.json is only a placeholder tab
+    ("do not modify"); re-rendering it clobbers the generated Banner page at
+    the same path, so the schedule is regenerated afterwards (skip with
+    --no-schedule, which leaves the placeholder stub in place).
     """
     cfg = yaml.safe_load(Path(args.config).read_text())
     sections_path = args.sections or str(Path(args.out) / "sections.json")
@@ -283,6 +288,19 @@ def cmd_render_landing(args):
         base_href=base_href,
         exclude_ids=[],
     )
+
+    if not args.no_schedule:
+        try:
+            print("[render-landing] regenerating course schedule page...")
+            generate_schedule_page(
+                Path(site_dir) / "course-schedules" / "index.html",
+                template_path=template,
+                base_href=base_href,
+                nav_sections=active_sections,
+                nav_exclude_ids=[],
+            )
+        except Exception as exc:
+            print(f"[render-landing] WARNING: schedule generation failed: {exc}", flush=True)
 
 
 def cmd_render_sections(args):
@@ -411,6 +429,11 @@ def main(argv=None):
         "--base-href",
         default=None,
         help='Value for the <base> tag (default from content.yaml or "/").',
+    )
+    pr.add_argument(
+        "--no-schedule",
+        action="store_true",
+        help="Skip regenerating /course-schedules/ from Banner (leaves a placeholder stub).",
     )
     pr.set_defaults(func=cmd_render_landing)
 
