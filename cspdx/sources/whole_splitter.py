@@ -7,21 +7,41 @@ merged cells and nested tables). Images/inline objects are skipped;
 extend as needed.
 """
 from __future__ import annotations
+import re
 from html import escape
 from typing import Iterator
+from urllib.parse import urlsplit
 
-from ..models import Section, slugify
+from ..models import Section, heading_anchor, slugify
 from . import gdocs
 
 
 # --- Tiny structural-elements renderer -------------------------------------
 
 _HEADING_TAGS = {
-    "HEADING_1": "<h1>{}</h1>",
-    "HEADING_2": "<h2>{}</h2>",
-    "HEADING_3": "<h3>{}</h3>",
-    "TITLE": "<h1 class='title'>{}</h1>",
+    "HEADING_1": ("h1", ""),
+    "HEADING_2": ("h2", ""),
+    "HEADING_3": ("h3", ""),
+    "TITLE": ("h1", "title"),
 }
+
+# Scratch attributes carrying the Docs-side ids through rendering; both are
+# consumed (and removed) by _resolve_internal_links().
+_HEADING_ID_ATTR = "data-doc-heading-id"   # on a heading: its Docs headingId
+_HEADING_REF_ATTR = "data-doc-heading-ref"  # on an <a>: the headingId it targets
+
+
+def _link_heading_id(link: dict) -> str:
+    """Return the Docs headingId a link points at, or '' if it isn't one.
+
+    With includeTabsContent=true the API returns `heading: {id, tabId}`;
+    `headingId` is the legacy single-tab shape. The tab is irrelevant here —
+    this splitter renders every tab onto one page, so all targets are local.
+    Bookmark links (`link.bookmark`) can't be resolved at all: the API exposes
+    the bookmark id on the link but never says where the bookmark itself sits
+    in the content, so there is nothing to anchor to.
+    """
+    return (link.get("heading") or {}).get("id") or link.get("headingId") or ""
 
 
 def _render_text_run(run: dict) -> str:
@@ -34,12 +54,19 @@ def _render_text_run(run: dict) -> str:
     # would leave a raw control character in the HTML.
     content = escape(raw).replace("\v", "<br/>").replace("\n", "<br/>")
     style = el.get("textStyle", {}) or {}
-    if style.get("link", {}).get("url"):
-        # WCAG 2.4.4 / 2.4.9 (link purpose): never emit an <a> with no
-        # accessible name. If the text content is empty or only whitespace,
-        # skip the link wrap rather than create an empty <a>.
-        if raw.strip():
-            content = f'<a href="{escape(style["link"]["url"])}">{content}</a>'
+    link = style.get("link") or {}
+    # WCAG 2.4.4 / 2.4.9 (link purpose): never emit an <a> with no accessible
+    # name. If the text content is empty or only whitespace, skip the link wrap
+    # rather than create an empty <a>.
+    if raw.strip():
+        heading_id = _link_heading_id(link)
+        if link.get("url"):
+            content = f'<a href="{escape(link["url"])}">{content}</a>'
+        elif heading_id:
+            # A cross-reference to another part of this doc. The target's HTML
+            # anchor isn't known until every heading has been rendered, so
+            # stash the Docs id and let _resolve_internal_links() fill in href.
+            content = f'<a {_HEADING_REF_ATTR}="{escape(heading_id)}">{content}</a>'
     if style.get("bold"):
         content = f"<strong>{content}</strong>"
     if style.get("italic"):
@@ -60,14 +87,21 @@ def _strip_trailing_br(inner: str) -> str:
 
 
 def _render_paragraph(p: dict) -> str:
-    style = (p.get("paragraphStyle") or {}).get("namedStyleType", "NORMAL_TEXT")
+    pstyle = p.get("paragraphStyle") or {}
+    style = pstyle.get("namedStyleType", "NORMAL_TEXT")
     inner = _strip_trailing_br(
         "".join(_render_text_run(e) for e in p.get("elements", []))
     )
-    tag = _HEADING_TAGS.get(style)
-    if not tag:
+    heading = _HEADING_TAGS.get(style)
+    if not heading:
         return f"<p>{inner}</p>"
-    return tag.format(inner)
+    tag, cls = heading
+    attrs = f' class="{cls}"' if cls else ""
+    # Carry the Docs headingId so cross-references can be pointed at this
+    # heading's generated anchor once the whole doc has been rendered.
+    if pstyle.get("headingId"):
+        attrs += f' {_HEADING_ID_ATTR}="{escape(pstyle["headingId"])}"'
+    return f"<{tag}{attrs}>{inner}</{tag}>"
 
 
 def _render_cell(cell: dict) -> str:
@@ -180,6 +214,61 @@ def _iter_bodies(doc: dict):
     yield from walk(doc.get("tabs") or [])
 
 
+def _self_link_heading(href: str, doc_id: str) -> str:
+    """Return the headingId of a plain URL that points back into this same doc.
+
+    Google's "copy link to this heading" produces an ordinary external URL
+    (…/document/d/<id>/edit?tab=t.0#heading=h.abc) rather than a heading link,
+    so those need the same treatment or they bounce the reader out to the
+    Google Doc.
+    """
+    if not doc_id or f"/document/d/{doc_id}" not in href:
+        return ""
+    m = re.search(r"heading=(h\.[\w-]+)", urlsplit(href).fragment)
+    return m.group(1) if m else ""
+
+
+def _resolve_internal_links(html: str, url_path: str, doc_id: str) -> str:
+    """Give every heading a stable id and turn the doc's internal
+    cross-references into fragment links to those ids.
+
+    Ids are assigned here rather than left to `render/toc.py` because the TOC
+    is only injected above a heading-count threshold — below it the links would
+    have nothing to point at. `toc.inject_toc()` keeps any id it finds, so the
+    two stay in agreement.
+
+    Fragments are prefixed with `url_path` because every generated page carries
+    a `<base href="/">`, under which a bare `#anchor` resolves against the
+    landing page instead of the current one.
+    """
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    seen: dict[str, int] = {}
+    anchors: dict[str, str] = {}  # Docs headingId -> HTML id
+    for h in soup.find_all(["h1", "h2", "h3", "h4"]):
+        if not h.get("id"):
+            h["id"] = heading_anchor(h.get_text(strip=True), seen)
+        doc_heading_id = h.get(_HEADING_ID_ATTR)
+        if doc_heading_id:
+            anchors[doc_heading_id] = h["id"]
+            del h[_HEADING_ID_ATTR]
+
+    for a in soup.find_all("a"):
+        ref = a.get(_HEADING_REF_ATTR) or _self_link_heading(a.get("href", ""), doc_id)
+        if not ref:
+            continue
+        a.attrs.pop(_HEADING_REF_ATTR, None)
+        if ref in anchors:
+            a["href"] = f"{url_path}#{anchors[ref]}"
+        elif not a.get("href"):
+            # Target heading was deleted from the doc: keep the text, drop the
+            # link, rather than emit an <a> that goes nowhere.
+            a.unwrap()
+    return str(soup)
+
+
 def split(creds, doc_id: str, doc_name: str = "") -> Iterator[Section]:
     from bs4 import BeautifulSoup
     doc = gdocs.get_doc(creds, doc_id)
@@ -197,15 +286,16 @@ def split(creds, doc_id: str, doc_name: str = "") -> Iterator[Section]:
             )
 
     sid = slugify(title)
+    url_path = f"/{sid}/"
     yield Section(
         id=sid,
         title=title,
-        html="\n".join(html_parts),
+        html=_resolve_internal_links("\n".join(html_parts), url_path, doc_id),
         style="",
         text=" ".join(text_parts).strip(),
         source_doc_id=doc_id,
         source_doc_name=doc_name,
         source_anchor="",
         revision=revision,
-        url_path=f"/{sid}/",
+        url_path=url_path,
     )

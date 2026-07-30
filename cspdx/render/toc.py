@@ -2,24 +2,14 @@
 from __future__ import annotations
 
 import html as _html
-import re
 
 from bs4 import BeautifulSoup
+
+from ..models import heading_anchor
 
 _SUB_LEVELS = ["h2", "h3", "h4"]
 _DOC_LEVELS = ["h1", "h2", "h3"]  # whole-doc pages: H1 is top-level section
 _THRESHOLD = 7
-
-
-def _make_id(text: str, seen: dict[str, int]) -> str:
-    slug = re.sub(r"[^\w\s-]", "", text.lower().strip())
-    slug = re.sub(r"[\s_]+", "-", slug).strip("-") or "heading"
-    if slug in seen:
-        seen[slug] += 1
-        slug = f"{slug}-{seen[slug]}"
-    else:
-        seen[slug] = 0
-    return slug
 
 
 def _is_doc_title(h) -> bool:
@@ -56,7 +46,7 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
     ids_added = False
     for h in soup.find_all(["h1", "h2", "h3", "h4"]):
         if not h.get("id"):
-            h["id"] = _make_id(h.get_text(strip=True), seen)
+            h["id"] = heading_anchor(h.get_text(strip=True), seen)
             ids_added = True
 
     counters = [0] * len(levels)

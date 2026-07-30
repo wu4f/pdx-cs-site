@@ -81,8 +81,12 @@ def cmd_build(args):
             new_id = f"{prefix}-{sec.id}-{suffix_n}"
             suffix_n += 1
         print(f"  ! slug collision: {sec.id!r} also in {seen_ids[sec.id]!r}; renaming to {new_id!r}")
+        old_url_path = sec.url_path
         sec.id = new_id
         sec.url_path = f"/{new_id}/"
+        # In-page anchors are written as absolute paths (the pages carry a
+        # <base href="/">), so a rename has to follow them into the body.
+        sec.html = sec.html.replace(f'href="{old_url_path}#', f'href="{sec.url_path}#')
         seen_ids[new_id] = doc_name
 
     for d in cfg["docs"]:

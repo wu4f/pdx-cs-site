@@ -19,6 +19,26 @@ def slugify(s: str) -> str:
     return s or "untitled"
 
 
+def heading_anchor(text: str, seen: dict[str, int]) -> str:
+    """Return a unique HTML id for a heading with the given text.
+
+    `seen` accumulates across a document so repeated heading text gets a
+    numeric suffix. Shared by the whole splitter (which assigns ids as it
+    renders, so internal cross-references have something to point at) and by
+    `render/toc.py` (which fills in ids for any page whose source didn't) —
+    both must derive the same id from the same text or the two would disagree
+    about a page's anchors.
+    """
+    slug = re.sub(r"[^\w\s-]", "", text.lower().strip())
+    slug = re.sub(r"[\s_]+", "-", slug).strip("-") or "heading"
+    if slug in seen:
+        seen[slug] += 1
+        slug = f"{slug}-{seen[slug]}"
+    else:
+        seen[slug] = 0
+    return slug
+
+
 @dataclass
 class Section:
     # Stable identity
