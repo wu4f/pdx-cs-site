@@ -2,18 +2,32 @@
 
 Renders every body (root + tabs) with a minimal in-house renderer, which
 handles the common subset of structural elements: paragraphs, text runs
-(bold/italic/underline/links), headings, lists, and tables (including
-merged cells and nested tables). Images/inline objects are skipped;
-extend as needed.
+(bold/italic/underline/links), headings, lists (ordered and unordered, nested
+to any depth), and tables (including merged cells and nested tables).
+Images/inline objects are skipped; extend as needed.
 """
 from __future__ import annotations
 import re
+from dataclasses import dataclass, field
 from html import escape
 from typing import Iterator
 from urllib.parse import urlsplit
 
 from ..models import Section, heading_anchor, slugify
 from . import gdocs
+
+
+@dataclass
+class _Ctx:
+    """Document-wide state the renderer threads through every element.
+
+    `glyphs` and `lists` decide whether a bullet belongs in an <ol> or a <ul>;
+    `counts` tracks how many items each (listId, nesting level) has produced so
+    far, so an interrupted numbered list can resume where it left off.
+    """
+    glyphs: dict[tuple[str, int], tuple[str, str]] = field(default_factory=dict)
+    lists: dict = field(default_factory=dict)
+    counts: dict[tuple[str, int], int] = field(default_factory=dict)
 
 
 # --- Tiny structural-elements renderer -------------------------------------
@@ -104,7 +118,162 @@ def _render_paragraph(p: dict) -> str:
     return f"<{tag}{attrs}>{inner}</{tag}>"
 
 
-def _render_cell(cell: dict) -> str:
+# --- Lists ------------------------------------------------------------------
+
+# CSS list-style-types we'll echo out of the exported stylesheet, so a
+# malformed export can't inject arbitrary declarations into the page.
+_LIST_STYLE_TYPES = {
+    "decimal", "decimal-leading-zero", "lower-alpha", "lower-latin",
+    "upper-alpha", "upper-latin", "lower-roman", "upper-roman",
+}
+
+# glyphType -> CSS list-style-type, for the lists the Docs API does describe.
+_ORDERED_GLYPHS = {
+    "DECIMAL": "decimal",
+    "ZERO_DECIMAL": "decimal-leading-zero",
+    "ALPHA": "lower-alpha",
+    "UPPER_ALPHA": "upper-alpha",
+    "ROMAN": "lower-roman",
+    "UPPER_ROMAN": "upper-roman",
+}
+
+
+def _glyphs_from_export(export_html: str) -> dict[tuple[str, int], tuple[str, str]]:
+    """Map (list key, nesting level) -> (list tag, CSS list-style-type).
+
+    The Docs API is not a reliable source for this: it reports
+    `glyphType: GLYPH_TYPE_UNSPECIFIED` and no `glyphSymbol` for most lists —
+    in the graduate handbook, a bulleted list and a decimal-numbered one come
+    back as byte-identical `lists` entries. Google's own HTML export does know,
+    so read the answer out of its stylesheet, where each list level appears as
+    `ol.lst-<listId>-<level>` / `ul.lst-<listId>-<level>` and ordered levels
+    carry a `counter(..., <style>)` rule. The class names embed the same list
+    ids the API uses, with `.` written as `_`.
+    """
+    styles: dict[tuple[str, int], str] = {}
+    for key, level, style in re.findall(
+        r"\.lst-([A-Za-z0-9_-]+?)-(\d+)\s*>\s*li:before\s*\{[^}]*?"
+        r"counter\(lst-ctn-[^,]+,\s*([\w-]+)\)",
+        export_html,
+    ):
+        styles[(key, int(level))] = style
+
+    out: dict[tuple[str, int], tuple[str, str]] = {}
+    for tag, key, level in re.findall(
+        r"\b(ol|ul)\.lst-([A-Za-z0-9_-]+?)-(\d+)\b", export_html
+    ):
+        k = (key, int(level))
+        if tag == "ul":
+            out[k] = ("ul", "")
+        else:
+            style = styles.get(k, "decimal")
+            out[k] = ("ol", style if style in _LIST_STYLE_TYPES else "decimal")
+    return out
+
+
+def _list_glyphs(creds, doc_id: str, doc: dict) -> dict[tuple[str, int], tuple[str, str]]:
+    """Build the glyph map for a whole doc, one HTML export per tab.
+
+    A failed export costs list numbering, not the build: fall back to whatever
+    the API does say (see _list_kind) and carry on.
+    """
+    glyphs: dict[tuple[str, int], tuple[str, str]] = {}
+    if not any(lists for _, lists in _iter_bodies(doc)):
+        return glyphs  # no lists anywhere; don't pay for the export
+    for tab_id in _tab_ids(doc) or [None]:
+        try:
+            glyphs.update(_glyphs_from_export(gdocs.export_tab_html(creds, doc_id, tab_id)))
+        except Exception as e:  # noqa: BLE001 - any export failure is non-fatal
+            print(f"  [warn] list glyph export failed ({e}); "
+                  f"numbered lists may render as bullets")
+    return glyphs
+
+
+def _nesting_level(ctx: _Ctx, list_id: str, level: int) -> dict:
+    levels = ((ctx.lists.get(list_id) or {}).get("listProperties") or {}).get(
+        "nestingLevels"
+    ) or []
+    return levels[level] if 0 <= level < len(levels) else {}
+
+
+def _list_kind(ctx: _Ctx, list_id: str, level: int) -> tuple[str, str]:
+    """Return (tag, CSS list-style-type) for one level of one list."""
+    hit = ctx.glyphs.get((list_id.replace(".", "_"), level))
+    if hit:
+        return hit
+    style = _ORDERED_GLYPHS.get(_nesting_level(ctx, list_id, level).get("glyphType", ""))
+    return ("ol", style) if style else ("ul", "")
+
+
+def _open_list(tag: str, style: str, start: int) -> str:
+    attrs = ""
+    if tag == "ol":
+        if style and style != "decimal":
+            attrs += f' style="list-style-type: {style}"'
+        if start > 1:
+            attrs += f' start="{start}"'
+    return f"<{tag}{attrs}>"
+
+
+def _render_list(ctx: _Ctx, items: list[tuple[dict, str]]) -> str:
+    """Render a consecutive run of bullet paragraphs as nested <ul>/<ol>.
+
+    Each item carries its own `listId` and `nestingLevel`; a deeper level opens
+    a sub-list *inside* the item above it (which is why the enclosing <li> is
+    left open until its children are done), and a shallower one closes back out.
+    """
+    out: list[str] = []
+    stack: list[tuple[int, str, str]] = []  # (level, tag, style)
+    li_open = False
+
+    for bullet, inner in items:
+        list_id = bullet.get("listId", "")
+        level = bullet.get("nestingLevel", 0) or 0
+        tag, style = _list_kind(ctx, list_id, level)
+
+        # Docs restarts a nested level under each new parent item, but keeps
+        # counting at the same level across an interruption (a paragraph
+        # dropped between two runs of one list) — which HTML won't do on its
+        # own, hence the explicit start= below.
+        for stale in [k for k in ctx.counts if k[0] == list_id and k[1] > level]:
+            del ctx.counts[stale]
+        emitted = ctx.counts.get((list_id, level), 0)
+        ctx.counts[(list_id, level)] = emitted + 1
+        start = (_nesting_level(ctx, list_id, level).get("startNumber") or 1) + emitted
+
+        if stack and level > stack[-1][0]:
+            out.append(_open_list(tag, style, start))  # nests in the open <li>
+            stack.append((level, tag, style))
+            li_open = False
+        else:
+            while len(stack) > 1 and level < stack[-1][0]:
+                if li_open:
+                    out.append("</li>")
+                out.append(f"</{stack.pop()[1]}>")
+                li_open = True  # the parent's <li> is still open
+            if li_open:
+                out.append("</li>")
+                li_open = False
+            if not stack or (stack[-1][1], stack[-1][2]) != (tag, style):
+                if stack:
+                    out.append(f"</{stack.pop()[1]}>")
+                out.append(_open_list(tag, style, start))
+                stack.append((level, tag, style))
+            else:
+                # Same list, but the run started deeper than it continues.
+                stack[-1] = (level, tag, style)
+        out.append(f"<li>{inner}")
+        li_open = True
+
+    while stack:
+        if li_open:
+            out.append("</li>")
+        out.append(f"</{stack.pop()[1]}>")
+        li_open = True
+    return "".join(out)
+
+
+def _render_cell(cell: dict, ctx: _Ctx) -> str:
     """Render a table cell's structural elements (paragraphs, lists, sub-tables)."""
     content = cell.get("content") or []
     paragraphs = [el["paragraph"] for el in content if "paragraph" in el]
@@ -113,10 +282,10 @@ def _render_cell(cell: dict) -> str:
         # cell text doesn't pick up <p>'s block margins and colour.
         inner = "".join(_render_text_run(e) for e in paragraphs[0].get("elements", []))
         return _strip_trailing_br(inner)
-    return "".join(_walk_elements(content))
+    return "".join(_walk_elements(content, ctx))
 
 
-def _render_table(table: dict) -> str:
+def _render_table(table: dict, ctx: _Ctx) -> str:
     rows = table.get("tableRows") or []
     if not rows:
         return ""
@@ -159,7 +328,7 @@ def _render_table(table: dict) -> str:
                 attrs += f' rowspan="{rowspan}"'
             if colspan > 1:
                 attrs += f' colspan="{colspan}"'
-            cells.append(f"<{tag}{attrs}>{_render_cell(cell)}</{tag}>")
+            cells.append(f"<{tag}{attrs}>{_render_cell(cell, ctx)}</{tag}>")
         tr = "<tr>" + "".join(cells) + "</tr>"
         (head_trs if r in header_rows else body_trs).append(tr)
 
@@ -173,45 +342,64 @@ def _render_table(table: dict) -> str:
     return out + "</table>"
 
 
-def _walk_elements(body_content: list[dict]) -> Iterator[str]:
-    """Yield HTML fragments for each structural element. Lists collapsed to <ul>."""
-    list_buffer: list[str] = []
+def _walk_elements(body_content: list[dict], ctx: _Ctx) -> Iterator[str]:
+    """Yield HTML fragments for each structural element.
+
+    Consecutive bullet paragraphs are buffered and handed to _render_list()
+    together, since only the whole run tells us where sub-lists open and close.
+    """
+    run: list[tuple[dict, str]] = []
     for el in body_content:
         if "paragraph" in el:
             p = el["paragraph"]
             # Detect list items by presence of bullet
             if p.get("bullet"):
                 inner = "".join(_render_text_run(e) for e in p.get("elements", []))
-                list_buffer.append(f"<li>{_strip_trailing_br(inner)}</li>")
+                run.append((p["bullet"], _strip_trailing_br(inner)))
                 continue
-            if list_buffer:
-                yield "<ul>" + "".join(list_buffer) + "</ul>"
-                list_buffer = []
+            if run:
+                yield _render_list(ctx, run)
+                run = []
             yield _render_paragraph(p)
         elif "table" in el:
-            if list_buffer:
-                yield "<ul>" + "".join(list_buffer) + "</ul>"
-                list_buffer = []
-            yield _render_table(el["table"])
-    if list_buffer:
-        yield "<ul>" + "".join(list_buffer) + "</ul>"
+            if run:
+                yield _render_list(ctx, run)
+                run = []
+            yield _render_table(el["table"], ctx)
+    if run:
+        yield _render_list(ctx, run)
 
 
-def _iter_bodies(doc: dict):
-    """Yield every body.content list in the doc, whether at the root or inside
-    a (possibly nested) tab. Some Google Docs put all content inside a single
-    tab even when they're conceptually 'one document'."""
+def _iter_bodies(doc: dict) -> Iterator[tuple[list[dict], dict]]:
+    """Yield (body.content, lists) for the root body and every (possibly
+    nested) tab. Some Google Docs put all content inside a single tab even when
+    they're conceptually 'one document'. The `lists` map lives beside the body
+    it belongs to — at the root when the doc has no tabs, on each documentTab
+    otherwise."""
     root_body = (doc.get("body") or {}).get("content") or []
     if root_body:
-        yield root_body
+        yield root_body, doc.get("lists") or {}
     def walk(tabs):
         for t in tabs or []:
             dt = t.get("documentTab") or {}
             content = (dt.get("body") or {}).get("content") or []
             if content:
-                yield content
+                yield content, dt.get("lists") or {}
             yield from walk(t.get("childTabs") or [])
     yield from walk(doc.get("tabs") or [])
+
+
+def _tab_ids(doc: dict) -> list[str]:
+    """Every tab id in the doc, outer tabs before their children."""
+    ids: list[str] = []
+    def walk(tabs):
+        for t in tabs or []:
+            tab_id = (t.get("tabProperties") or {}).get("tabId")
+            if tab_id:
+                ids.append(tab_id)
+            walk(t.get("childTabs") or [])
+    walk(doc.get("tabs") or [])
+    return ids
 
 
 def _self_link_heading(href: str, doc_id: str) -> str:
@@ -276,10 +464,13 @@ def split(creds, doc_id: str, doc_name: str = "") -> Iterator[Section]:
 
     title = (doc.get("title") or doc_name or "untitled").strip()
 
+    ctx = _Ctx(glyphs=_list_glyphs(creds, doc_id, doc))
+
     html_parts: list[str] = []
     text_parts: list[str] = []
-    for body in _iter_bodies(doc):
-        for html in _walk_elements(body):
+    for body, lists in _iter_bodies(doc):
+        ctx.lists.update(lists)
+        for html in _walk_elements(body, ctx):
             html_parts.append(html)
             text_parts.append(
                 BeautifulSoup(html, "html.parser").get_text(" ", strip=True)

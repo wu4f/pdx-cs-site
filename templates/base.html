@@ -120,6 +120,11 @@
         padding: 0;
       }
       .content-card li { margin-bottom: 0.4rem; }
+      /* Sub-lists sit inside their parent <li>; the 1rem bottom margin above
+         is meant to separate a list from the next block, not from its sibling
+         items, so drop it here. */
+      .content-card li > ul,
+      .content-card li > ol { margin: 0.4rem 0 0 1.4rem; }
       .content-card hr {
         border: none;
         border-top: 1px solid var(--border);
