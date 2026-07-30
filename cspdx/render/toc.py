@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import html as _html
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 from ..models import heading_anchor
 
@@ -20,15 +20,35 @@ def _is_doc_title(h) -> bool:
     return h.name == "h1" and "title" in (h.get("class") or [])
 
 
+def _num_target(h):
+    """Return the element a heading's number should be inserted into.
+
+    Google's HTML export wraps a heading's text in a `<span>` carrying its own
+    `font-weight` — 400 for H3/H4, against the 600 that `base.html` sets on the
+    heading itself — so a number placed beside that span would render bolder
+    than the text it labels. Put it inside the span instead, where it picks up
+    the same styling as the text. The whole splitter emits heading text
+    directly, with no wrapper; there the heading itself is the target.
+    """
+    for kid in h.contents:
+        if isinstance(kid, NavigableString):
+            if kid.strip():
+                break
+            continue
+        return kid if kid.name == "span" else h
+    return h
+
+
 def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") -> str:
     """Return body_html with a TOC nav injected.
 
     Single-section pages (one H1): counts H2/H3/H4; injects after the H1.
     Whole-doc pages (two or more H1s): counts H1/H2/H3/H4; injects before the
-    first H1, and repeats each heading's number in the heading itself so the
-    body matches the TOC. Adds id attributes to any heading that is missing
-    one (H1 through H6, so that even a heading too deep to be listed can still
-    be linked to). Does nothing when the heading count is below `threshold`.
+    first H1. Either way each heading's number is repeated in the heading
+    itself so the body matches the TOC. Adds id attributes to any heading that
+    is missing one (H1 through H6, so that even a heading too deep to be listed
+    can still be linked to). Does nothing when the heading count is below
+    `threshold`.
 
     url_path must be passed (e.g. "/ms-in-cs/") so that fragment links resolve
     correctly when a <base href="/"> tag is present on the page.
@@ -45,40 +65,39 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
 
     # Assign ids to any heading that is missing one.
     seen: dict[str, int] = {}
-    ids_added = False
     for h in soup.find_all(_ALL_HEADINGS):
         if not h.get("id"):
             h["id"] = heading_anchor(h.get_text(strip=True), seen)
-            ids_added = True
 
     counters = [0] * len(levels)
     items: list[str] = []
-    numbered = False
     for h in counted:
+        # Read the heading text before numbering it, or the TOC label would
+        # repeat the number ("1. 1. Introduction").
+        text = _html.escape(h.get_text(strip=True))
+        # A blank Heading paragraph (a few of the source docs have one) can be
+        # neither listed nor linked, so it is skipped without taking a number —
+        # otherwise the visible sequence would jump. It still counts towards
+        # `threshold`, so numbering never costs a page the TOC it already had.
+        if not text:
+            continue
         level_idx = levels.index(h.name)
         counters[level_idx] += 1
         for i in range(level_idx + 1, len(counters)):
             counters[i] = 0
         num_str = ".".join(str(counters[i]) for i in range(level_idx + 1)) + "."
-        anchor = h.get("id", "")
-        # Read the heading text before numbering it, or the TOC label would
-        # repeat the number ("1. 1. Introduction").
-        text = _html.escape(h.get_text(strip=True))
-        if anchor and text:
-            items.append(
-                f'<li class="toc-h{h.name[1]}">'
-                f'<a href="{url_path}#{anchor}">'
-                f'<span class="toc-num">{num_str}</span> {text}'
-                f'</a></li>'
-            )
-            if multi_h1:
-                # Whole-doc pages only: tab pages number their TOC but their
-                # headings (course codes, policy names) read better unnumbered.
-                num = soup.new_tag("span", attrs={"class": "heading-num"})
-                num.string = num_str
-                h.insert(0, num)
-                h.insert(1, " ")
-                numbered = True
+        items.append(
+            f'<li class="toc-h{h.name[1]}">'
+            f'<a href="{url_path}#{h["id"]}">'
+            f'<span class="toc-num">{num_str}</span> {text}'
+            f'</a></li>'
+        )
+        # Repeat the number in the body heading so the page matches its TOC.
+        num = soup.new_tag("span", attrs={"class": "heading-num"})
+        num.string = num_str
+        target = _num_target(h)
+        target.insert(0, num)
+        target.insert(1, " ")
 
     if not items:
         return body_html
@@ -91,13 +110,12 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
         "</nav>"
     )
 
-    # When ids were added or headings were numbered we must use the
-    # soup-serialised HTML so those edits are actually present in the output.
-    if ids_added or numbered:
-        body = soup.body
-        inject_html = body.decode_contents() if body else str(soup)
-    else:
-        inject_html = body_html
+    # Past this point the soup — not body_html — is the source of truth: it
+    # carries the ids assigned above and the numbers inserted into the
+    # headings. Re-serialising the exported markup only drops per-line
+    # indentation; none of the source docs contain whitespace-sensitive tags.
+    body = soup.body
+    inject_html = body.decode_contents() if body else str(soup)
 
     if multi_h1:
         # Whole-doc: place TOC before the first H1 section.
