@@ -1,6 +1,6 @@
 {
   "accreditation": "about",
-  "advising": "resources",
+  "advising": "about",
   "ap-ib-credits": "undergraduate",
   "artificial-intelligence-certificate": "graduate",
   "assistantships": "graduate",
@@ -8,7 +8,7 @@
   "bs-in-ai": "undergraduate",
   "bs-in-cs": "undergraduate",
   "capstone": "undergraduate",
-  "course-schedules": "resources",
+  "course-schedules": "about",
   "cs-graduate-student-handbook-2026-27": "graduate",
   "cybersecurity-certificate": "graduate",
   "department": "about",
@@ -30,7 +30,7 @@
   "phd-doctoral-degree-in-cs": "graduate",
   "research-areas": "about",
   "strategic-vision": "ignore",
-  "student-resources": "resources",
+  "student-resources": "about",
   "transitioning-from-cs-to-ai": "undergraduate",
   "undergraduate-admission": "undergraduate",
   "undergraduate-courses": "undergraduate"
