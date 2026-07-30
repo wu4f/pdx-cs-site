@@ -36,8 +36,16 @@ _HEADING_TAGS = {
     "HEADING_1": ("h1", ""),
     "HEADING_2": ("h2", ""),
     "HEADING_3": ("h3", ""),
+    "HEADING_4": ("h4", ""),
+    "HEADING_5": ("h5", ""),
+    "HEADING_6": ("h6", ""),
     "TITLE": ("h1", "title"),
 }
+
+# Every level Docs can produce. The TOC numbers the first four (see
+# render/toc.py); h5/h6 still render as headings and still get ids, they just
+# don't appear in the contents list.
+_HEADING_ELEMENTS = ["h1", "h2", "h3", "h4", "h5", "h6"]
 
 # Scratch attributes carrying the Docs-side ids through rendering; both are
 # consumed (and removed) by _resolve_internal_links().
@@ -435,7 +443,7 @@ def _resolve_internal_links(html: str, url_path: str, doc_id: str) -> str:
 
     seen: dict[str, int] = {}
     anchors: dict[str, str] = {}  # Docs headingId -> HTML id
-    for h in soup.find_all(["h1", "h2", "h3", "h4"]):
+    for h in soup.find_all(_HEADING_ELEMENTS):
         if not h.get("id"):
             h["id"] = heading_anchor(h.get_text(strip=True), seen)
         doc_heading_id = h.get(_HEADING_ID_ATTR)

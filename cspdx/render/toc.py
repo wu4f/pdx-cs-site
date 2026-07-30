@@ -8,7 +8,8 @@ from bs4 import BeautifulSoup
 from ..models import heading_anchor
 
 _SUB_LEVELS = ["h2", "h3", "h4"]
-_DOC_LEVELS = ["h1", "h2", "h3"]  # whole-doc pages: H1 is top-level section
+_DOC_LEVELS = ["h1", "h2", "h3", "h4"]  # whole-doc pages: H1 is top-level section
+_ALL_HEADINGS = ["h1", "h2", "h3", "h4", "h5", "h6"]
 _THRESHOLD = 7
 
 
@@ -23,10 +24,11 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
     """Return body_html with a TOC nav injected.
 
     Single-section pages (one H1): counts H2/H3/H4; injects after the H1.
-    Whole-doc pages (two or more H1s): counts H1/H2/H3; injects before the
+    Whole-doc pages (two or more H1s): counts H1/H2/H3/H4; injects before the
     first H1, and repeats each heading's number in the heading itself so the
     body matches the TOC. Adds id attributes to any heading that is missing
-    one. Does nothing when the heading count is below `threshold`.
+    one (H1 through H6, so that even a heading too deep to be listed can still
+    be linked to). Does nothing when the heading count is below `threshold`.
 
     url_path must be passed (e.g. "/ms-in-cs/") so that fragment links resolve
     correctly when a <base href="/"> tag is present on the page.
@@ -44,7 +46,7 @@ def inject_toc(body_html: str, threshold: int = _THRESHOLD, url_path: str = "") 
     # Assign ids to any heading that is missing one.
     seen: dict[str, int] = {}
     ids_added = False
-    for h in soup.find_all(["h1", "h2", "h3", "h4"]):
+    for h in soup.find_all(_ALL_HEADINGS):
         if not h.get("id"):
             h["id"] = heading_anchor(h.get_text(strip=True), seen)
             ids_added = True

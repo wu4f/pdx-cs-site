@@ -97,14 +97,20 @@
       .content-card h1,
       .content-card h2,
       .content-card h3,
-      .content-card h4 { scroll-margin-top: 160px; }
+      .content-card h4,
+      .content-card h5,
+      .content-card h6 { scroll-margin-top: 160px; }
       .content-card h3 {
         font-size: 1.1rem;
         font-weight: 600;
         color: var(--ink);
         margin: 1.75rem 0 0.5rem;
       }
-      .content-card h4 {
+      /* h5/h6 are rare in the source docs and share h4's treatment; the
+         browser default would render them smaller than body text. */
+      .content-card h4,
+      .content-card h5,
+      .content-card h6 {
         font-size: 1rem;
         font-weight: 600;
         color: var(--ink);
@@ -253,8 +259,11 @@
       .toc-h2 { }
       .toc-h3 { padding-left: 1.1rem; }
       .toc-h4 { padding-left: 2.2rem; }
+      /* Whole-doc pages start a level higher (H1 is a section), so every
+         entry indents one step further than on a single-section page. */
       .toc__list--doc .toc-h2 { padding-left: 1.1rem; }
       .toc__list--doc .toc-h3 { padding-left: 2.2rem; }
+      .toc__list--doc .toc-h4 { padding-left: 3.3rem; }
       .toc-num { font-weight: 600; color: var(--psu-green-dark); margin-right: 0.2em; }
       /* Section numbers repeated in the body headings of whole-doc pages, so
          they match the TOC. Inherit the heading's colour and size; tabular
