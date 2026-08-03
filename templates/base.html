@@ -116,6 +116,22 @@
         color: var(--ink);
         margin: 1.25rem 0 0.4rem;
       }
+      /* Google's HTML export puts the resolved character style of each text
+         run on a span *inside* the heading, and cleaner.py keeps font-weight
+         from it. That span rule beats the inherited weight from the rules
+         above, so a heading whose run carries an explicit font-weight:400
+         renders unbold while its neighbours don't. Which headings get such a
+         span is not something the author controls: the exporter emits a bare
+         span for a heading Docs has split into several runs (a stale link on
+         the trailing newline is enough) and a weight-bearing class for a
+         heading that is one run. Force the heading's own weight to win. */
+      .content-card h1 span,
+      .content-card h2 span,
+      .content-card h3 span,
+      .content-card h4 span,
+      .content-card h5 span,
+      .content-card h6 span { font-weight: inherit; }
+
       .content-card p {
         margin: 0 0 1rem;
         color: var(--ink);
