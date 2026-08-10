@@ -1,7 +1,6 @@
 {
   "accreditation": "about",
   "advising": "about",
-  "ap-ib-credits": "undergraduate",
   "artificial-intelligence-certificate": "graduate",
   "biomedical-informatics": "graduate",
   "bs-in-ai": "undergraduate",
@@ -19,7 +18,6 @@
   "graduate-admission": "graduate",
   "graduate-courses": "graduate",
   "graduate-prep-program": "graduate",
-  "honors-track": "undergraduate",
   "mecop-internship": "undergraduate",
   "minor-in-ai": "undergraduate",
   "minor-in-cs": "undergraduate",
