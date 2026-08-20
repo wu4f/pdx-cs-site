@@ -1,10 +1,12 @@
 {
   "accreditation": "about",
   "advising": "about",
+  "advising-notvisible": "ignore",
   "artificial-intelligence-certificate": "graduate",
   "biomedical-informatics": "graduate",
   "bs-in-ai": "undergraduate",
   "bs-in-cs": "undergraduate",
+  "bs-ms-in-cs": "undergraduate",
   "capstone": "undergraduate",
   "course-schedules": "about",
   "cs-graduate-student-handbook-2026-27": "graduate",
