@@ -173,12 +173,12 @@ _SOURCE_URL = f"{BASE_URL}/term/termSelection?mode=search"
 _SOURCE_NOTE = f"""\
 <div class="sched-note">
   <p>
-    These listings come from the class schedule from Portland State's Banner site.  Building and room 
-    assignments are not included, but can be looked up by visiting PSU's 
-    <a href="{_SOURCE_URL}" target="_blank" rel="noopener">Banner class schedule search</a>.
-    After bringing up the search page, sign in with your Portland State University account,
+    Course listings come from Portland State University's Banner site.  For building and room 
+    assignments, visit PSU's 
+    <a href="{_SOURCE_URL}" target="_blank" rel="noopener">Banner class schedule search page</a>.
+    Then, sign in with your PSU account,
     pick a term, and search the <strong>Computer Science</strong> and
-    <strong>Artificial Intelligence</strong> subject codes which this page is built from.
+    <strong>Artificial Intelligence</strong> subject codes.
   </p>
 </div>"""
 
