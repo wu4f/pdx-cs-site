@@ -7,6 +7,8 @@ Supports two auth modes:
 Lifted and refactored from the original gdoc2site.py.
 """
 from __future__ import annotations
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 import os
 import time
 import requests
@@ -107,26 +109,100 @@ def get_revision(creds, doc_id: str) -> str:
 
 
 _EXPORT_TIMEOUT = 60  # seconds before a frozen request is killed and retried
-_EXPORT_RETRIES = 5
+_EXPORT_RETRIES = 7
+
+# The export endpoint is not the Docs API and carries its own, much tighter,
+# undocumented quota: two full builds back to back are enough to start drawing
+# 429s, and the block clears in minutes rather than seconds. So a throttle backs
+# off from 15 s while a dropped connection or a 5xx retries from 1 s — a 1 s
+# ladder gives up after half a minute of total waiting and fails the build for
+# something that would have cleared on its own.
+_THROTTLE_STATUS = {408, 429}
+_RETRYABLE_STATUS = _THROTTLE_STATUS | {500, 502, 503, 504}
+_TRANSIENT_BASE = 1.0    # 1 s, 2 s, 4 s, 8 s ...
+_THROTTLE_BASE = 15.0    # 15 s, 30 s, 60 s, 120 s ... ≈ 8 min over 7 attempts
+_BACKOFF_CAP = 120.0
+_RETRY_AFTER_CAP = 300.0  # don't stall a build for an hour on the server's say-so
+
+
+def _export_error(r: requests.Response, url: str) -> requests.HTTPError:
+    """An HTTPError that names the status, reason, and URL.
+
+    `requests.HTTPError(response=r)` carries the response but stringifies to the
+    empty string, so a failed build ended in a bare `requests.exceptions.HTTPError`
+    with no way to tell a rate limit from an expired token or a deleted doc.
+    """
+    msg = f"HTTP {r.status_code} {r.reason} from {url}"
+    body = " ".join(r.text.split())[:200]
+    return requests.HTTPError(f"{msg} — {body}" if body else msg, response=r)
+
+
+def _retry_after(r: requests.Response) -> Optional[float]:
+    """Seconds the response's Retry-After header asks for, if it has one.
+
+    The header is either a delay in seconds or an HTTP date; both forms appear
+    in the wild, so handle each and fall back to the caller's back-off ladder
+    when it's missing or unparseable.
+    """
+    value = (r.headers.get("Retry-After") or "").strip()
+    if not value:
+        return None
+    try:
+        return max(0.0, float(value))
+    except ValueError:
+        pass
+    try:
+        when = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    if when is None:
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    return max(0.0, (when - datetime.now(timezone.utc)).total_seconds())
 
 
 def export_tab_html(creds, doc_id: str, tab_id: Optional[str] = None) -> str:
-    """Download a tab (or whole doc) as HTML via the docs export endpoint."""
+    """Download a tab (or whole doc) as HTML via the docs export endpoint.
+
+    Retries throttles (429), timeouts, and 5xx with exponential back-off,
+    honouring Retry-After when the server sends one. A status that waiting
+    cannot fix — 401, 403, 404 — fails immediately rather than burning the
+    ladder on a request that will never succeed.
+    """
     url = f"https://docs.google.com/document/d/{doc_id}/export?format=html&id={doc_id}"
     if tab_id:
         url += f"&tab={tab_id}"
     headers = {"Authorization": f"Bearer {creds.token}"}
     last_exc: Exception = RuntimeError("no attempts made")
     for attempt in range(_EXPORT_RETRIES):
+        base, requested, what = _TRANSIENT_BASE, None, ""
         try:
             r = requests.get(url, headers=headers, timeout=_EXPORT_TIMEOUT)
             if r.status_code == 200:
                 return r.text
-            last_exc = requests.HTTPError(response=r)
+            last_exc = _export_error(r, url)
+            if r.status_code not in _RETRYABLE_STATUS:
+                break
+            if r.status_code in _THROTTLE_STATUS:
+                base = _THROTTLE_BASE
+            requested = _retry_after(r)
+            what = f"HTTP {r.status_code}"
         except requests.exceptions.Timeout as e:
-            print(f"  [warn] tab export timed out (attempt {attempt + 1}/{_EXPORT_RETRIES}), retrying...")
-            last_exc = e
+            last_exc, what = e, "timed out"
         except requests.exceptions.RequestException as e:
-            last_exc = e
-        time.sleep(2 ** attempt)  # exponential back-off: 1 s, 2 s, 4 s, 8 s ...
+            last_exc, what = e, type(e).__name__
+
+        if attempt == _EXPORT_RETRIES - 1:
+            break  # nothing left to wait for
+        delay = (
+            min(requested, _RETRY_AFTER_CAP)
+            if requested is not None
+            else min(base * 2 ** attempt, _BACKOFF_CAP)
+        )
+        print(
+            f"  [warn] tab export {what} (attempt {attempt + 1}/{_EXPORT_RETRIES}), "
+            f"retrying in {delay:.0f}s..."
+        )
+        time.sleep(delay)
     raise last_exc

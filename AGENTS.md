@@ -63,8 +63,10 @@ Two strategies, selected per-doc in `content.yaml`:
 
 | splitter | unit of split |
 |---|---|
-| `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint, then `cleaner.clean_exported_html()` strips Google's wrapper markup and returns `(body_html, style_html, plain_text)`. 60 s timeout, up to 5 retries (exponential back-off) |
+| `tabs` | one Google Doc tab → one Section; exports via Drive HTML endpoint, then `cleaner.clean_exported_html()` strips Google's wrapper markup and returns `(body_html, style_html, plain_text)`. 60 s timeout, up to 7 retries |
 | `whole` | entire doc → one Section; renders the Docs API structural elements with a minimal in-house renderer in `whole_splitter.py` (paragraphs, text runs, headings, lists, tables; images/inline objects are skipped). Also fetches one HTML export per tab, but only to read list glyphs out of its stylesheet — see below |
+
+Export throttling: the HTML export endpoint (`gdocs.export_tab_html`) is not the Docs API and has its own, much tighter, undocumented quota — two full builds back to back are enough to start drawing 429s, and the block clears in minutes rather than seconds. So 429/408 back off from 15 s (15/30/60/120…, capped at 120 s, ≈ 8 minutes over 7 attempts) while timeouts, connection errors, and 5xx retry from 1 s; a `Retry-After` header wins over the ladder, capped at 300 s so a build can't stall for an hour. 401/403/404 fail immediately — waiting can't fix them. Errors are raised via `_export_error()`, which puts the status, reason, and URL in the message; plain `requests.HTTPError(response=r)` stringifies to nothing and makes a failed build unreadable.
 
 Line breaks: the Docs API ends every paragraph with `\n` and represents a soft break (Shift+Enter) as `\v`. Both become `<br/>`, then `_strip_trailing_br()` drops the run of breaks at the end of each paragraph, heading, list item, and cell — otherwise every block ends with a dangling blank line on top of its own bottom margin.
 
