@@ -164,6 +164,29 @@ def _build_table(courses: list[dict]) -> str:
     )
 
 
+# Where the data on this page comes from, and the one thing it can't show:
+# Banner returns meeting days and times to an anonymous caller but withholds
+# building and room, so anyone who needs those has to go to the source signed
+# in. Built from BASE_URL so the link can't drift from the endpoints we fetch.
+_SOURCE_URL = f"{BASE_URL}/term/termSelection?mode=search"
+
+_SOURCE_NOTE = f"""\
+<div class="sched-note">
+  <p>
+    These listings come from PSU's
+    <a href="{_SOURCE_URL}" target="_blank" rel="noopener">Banner class schedule search</a>
+    and are refreshed each time this site is rebuilt.
+  </p>
+  <p>
+    <strong>Building and room assignments are not shown here.</strong> To look them
+    up, open the search above, sign in with your Portland State University account,
+    pick a term, and search the <strong>Computer Science</strong> and
+    <strong>Artificial Intelligence</strong> subjects — the same two subject codes
+    this page is built from.
+  </p>
+</div>"""
+
+
 def _build_body(term_data: list[tuple[str, list[dict]]]) -> str:
     tab_btns = []
     tab_panels = []
@@ -187,6 +210,7 @@ def _build_body(term_data: list[tuple[str, list[dict]]]) -> str:
     panels = "\n  ".join(tab_panels)
     return f"""\
 <h1>Course Schedules</h1>
+{_SOURCE_NOTE}
 <div class="sched-tabs">
   <div class="sched-tab-btns">
     {btns}
@@ -232,6 +256,15 @@ _STYLE = """\
   border-color: var(--psu-green-dark);
 }
 .content-card { max-width: 100%; }
+.sched-note {
+  margin: 0 0 1.75rem;
+  padding: 0.9rem 1.15rem;
+  border-left: 4px solid var(--psu-green);
+  background: var(--psu-green-light);
+  border-radius: 0 6px 6px 0;
+}
+.sched-note p { margin: 0; }
+.sched-note p + p { margin-top: 0.6rem; }
 </style>"""
 
 
