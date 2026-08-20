@@ -54,14 +54,21 @@ def build_nav_groups(
     sections: list[Section],
     exclude_ids: list[str] | None = None,
 ) -> list[tuple[str, list[Section]]]:
-    """Group sections by category in canonical display order, omitting exclude_ids."""
+    """Group sections by category in canonical display order, omitting exclude_ids.
+
+    Within a category, sections keep the order they arrive in — which is source
+    order: the Google Doc's own tab order (the Docs API returns `tabs` top-to-bottom
+    as they appear in the tab pane), then one entry per whole-doc, in `content.yaml`
+    `docs[]` order. So the way to reorder a dropdown or a landing-page column is to
+    drag the tab in the Doc; only order *within* a category matters, since sections
+    are bucketed by category first. Sorting here instead (e.g. by title) would
+    override that and take the control away from the doc author.
+    """
     skip = set(exclude_ids or [])
     by_cat: dict[str, list[Section]] = defaultdict(list)
     for s in sections:
         if s.id not in skip:
             by_cat[s.category or "other"].append(s)
-    for items in by_cat.values():
-        items.sort(key=lambda s: s.title.lower())
     ordered = [(c, by_cat[c]) for c in CATEGORY_ORDER if c in by_cat]
     extras = sorted(c for c in by_cat if c not in CATEGORY_ORDER)
     ordered += [(c, by_cat[c]) for c in extras]
