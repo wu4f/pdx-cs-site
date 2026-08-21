@@ -916,7 +916,7 @@ CHAT_UI = r"""<!DOCTYPE html>
     <p>I can answer questions about the PSU CS department's programs, courses, faculty, and student resources, drawn directly from the official Google Doc handbook and the department's site content.</p>
     <div class="suggestions" role="group" aria-label="Example questions">
       <!-- Keep in sync with the quick-ask chips in templates/landing.html. -->
-      <button class="suggestion" onclick="askSuggestion('What AI courses have been offered in the last year?')">AI courses</button>
+      <button class="suggestion" onclick="askSuggestion('What AI courses are being offered next quarter?')">AI courses</button>
       <button class="suggestion" onclick="askSuggestion('What AI degrees and certificates do you offer?')">AI degrees</button>
       <button class="suggestion" onclick="askSuggestion('What advising is available to CS students?')">Advising</button>
       <button class="suggestion" onclick="askSuggestion('What cybersecurity degrees and certificates do you offer?')">Cybersecurity degrees</button>
