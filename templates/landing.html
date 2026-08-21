@@ -329,7 +329,9 @@
       <button id="askBtn" type="submit">Ask <span aria-hidden="true">→</span></button>
     </form>
 
+    <!-- Keep in sync with the suggestion chips in server/app.py's /ask UI. -->
     <div class="quick-asks" role="group" aria-label="Example questions">
+      <button class="quick-ask" onclick="quickAsk('What AI courses have been offered in the last year?')">AI courses</button>
       <button class="quick-ask" onclick="quickAsk('What AI degrees and certificates do you offer?')">AI degrees</button>
       <button class="quick-ask" onclick="quickAsk('What advising is available to CS students?')">Advising</button>
       <button class="quick-ask" onclick="quickAsk('What cybersecurity degrees and certificates do you offer?')">Cybersecurity degrees</button>

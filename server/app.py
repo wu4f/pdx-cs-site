@@ -915,11 +915,12 @@ CHAT_UI = r"""<!DOCTYPE html>
     <h1><span class="badge" aria-label="AI assistant">AI</span> Ask the CS Assistant</h1>
     <p>I can answer questions about the PSU CS department's programs, courses, faculty, and student resources, drawn directly from the official Google Doc handbook and the department's site content.</p>
     <div class="suggestions" role="group" aria-label="Example questions">
+      <!-- Keep in sync with the quick-ask chips in templates/landing.html. -->
+      <button class="suggestion" onclick="askSuggestion('What AI courses have been offered in the last year?')">AI courses</button>
       <button class="suggestion" onclick="askSuggestion('What AI degrees and certificates do you offer?')">AI degrees</button>
       <button class="suggestion" onclick="askSuggestion('What advising is available to CS students?')">Advising</button>
       <button class="suggestion" onclick="askSuggestion('What cybersecurity degrees and certificates do you offer?')">Cybersecurity degrees</button>
-      <button class="suggestion" onclick="askSuggestion('What is the Discover CS cohort?')">Discover CS</button>
-      <button class="suggestion" onclick="askSuggestion('What internship options exist for graduate students?')">Internships</button>
+      <button class="suggestion" onclick="askSuggestion('Tell me about the Discover CS cohort.')">Discover CS</button>
     </div>
   </div>
 
