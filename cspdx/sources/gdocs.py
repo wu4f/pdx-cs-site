@@ -114,13 +114,13 @@ _EXPORT_RETRIES = 7
 # The export endpoint is not the Docs API and carries its own, much tighter,
 # undocumented quota: two full builds back to back are enough to start drawing
 # 429s, and the block clears in minutes rather than seconds. So a throttle backs
-# off from 15 s while a dropped connection or a 5xx retries from 1 s — a 1 s
+# off from 5 s while a dropped connection or a 5xx retries from 1 s — a 1 s
 # ladder gives up after half a minute of total waiting and fails the build for
 # something that would have cleared on its own.
 _THROTTLE_STATUS = {408, 429}
 _RETRYABLE_STATUS = _THROTTLE_STATUS | {500, 502, 503, 504}
 _TRANSIENT_BASE = 1.0    # 1 s, 2 s, 4 s, 8 s ...
-_THROTTLE_BASE = 15.0    # 15 s, 30 s, 60 s, 120 s ... ≈ 8 min over 7 attempts
+_THROTTLE_BASE = 5.0     # 5 s, 10 s, 20 s, 40 s, 80 s, 120 s ...
 _BACKOFF_CAP = 120.0
 _RETRY_AFTER_CAP = 300.0  # don't stall a build for an hour on the server's say-so
 
