@@ -419,6 +419,7 @@
     ANSWER_BOX.classList.add('show');
     ANSWER_BODY.innerHTML = '<p><span class="loading"></span> Thinking…</p>';
     BTN.disabled = true;
+    let full = '';
     try {
       const res = await fetch('{{ base_href }}ask', {
         method: 'POST',
@@ -426,8 +427,24 @@
         body: JSON.stringify({question: q})
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      ANSWER_BODY.innerHTML = mdToHtml(data.answer || '(no answer)');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      outer: while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, {stream: true});
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6);
+          if (raw === '[DONE]') break outer;
+          full += JSON.parse(raw);
+          ANSWER_BODY.innerHTML = mdToHtml(full);
+        }
+      }
+      if (!full) ANSWER_BODY.innerHTML = '<p>(no answer)</p>';
     } catch (e) {
       ANSWER_BODY.innerHTML = '<p style="color:#a33">Sorry, something went wrong: ' + e.message + '</p>';
     } finally {
