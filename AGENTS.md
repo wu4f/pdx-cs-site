@@ -20,7 +20,8 @@ python -m cspdx.cli build --skip-unchanged
 # calls; does refetch the course schedule from Banner — add --no-schedule to skip)
 python -m cspdx.cli render-landing
 
-# Refresh only the course schedule page from Banner (no Google Docs fetch)
+# Refresh only the course schedule page from Banner (no Google Docs fetch); also
+# rewrites the schedule text in sections.json and reloads the chat server
 python -m cspdx.cli render-schedule
 
 # Regenerate sitemap.xml and robots.txt from an existing sections.json (no Google API calls)
@@ -99,6 +100,8 @@ Both pages share a sticky two-row header: brand/CTA row + a horizontal category 
 Fetches the 8 most recent terms from Banner SSB (`app.banner.pdx.edu`) and renders a tabbed HTML table page via `templates/base.html` → `build/site/course-schedules/index.html`. Each term fetches both **CS** and **AI** subject codes by making a separate Banner SSB request per subject (each with its own `_establish_session` call), then merging the results. A single session cannot be reused across subjects — Banner carries subject state server-side and returns stale results if the session is reused. It shares the same nav bar as all other section pages. The page is generated automatically at the end of `cspdx build` (skip with `--no-schedule`); it can also be refreshed independently without a full rebuild via `cspdx render-schedule`.
 
 `sections.json` also carries a placeholder `course-schedules` section — a near-empty Google Doc tab ("do not modify") that exists only so the schedule gets a nav entry and a landing-page card like every other page. Its `url_path` is `/course-schedules/`, so any command that calls `render_sections()` over all sections writes that stub to the *same path* the generated page occupies. `cmd_build` and `cmd_render_landing` therefore both run `generate_schedule_page()` afterwards to overwrite it; `render-landing` accepts `--no-schedule` to skip the Banner fetch, at the cost of leaving the stub in place. `cmd_render_sections` has no such follow-up, so `render-sections` does clobber the schedule page — run `render-schedule` after it.
+
+**Schedule → chat context.** `generate_schedule_page()` returns a plain-text rendering of the same `term_data` it just put in the table (`_build_context_text()`, one line per section via `_context_line()`, built from `_row_values()` so page and context cannot drift). `apply_schedule_text()` writes that onto the `course-schedules` section's `.text`, and both `cmd_build` and `cmd_render_schedule` call it *before* `dump_sections()` — build order already cooperates, since the schedule page is generated well before `sections.json` is written. Eight terms is ~16k tokens against ~62k of Doc text, so every term is included rather than just the current one. Two details worth keeping: (1) the replacement runs even when the Banner fetch fails or `--no-schedule` is set, because the alternative is leaving the tab's "do not modify (will be overwritten…)" note in the context as a citable section; (2) `cmd_render_schedule` re-writes `sections.json` and POSTs `/admin/reload` (suppress with `--no-reload`), or a standalone schedule refresh would leave the chatbot answering from the last full build while the page shows something newer. `SYSTEM_INSTRUCTION` in `chat/rag.py` tells the model this section is authoritative for CRNs/times/instructors, to state the retrieval date, and to refuse to guess a room — Banner gives meeting days and times to an anonymous caller but not building or room.
 
 ### Sitemap and robots (`cspdx/sitemap.py`)
 

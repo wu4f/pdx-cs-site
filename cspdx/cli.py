@@ -16,7 +16,7 @@ from .sources import gdocs, tab_splitter, whole_splitter
 from .categorize import categorize_sections
 from .render.page import render_sections
 from .render.landing import render_landing
-from .schedule import generate_schedule_page
+from .schedule import generate_schedule_page, apply_schedule_text, SCHEDULE_SECTION_ID
 from .sitemap import generate_sitemap, generate_robots_txt
 
 
@@ -140,10 +140,11 @@ def cmd_build(args):
     if copied:
         print(f"[build] copied {copied} static file(s) from {static_dir}/ -> {site_dir}/")
 
+    schedule_text = None
     if not args.no_schedule:
         try:
             print("[build] generating course schedule page...")
-            generate_schedule_page(
+            schedule_text = generate_schedule_page(
                 site_dir / "course-schedules" / "index.html",
                 template_path=template,
                 base_href=base_href,
@@ -152,6 +153,13 @@ def cmd_build(args):
             )
         except Exception as exc:
             print(f"[build] WARNING: schedule generation failed: {exc}", flush=True)
+
+    # Give the chatbot the actual offerings. Runs unconditionally — with
+    # --no-schedule or after a failed fetch this only strips the placeholder
+    # tab's "do not modify" note, which is worse than useless as context.
+    if apply_schedule_text(active_sections, schedule_text):
+        detail = f"{len(schedule_text)} chars" if schedule_text else "placeholder text"
+        print(f"[build] course schedule -> chat context ({detail})")
 
     sitemap_base = generate_sitemap(
         active_sections,
@@ -198,13 +206,34 @@ def cmd_render_schedule(args):
     site_dir = Path(args.out) / "site"
     out_path = site_dir / "course-schedules" / "index.html"
 
-    generate_schedule_page(
+    schedule_text = generate_schedule_page(
         out_path,
         template_path=template,
         base_href=base_href,
         nav_sections=active_sections,
         nav_exclude_ids=[],
     )
+
+    # Refresh the chatbot too, or the bot keeps answering from the schedule the
+    # last full build saw while the page shows a newer one. Mirrors cmd_build:
+    # sections.json holds the active sections only.
+    if apply_schedule_text(active_sections, schedule_text):
+        dump_sections(active_sections, sections_path)
+        print(
+            f"[render-schedule] course schedule -> chat context "
+            f"({len(schedule_text)} chars); wrote {len(active_sections)} "
+            f"sections to {sections_path}"
+        )
+        if args.no_reload:
+            print("[render-schedule] --no-reload set; not notifying the chat server")
+        else:
+            ok, msg = reload_chat(reload_url=args.reload_url)
+            print(f"[render-schedule] {msg}")
+    else:
+        print(
+            f"[render-schedule] WARNING: no {SCHEDULE_SECTION_ID!r} section in "
+            f"{sections_path}; chat context left unchanged"
+        )
 
 
 def cmd_render_sitemap(args):
@@ -393,6 +422,17 @@ def main(argv=None):
         "--base-href",
         default=None,
         help='Value for the <base> tag (default from content.yaml or "/").',
+    )
+    psc.add_argument(
+        "--no-reload",
+        action="store_true",
+        help="Don't POST to the chat server's /admin/reload after refreshing.",
+    )
+    psc.add_argument(
+        "--reload-url",
+        default=None,
+        help="Chat server reload endpoint (default $CSPDX_RELOAD_URL or "
+             "http://127.0.0.1:8080/admin/reload).",
     )
     psc.set_defaults(func=cmd_render_schedule)
 

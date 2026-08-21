@@ -6,9 +6,10 @@ Written to build/site/course-schedule/index.html, overwriting whatever
 the Google Doc tab produced for that slug.
 """
 from __future__ import annotations
+from datetime import datetime, timezone
 import html
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import jinja2
 import requests
@@ -183,6 +184,77 @@ _SOURCE_NOTE = f"""\
 </div>"""
 
 
+# The slug of the placeholder Google Doc tab that owns /course-schedules/.
+# The generated page overwrites that tab's HTML; _build_context_text() likewise
+# replaces its text, so the chatbot sees the actual offerings instead of the
+# tab's "do not modify" maintenance note.
+SCHEDULE_SECTION_ID = "course-schedules"
+
+
+def _context_line(course: dict) -> str:
+    """One course section as a single compact line for the chat context.
+
+    Built from _row_values() so the text the chatbot reads can never drift from
+    the table the page shows. Blank meeting times and instructors are spelled
+    out rather than left empty — an empty field reads as missing data and
+    invites the model to guess.
+    """
+    crn, course_id, seq, title, credits, days, time_str, instructor = _row_values(course)
+    when = f"{days} {time_str}".strip() or "no scheduled meeting time"
+    unit = "credit" if credits == "1" else "credits"
+    return (
+        f"{course_id} sec {seq} | CRN {crn} | {title} | "
+        f"{credits} {unit} | {when} | {instructor or 'instructor TBA'}"
+    )
+
+
+def _build_context_text(term_data: list[tuple[str, list[dict]]]) -> str:
+    """Plain-text rendering of the schedule for the chatbot's context.
+
+    Roughly 13k tokens for eight terms — a fifth of the Doc text already in the
+    context, so every term is included rather than just the current one. The
+    header states what the data is and what it lacks, because the model is
+    otherwise happy to infer a room number from a building-shaped blank.
+    """
+    as_of = datetime.now(timezone.utc).strftime("%B %d, %Y")
+    lines = [
+        "CS and AI course schedules from Portland State University's Banner "
+        f"registration system, retrieved {as_of}.",
+        "",
+        "One line per course section, in the format:",
+        "  SUBJECT NUMBER sec SECTION | CRN | title | credits | meeting days and "
+        "time | instructor",
+        "Days are abbreviated M T W R (Thursday) F S U, and times are 24-hour.",
+        "Building and room assignments are NOT available here; direct anyone who "
+        f"asks for a room to {_SOURCE_URL}, where they can sign in with a PSU "
+        "account and search the Computer Science and Artificial Intelligence subjects.",
+    ]
+    for desc, courses in term_data:
+        lines += ["", f"== {desc} — {len(courses)} section(s) ==", ""]
+        lines += [_context_line(c) for c in courses]
+    return "\n".join(lines)
+
+
+def apply_schedule_text(sections, context_text: Optional[str]) -> bool:
+    """Point the `course-schedules` section's chat text at the Banner data.
+
+    `context_text` is None when the Banner fetch failed. The placeholder text is
+    still replaced in that case: leaving "do not modify (will be overwritten by
+    generated course-schedule page)" in the context gives the chatbot a citable
+    section whose entire content is a note to the doc's maintainer.
+    """
+    for s in sections:
+        if s.id == SCHEDULE_SECTION_ID:
+            s.text = context_text or (
+                "CS and AI course schedules by term are listed at /course-schedules/. "
+                "The current offerings could not be retrieved for this context; refer "
+                f"the reader to that page, or to {_SOURCE_URL} for building and room "
+                "assignments."
+            )
+            return True
+    return False
+
+
 def _build_body(term_data: list[tuple[str, list[dict]]]) -> str:
     tab_btns = []
     tab_panels = []
@@ -270,8 +342,12 @@ def generate_schedule_page(
     base_href: str = "/",
     nav_sections=None,
     nav_exclude_ids=None,
-) -> None:
-    """Fetch Banner schedule for the 3 most recent terms and render to out_path."""
+) -> str:
+    """Fetch the Banner schedule, render it to out_path, and return its chat text.
+
+    The return value is the plain-text form of the same data, for callers to
+    hand to `apply_schedule_text()` before writing sections.json.
+    """
     from .render.landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS
 
     print("[schedule] fetching available terms...", flush=True)
@@ -317,3 +393,5 @@ def generate_schedule_page(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(rendered, encoding="utf-8")
     print(f"[schedule] saved -> {out_path}", flush=True)
+
+    return _build_context_text(term_data)
