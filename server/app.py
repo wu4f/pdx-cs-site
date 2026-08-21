@@ -90,9 +90,20 @@ class AskBody(BaseModel):
 
 @app.post("/ask")
 def ask(body: AskBody):
+    import json
     if not body.question.strip():
         raise HTTPException(400, "empty question")
-    return {"answer": get_chat().answer(body.question)}
+
+    def generate():
+        for chunk in get_chat().stream_answer(body.question):
+            yield f"data: {json.dumps(chunk)}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.post("/admin/reload")
@@ -1057,6 +1068,7 @@ CHAT_UI = r"""<!DOCTYPE html>
     const placeholder = addRow('bot', '', true);
     btn.disabled = true;
     input.value = '';
+    let full = '';
     try {
       const res = await fetch('/ask', {
         method: 'POST',
@@ -1064,8 +1076,25 @@ CHAT_UI = r"""<!DOCTYPE html>
         body: JSON.stringify({question: q})
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      placeholder.innerHTML = renderMarkdown(data.answer || '(no answer)');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      outer: while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, {stream: true});
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6);
+          if (raw === '[DONE]') break outer;
+          full += JSON.parse(raw);
+          placeholder.innerHTML = renderMarkdown(full);
+          placeholder.scrollIntoView({behavior: 'smooth', block: 'end'});
+        }
+      }
+      if (!full) placeholder.innerHTML = '<em>(no answer)</em>';
     } catch (e) {
       placeholder.innerHTML = '<p style="color:#a33">Sorry, something went wrong: ' + escapeHtml(e.message) + '</p>';
     } finally {

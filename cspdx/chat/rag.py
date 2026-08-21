@@ -179,3 +179,30 @@ class ChatBackend:
                 ),
             )
         return resp.text or ""
+
+    def stream_answer(self, question: str):
+        """Yield text chunks as they arrive from the model."""
+        cache_name = self._ensure_cache()
+        if cache_name:
+            stream = self._client.models.generate_content_stream(
+                model=self.model,
+                contents=question,
+                config=types.GenerateContentConfig(
+                    cached_content=cache_name,
+                    temperature=0.2,
+                ),
+            )
+        else:
+            context = build_context_block(self._sections, self._deprio_set)
+            stream = self._client.models.generate_content_stream(
+                model=self.model,
+                contents=[f"{context}\n\n---\n\nQuestion: {question}"],
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_INSTRUCTION,
+                    temperature=0.2,
+                ),
+            )
+        for chunk in stream:
+            text = chunk.text
+            if text:
+                yield text
