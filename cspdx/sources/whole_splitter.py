@@ -401,7 +401,7 @@ def _render_table(table: dict, ctx: _Ctx) -> str:
         out += "<thead>" + "".join(head_trs) + "</thead>"
     if body_trs:
         out += "<tbody>" + "".join(body_trs) + "</tbody>"
-    return '<div class="table-wrap">' + out + "</table></div>"
+    return out + "</table>"
 
 
 def _is_continuation(p: dict, ctx: _Ctx, run: list[tuple[dict | None, float, str]]) -> bool:

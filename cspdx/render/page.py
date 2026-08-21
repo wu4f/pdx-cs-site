@@ -1,12 +1,19 @@
 """Render each Section to build/site/<id>/index.html using the existing base.html."""
 from __future__ import annotations
 import os
+import re
 from pathlib import Path
 import jinja2
 
 from ..models import Section
 from .landing import build_nav_groups, CATEGORY_LABELS, CATEGORY_ICONS, meta_description, _site_base_url
 from .toc import inject_toc
+
+
+def _wrap_tables(html: str) -> str:
+    html = re.sub(r"<table", '<div class="table-wrap"><table', html)
+    html = re.sub(r"</table>", "</table></div>", html)
+    return html
 
 
 def render_sections(
@@ -39,7 +46,7 @@ def render_sections(
             else f"Information about {s.title} for the Department of Computer Science at Portland State University."
         )
         html = tpl.render(
-            title=s.title, body=inject_toc(s.html, url_path=s.url_path), style=s.style, base_href=base_href,
+            title=s.title, body=inject_toc(_wrap_tables(s.html), url_path=s.url_path), style=s.style, base_href=base_href,
             nav_groups=nav_groups,
             cat_labels=CATEGORY_LABELS,
             cat_icons=CATEGORY_ICONS,
