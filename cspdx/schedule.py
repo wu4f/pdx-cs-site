@@ -158,10 +158,12 @@ def _build_table(courses: list[dict]) -> str:
         rows.append(f"<tr>{cells}</tr>")
     tbody = "\n".join(rows)
     return (
+        f'<div class="table-wrap">'
         f"<table>"
         f"<thead><tr>{thead_cells}</tr></thead>"
         f"<tbody>{tbody}</tbody>"
         f"</table>"
+        f"</div>"
     )
 
 

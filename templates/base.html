@@ -166,13 +166,15 @@
       .content-card a:hover { color: #062a66; }
 
       /* ---- Tables ---- */
+      .content-card .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem 0 1.5rem;
+      }
       .content-card table {
         width: 100%;
         border-collapse: collapse;
-        margin: 1rem 0 1.5rem;
         font-size: 0.93rem;
-        overflow-x: auto;
-        display: block;
       }
       .content-card thead th {
         background: var(--psu-green-dark);
