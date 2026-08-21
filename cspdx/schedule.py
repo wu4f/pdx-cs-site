@@ -331,8 +331,12 @@ _STYLE = """\
   background: var(--psu-green-light);
   border-radius: 0 6px 6px 0;
 }
-.sched-note p { margin: 0; }
-.sched-note p + p { margin-top: 0.6rem; }
+/* Scoped to .content-card to outrank its own `.content-card p` rule: this
+   block is injected into <head> ahead of base.html's, and at equal specificity
+   the later rule wins — leaving a 1rem paragraph margin stacked under the
+   note's bottom padding. */
+.content-card .sched-note p { margin: 0; }
+.content-card .sched-note p + p { margin-top: 0.6rem; }
 </style>"""
 
 
