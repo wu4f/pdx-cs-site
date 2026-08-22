@@ -23,7 +23,7 @@ def split(creds, doc_id: str, doc_name: str = "") -> Iterator[Section]:
         title = props.get("title", "").strip() or "untitled"
 
         if i > 0:
-            time.sleep(3)
+            time.sleep(5)
         raw = gdocs.export_tab_html(creds, doc_id, tab_id)
         body_html, style_html, text = clean_exported_html(raw)
 
