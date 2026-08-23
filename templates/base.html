@@ -206,6 +206,55 @@
          wrap instead of forcing a horizontal scroll. */
       .content-card .doc-table thead th { white-space: normal; }
 
+      /* ---- No-more-tables: stack rows as labelled cards on narrow screens ---- */
+      @media only screen and (max-width: 600px) {
+        .content-card .table-wrap:has(table.pinned-header) {
+          overflow-x: visible;
+        }
+        .content-card .table-wrap table.pinned-header,
+        .content-card .table-wrap table.pinned-header thead,
+        .content-card .table-wrap table.pinned-header tbody,
+        .content-card .table-wrap table.pinned-header th,
+        .content-card .table-wrap table.pinned-header td,
+        .content-card .table-wrap table.pinned-header tr { display: block; }
+
+        .content-card .table-wrap table.pinned-header thead tr {
+          position: absolute;
+          top: -9999px;
+          left: -9999px;
+        }
+        .content-card .table-wrap table.pinned-header tr {
+          border: 1px solid var(--border);
+          margin-bottom: 0.75rem;
+          border-radius: var(--radius-sm);
+          overflow: hidden;
+        }
+        .content-card .table-wrap table.pinned-header td {
+          border: none;
+          border-bottom: 1px solid var(--border);
+          position: relative;
+          padding: 6px 10px 6px 42%;
+          white-space: normal;
+          text-align: left;
+        }
+        .content-card .table-wrap table.pinned-header td:last-child { border-bottom: none; }
+        .content-card .table-wrap table.pinned-header td:before {
+          position: absolute;
+          top: 6px;
+          left: 8px;
+          width: 38%;
+          padding-right: 8px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-weight: 600;
+          font-size: 0.82rem;
+          color: var(--ink-soft);
+          content: attr(data-title);
+        }
+        .content-card .table-wrap table.pinned-header tr:nth-child(even) td { background: transparent; }
+      }
+
       /* ---- Footer ---- */
       .site-footer {
         background: var(--psu-green-dark);
@@ -327,6 +376,19 @@
 
     <script>
     {% include 'partials/nav_js.html' %}
+    </script>
+    <script>
+    document.querySelectorAll('.table-wrap table.pinned-header').forEach(function(table) {
+      var headers = [];
+      table.querySelectorAll('thead th').forEach(function(th) {
+        headers.push(th.innerText.trim());
+      });
+      table.querySelectorAll('tbody tr').forEach(function(row) {
+        row.querySelectorAll('td').forEach(function(td, i) {
+          if (headers[i]) td.setAttribute('data-title', headers[i]);
+        });
+      });
+    });
     </script>
     <script type="application/ld+json">
     {

@@ -3,8 +3,8 @@
 Renders every body (root + tabs) with a minimal in-house renderer, which
 handles the common subset of structural elements: paragraphs, text runs
 (bold/italic/underline/links), headings, lists (ordered and unordered, nested
-to any depth), and tables (including merged cells and nested tables).
-Images/inline objects are skipped; extend as needed.
+to any depth), tables (including merged cells and nested tables), and
+horizontal rules. Images/inline objects are skipped; extend as needed.
 """
 from __future__ import annotations
 import re
@@ -359,6 +359,7 @@ def _render_table(table: dict, ctx: _Ctx) -> str:
         if not (row.get("tableRowStyle") or {}).get("tableHeader"):
             break
         header_rows.add(i)
+    pinned = bool(header_rows)  # author explicitly marked a header row
     # Google Docs only sets tableHeader when the author pins a header row, which
     # most docs never do. Fall back to treating the first row as the header so
     # screen readers get a <th scope="col"> to announce per column.
@@ -396,7 +397,10 @@ def _render_table(table: dict, ctx: _Ctx) -> str:
 
     # .doc-table lets the stylesheet relax the nowrap header rule that the
     # (short-headed) schedule tables rely on; doc headers are prose-length.
-    out = '<table class="doc-table">'
+    # .pinned-header signals that the author explicitly pinned the header row
+    # in Google Docs, enabling the no-more-tables stacking layout on mobile.
+    cls = "doc-table pinned-header" if pinned else "doc-table"
+    out = f'<table class="{cls}">'
     if head_trs:
         out += "<thead>" + "".join(head_trs) + "</thead>"
     if body_trs:
@@ -431,16 +435,24 @@ def _walk_elements(body_content: list[dict], ctx: _Ctx) -> Iterator[str]:
     for el in body_content:
         if "paragraph" in el:
             p = el["paragraph"]
+            elems = p.get("elements", [])
+            # Horizontal rule: a paragraph whose elements include a horizontalRule.
+            if any("horizontalRule" in e for e in elems):
+                if run:
+                    yield _render_list(ctx, run)
+                    run = []
+                yield "<hr>"
+                continue
             # Detect list items by presence of bullet
             if p.get("bullet"):
-                inner = "".join(_render_text_run(e) for e in p.get("elements", []))
+                inner = "".join(_render_text_run(e) for e in elems)
                 run.append((p["bullet"], _indent(p, ctx), _strip_trailing_br(inner)))
                 continue
             if run and _is_continuation(p, ctx, run):
                 # A blank indented line is Docs' paragraph spacing, not
                 # content; skip it without breaking the run.
                 if any(e.get("textRun", {}).get("content", "").strip()
-                       for e in p.get("elements", [])):
+                       for e in elems):
                     run.append((None, _indent(p, ctx), _render_paragraph(p)))
                 continue
             if run:
