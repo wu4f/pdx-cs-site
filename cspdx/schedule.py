@@ -159,7 +159,7 @@ def _build_table(courses: list[dict]) -> str:
     tbody = "\n".join(rows)
     return (
         f'<div class="table-wrap">'
-        f"<table>"
+        f'<table class="doc-table pinned-header">'
         f"<thead><tr>{thead_cells}</tr></thead>"
         f"<tbody>{tbody}</tbody>"
         f"</table>"
