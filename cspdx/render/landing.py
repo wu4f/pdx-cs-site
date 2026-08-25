@@ -8,8 +8,7 @@ import jinja2
 from ..models import Section
 
 _LANDING_DESCRIPTION = (
-    "Portland State University Department of Computer Science: undergraduate, "
-    "graduate, and student resources, plus an AI assistant trained on department content."
+    "Portland State University's Artificial Intelligence, Cybersecurity, and Computer Science degrees and programs."
 )
 
 
