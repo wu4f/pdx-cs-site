@@ -171,7 +171,7 @@ def _build_table(courses: list[dict]) -> str:
 # Banner returns meeting days and times to an anonymous caller but withholds
 # building and room, so anyone who needs those has to go to the source signed
 # in. Built from BASE_URL so the link can't drift from the endpoints we fetch.
-_SOURCE_URL = f"{BASE_URL}/term/termSelection?mode=search"
+_SOURCE_URL = f"{BASE_URL}/login"
 
 _SOURCE_NOTE = f"""\
 <div class="sched-note">
