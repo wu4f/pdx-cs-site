@@ -18,6 +18,7 @@ from .render.page import render_sections
 from .render.landing import render_landing
 from .schedule import generate_schedule_page, apply_schedule_text, SCHEDULE_SECTION_ID
 from .sitemap import generate_sitemap, generate_robots_txt
+from .llms import generate_llms_txt, generate_llms_full_txt
 
 
 SPLITTERS = {
@@ -36,6 +37,16 @@ def _copy_static(static_dir: Path, site_dir: Path) -> int:
         return 0
     shutil.copytree(static_dir, site_dir, dirs_exist_ok=True)
     return sum(1 for p in static_dir.rglob("*") if p.is_file())
+
+
+def _write_llms(sections: list[Section], site_dir: Path, tag: str, *,
+                include_schedule: bool = True) -> None:
+    """Write llms.txt + llms-full.txt. Needs the schedule text already applied."""
+    n = generate_llms_txt(sections, site_dir / "llms.txt",
+                          include_schedule=include_schedule)
+    size = generate_llms_full_txt(sections, site_dir / "llms-full.txt",
+                                  include_schedule=include_schedule)
+    print(f"[{tag}] wrote llms.txt ({n} pages) and llms-full.txt ({size} chars)")
 
 
 def cmd_build(args):
@@ -170,6 +181,7 @@ def cmd_build(args):
     print(f"[build] wrote sitemap.xml ({sitemap_count} URLs, base={sitemap_base})")
     generate_robots_txt(site_dir / "robots.txt")
     print(f"[build] wrote robots.txt (Sitemap: {sitemap_base}/sitemap.xml)")
+    _write_llms(active_sections, site_dir, "build", include_schedule=not args.no_schedule)
 
     dump_sections(active_sections, str(out_dir / "sections.json"))
     print(f"[build] wrote {len(active_sections)} sections to {out_dir}/sections.json")
@@ -224,6 +236,7 @@ def cmd_render_schedule(args):
             f"({len(schedule_text)} chars); wrote {len(active_sections)} "
             f"sections to {sections_path}"
         )
+        _write_llms(active_sections, site_dir, "render-schedule")
         if args.no_reload:
             print("[render-schedule] --no-reload set; not notifying the chat server")
         else:
@@ -237,7 +250,7 @@ def cmd_render_schedule(args):
 
 
 def cmd_render_sitemap(args):
-    """Regenerate sitemap.xml and robots.txt from an existing sections.json."""
+    """Regenerate sitemap.xml, robots.txt, and the llms files from sections.json."""
     cfg = yaml.safe_load(Path(args.config).read_text())
     sections_path = args.sections or str(Path(args.out) / "sections.json")
     if not Path(sections_path).exists():
@@ -260,6 +273,8 @@ def cmd_render_sitemap(args):
     print(f"[render-sitemap] wrote sitemap.xml ({sitemap_count} URLs, base={sitemap_base})")
     generate_robots_txt(site_dir / "robots.txt")
     print(f"[render-sitemap] wrote robots.txt (Sitemap: {sitemap_base}/sitemap.xml)")
+    _write_llms(active_sections, site_dir, "render-sitemap",
+                include_schedule=not args.no_schedule)
 
 
 def cmd_render_landing(args):
@@ -438,7 +453,8 @@ def main(argv=None):
 
     psi = sub.add_parser(
         "render-sitemap",
-        help="Regenerate sitemap.xml and robots.txt from an existing sections.json. No Google fetch.",
+        help="Regenerate sitemap.xml, robots.txt, llms.txt, and llms-full.txt from an "
+             "existing sections.json. No Google fetch.",
     )
     psi.add_argument("--config", default="content.yaml")
     psi.add_argument("--out", default="build")
@@ -450,7 +466,7 @@ def main(argv=None):
     psi.add_argument(
         "--no-schedule",
         action="store_true",
-        help="Omit /course-schedules/ from the sitemap.",
+        help="Omit /course-schedules/ from the sitemap and llms files.",
     )
     psi.set_defaults(func=cmd_render_sitemap)
 
