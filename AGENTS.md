@@ -87,7 +87,7 @@ Mobile table behaviour (`templates/base.html`): `html { overflow-x: hidden }` cl
 
 ### Categorization (`cspdx/categorize.py`)
 
-Looks up each section's slug in `build/category.json` (slug → category) — the only file under `build/` that is committed to git. Five allowed categories: `about`, `undergraduate`, `graduate`, `resources`, and `ignore`. Slugs absent from the file default to `ignore` (`DEFAULT_CATEGORY`) and are written back for manual review — a new Doc tab stays unpublished until someone gives it a real category. A slug whose recorded category isn't in `categories.allowed` is also treated as `ignore`, with a warning. No LLM calls; edit `build/category.json` directly to reclassify a section.
+Looks up each section's slug in `build/category.json` (slug → category) — the only file under `build/` that is committed to git. Five visible categories are allowed: `about`, `computer-science`, `artificial-intelligence`, `cybersecurity`, and `students`, plus `ignore` for unpublished content. Slugs absent from the file default to `ignore` (`DEFAULT_CATEGORY`) and are written back for manual review — a new Doc tab stays unpublished until someone gives it a real category. A slug whose recorded category isn't in `categories.allowed` is also treated as `ignore`, with a warning. No LLM calls; edit `build/category.json` directly to reclassify a section.
 
 Sections with category `ignore` have their HTML pages rendered (so existing URLs keep working) but are excluded from the landing page, the nav bar on every section page, and `sections.json` (so the chatbot never sees them).
 
@@ -158,7 +158,7 @@ Chat backend (`cspdx/chat/rag.py`) is lazy-loaded on the first `/ask` request. I
 Single declarative config that drives the entire pipeline:
 
 - `docs[]` — which Google Doc IDs to fetch and which splitter to use
-- `categories.allowed` — valid category slugs (`about`, `undergraduate`, `graduate`, `resources`, `ignore`)
+- `categories.allowed` — valid category slugs (`about`, `computer-science`, `artificial-intelligence`, `cybersecurity`, `students`, `ignore`)
 - `templates.page` — path to the Jinja2 section template
 - `chat.model` — Gemini model for the chatbot
 

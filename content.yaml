@@ -14,9 +14,10 @@ docs:
 categories:
   allowed:
     - about
-    - undergraduate
-    - graduate
-    - resources
+    - computer-science
+    - artificial-intelligence
+    - cybersecurity
+    - students
     - ignore
 
 templates:

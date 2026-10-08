@@ -29,23 +29,26 @@ _TEMPLATES_DIR = Path(__file__).parent.parent.parent / "templates"
 
 CATEGORY_LABELS = {
     "about": "About",
-    "undergraduate": "Undergraduate",
-    "graduate": "Graduate",
-    "resources": "Resources",
+    "artificial-intelligence": "Artificial Intelligence",
+    "cybersecurity": "Cybersecurity",
+    "computer-science": "Computer Science",
+    "students": "Students",
 }
 
 CATEGORY_ICONS = {
     "about": "🏛️",
-    "undergraduate": "🎓",
-    "graduate": "📚",
-    "resources": "🛟",
+    "artificial-intelligence": "🧠",
+    "cybersecurity": "🛡️",
+    "computer-science": "💻",
+    "students": "🎓",
 }
 
 CATEGORY_ORDER = [
     "about",
-    "undergraduate",
-    "graduate",
-    "resources",
+    "computer-science",
+    "artificial-intelligence",
+    "cybersecurity",
+    "students",
 ]
 
 
