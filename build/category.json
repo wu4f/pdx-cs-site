@@ -16,7 +16,6 @@
   "deprecated-undergraduate-courses": "ignore",
   "discover-cs-cohort": "students",
   "faculty-and-staff-directory": "about",
-  "forms-and-policies": "students",
   "graduate-admission": "students",
   "graduate-courses": "about",
   "graduate-prep-program": "computer-science",
@@ -33,5 +32,6 @@
   "support": "students",
   "transitioning-from-cs-to-ai": "artificial-intelligence",
   "undergraduate-admission": "students",
-  "undergraduate-courses": "about"
+  "undergraduate-courses": "about",
+  "undergraduate-policies": "students"
 }
