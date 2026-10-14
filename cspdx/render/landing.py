@@ -45,8 +45,8 @@ CATEGORY_ICONS = {
 
 CATEGORY_ORDER = [
     "about",
-    "computer-science",
     "artificial-intelligence",
+    "computer-science",
     "cybersecurity",
     "students",
 ]
@@ -56,7 +56,7 @@ def build_nav_groups(
     sections: list[Section],
     exclude_ids: list[str] | None = None,
 ) -> list[tuple[str, list[Section]]]:
-    """Group sections by category in canonical display order, omitting exclude_ids.
+    """Group sections alphabetically by category, omitting exclude_ids.
 
     Within a category, sections keep the order they arrive in — which is source
     order: the Google Doc's own tab order (the Docs API returns `tabs` top-to-bottom
